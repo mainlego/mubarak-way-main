@@ -34,8 +34,6 @@ services:
   - type: web
     name: mubarak-way-frontend
     env: static
-    region: frankfurt
-    plan: free
     buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build
     staticPublishPath: ./frontend/dist
     envVars:
