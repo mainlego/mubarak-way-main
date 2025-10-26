@@ -59,7 +59,7 @@ export class UserService {
       user.photoUrl = telegramData.photo_url;
       user.languageCode = telegramData.language_code;
       user.lastActive = new Date();
-      await user.save();
+      await (user as any).save();
     }
 
     return user;

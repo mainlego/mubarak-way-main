@@ -29,9 +29,9 @@ export class AuthService {
     telegramId: string;
     role: string;
   }): string {
-    return jwt.sign(payload, config.jwtSecret, {
+    return jwt.sign(payload, config.jwtSecret as string, {
       expiresIn: config.jwtExpiresIn,
-    });
+    } as any);
   }
 
   /**
