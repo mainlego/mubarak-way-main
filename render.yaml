@@ -1,0 +1,65 @@
+services:
+  # Backend API Service
+  - type: web
+    name: mubarak-way-backend
+    env: node
+    region: frankfurt
+    plan: free
+    buildCommand: cd backend && npm install --legacy-peer-deps && npm run build
+    startCommand: cd backend && npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://mubarak-way-frontend.onrender.com,https://web.telegram.org
+      - key: RATE_LIMIT_WINDOW_MS
+        value: 60000
+      - key: RATE_LIMIT_MAX_REQUESTS
+        value: 100
+      - key: USE_MOCK_DATA
+        value: false
+    healthCheckPath: /health
+
+  # Frontend Static Site
+  - type: web
+    name: mubarak-way-frontend
+    env: static
+    region: frankfurt
+    plan: free
+    buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build
+    staticPublishPath: ./frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://mubarak-way-backend.onrender.com/api/v1
+      - key: VITE_TELEGRAM_BOT_USERNAME
+        value: MubarakWayBot
+      - key: VITE_QURAN_API_URL
+        value: https://bot.e-replika.ru/api/v1
+      - key: VITE_QURAN_API_TOKEN
+        sync: false
+      - key: VITE_ENV
+        value: production
+    headers:
+      - path: /*
+        name: X-Frame-Options
+        value: SAMEORIGIN
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: X-XSS-Protection
+        value: 1; mode=block
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
