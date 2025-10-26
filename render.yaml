@@ -5,7 +5,7 @@ services:
     env: node
     region: frankfurt
     plan: free
-    buildCommand: cd backend && npm install --legacy-peer-deps && npm run build
+    buildCommand: npm install --legacy-peer-deps && cd shared && npm run build && cd ../backend && npm install --legacy-peer-deps && npm run build
     startCommand: cd backend && npm start
     envVars:
       - key: NODE_ENV
@@ -34,7 +34,7 @@ services:
   - type: web
     name: mubarak-way-frontend
     env: static
-    buildCommand: cd frontend && npm install --legacy-peer-deps && npm run build
+    buildCommand: npm install --legacy-peer-deps && cd shared && npm run build && cd ../frontend && npm install --legacy-peer-deps && npm run build
     staticPublishPath: ./frontend/dist
     envVars:
       - key: VITE_API_URL
