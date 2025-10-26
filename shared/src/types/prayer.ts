@@ -2,6 +2,8 @@
  * Prayer Module Types (Learning, Times, Qibla)
  */
 
+import type { AccessLevel } from './library.js';
+
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha' | 'witr';
 
 export type PrayerType = 'obligatory' | 'optional' | 'special';
