@@ -135,14 +135,22 @@ async function seedQuran() {
 
 async function seedLibrary() {
   console.log('\n📚 Seeding library data...');
-  console.log('ℹ️  Library data will be added manually via Admin panel');
-  // Note: Book and Nashid schemas need to match production data structure
+
+  // Seed Books
+  await Book.insertMany(mockBooks);
+  console.log(`✅ Seeded ${mockBooks.length} books`);
+
+  // Seed Nashids
+  await Nashid.insertMany(mockNashids);
+  console.log(`✅ Seeded ${mockNashids.length} nashids`);
 }
 
 async function seedPrayer() {
   console.log('\n🕌 Seeding prayer data...');
-  console.log('ℹ️  Prayer lessons will be added manually via Admin panel');
-  // Note: Lesson schema needs to match production data structure
+
+  // Seed Prayer Lessons
+  await Lesson.insertMany(mockLessons);
+  console.log(`✅ Seeded ${mockLessons.length} prayer lessons`);
 }
 
 async function seed() {
@@ -163,13 +171,19 @@ async function seed() {
 
     // Display summary
     const counts = {
-      surahs: await Surah.countDocuments(),
       plans: await SubscriptionPlan.countDocuments(),
+      surahs: await Surah.countDocuments(),
+      books: await Book.countDocuments(),
+      nashids: await Nashid.countDocuments(),
+      lessons: await Lesson.countDocuments(),
     };
 
     console.log('📊 Database Summary:');
     console.log(`   Subscription Plans: ${counts.plans}`);
     console.log(`   Surahs: ${counts.surahs}`);
+    console.log(`   Books: ${counts.books}`);
+    console.log(`   Nashids: ${counts.nashids}`);
+    console.log(`   Prayer Lessons: ${counts.lessons}`);
     console.log('');
 
     process.exit(0);
