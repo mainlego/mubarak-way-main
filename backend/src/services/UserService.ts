@@ -100,10 +100,12 @@ export class UserService {
   }): Promise<UserType> {
     const telegramId = telegramData.id.toString();
 
-    let user = await this.findByTelegramId(telegramId);
+    // Check if user exists (without .lean() so we can use .save())
+    let userDoc = await User.findOne({ telegramId });
 
-    if (!user) {
-      user = await this.createUser({
+    if (!userDoc) {
+      // Create new user
+      return await this.createUser({
         telegramId,
         firstName: telegramData.first_name,
         lastName: telegramData.last_name,
@@ -112,17 +114,19 @@ export class UserService {
         languageCode: telegramData.language_code,
       });
     } else {
-      // Update user data
-      user.firstName = telegramData.first_name;
-      user.lastName = telegramData.last_name;
-      user.username = telegramData.username;
-      user.photoUrl = telegramData.photo_url;
-      user.languageCode = telegramData.language_code;
-      user.lastActive = new Date();
-      await (user as any).save();
-    }
+      // Update existing user data
+      userDoc.firstName = telegramData.first_name;
+      userDoc.lastName = telegramData.last_name;
+      userDoc.username = telegramData.username;
+      userDoc.photoUrl = telegramData.photo_url;
+      userDoc.languageCode = telegramData.language_code;
+      userDoc.lastActive = new Date();
+      await userDoc.save();
 
-    return user;
+      // Return with aliases
+      const saved = await User.findById(userDoc._id).lean();
+      return addUserAliases(saved);
+    }
   }
 
   /**

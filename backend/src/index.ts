@@ -10,6 +10,14 @@ validateEnv();
 
 const app = express();
 
+// Trust proxy - required for rate limiting and getting real IP behind reverse proxy (Render, nginx, etc.)
+// This allows express-rate-limit to work correctly with X-Forwarded-For header
+if (config.nodeEnv === 'production') {
+  app.set('trust proxy', 1); // Trust first proxy
+} else {
+  app.set('trust proxy', true); // Trust all proxies in development
+}
+
 // Security middleware
 app.use(helmet({
   contentSecurityPolicy: false, // Disable for development, configure properly in production
