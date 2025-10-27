@@ -1,4 +1,4 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { config } from '../config/env.js';
 import { QuranService } from './QuranService.js';
 import type {
@@ -6,21 +6,22 @@ import type {
   AIExplainVerseRequest,
   AIRecommendBookRequest,
   AISearchRequest,
+  AIResponse,
 } from '@mubarak-way/shared';
 
 export class AIService {
-  private static client: Anthropic | null = null;
+  private static client: OpenAI | null = null;
 
   /**
-   * Initialize Anthropic client
+   * Initialize OpenAI client
    */
-  private static getClient(): Anthropic {
+  private static getClient(): OpenAI {
     if (!this.client) {
-      if (!config.anthropicApiKey) {
-        throw new Error('ANTHROPIC_API_KEY not configured');
+      if (!config.openaiApiKey) {
+        throw new Error('OPENAI_API_KEY not configured');
       }
-      this.client = new Anthropic({
-        apiKey: config.anthropicApiKey,
+      this.client = new OpenAI({
+        apiKey: config.openaiApiKey,
       });
     }
     return this.client;
@@ -29,14 +30,26 @@ export class AIService {
   /**
    * Ask general question about Quran/Islam
    */
-  static async ask(request: AIAskRequest): Promise<string> {
+  static async ask(request: AIAskRequest): Promise<AIResponse> {
     const client = this.getClient();
 
-    let systemPrompt = `You are a knowledgeable Islamic scholar and assistant.
-You provide accurate, respectful, and helpful information about the Quran, Islam, and Islamic practices.
-Always cite relevant Quranic verses when applicable.
-Be concise but thorough in your explanations.
-Language: ${request.language || 'Russian'}`;
+    let systemPrompt = `Вы - исламский наставник по изучению Корана.
+Ваша задача - помогать людям понять Коран, давая ответы СТРОГО на основе текста Корана и достоверных хадисов.
+Всегда цитируйте конкретные аяты с указанием суры и номера.
+Не давайте общие советы - только то, что подтверждено священными текстами.
+
+ОБЯЗАТЕЛЬНЫЙ ФОРМАТ ОТВЕТА:
+
+🤖 **Ответ:**
+
+## [Заголовок темы]
+
+[Основной текст ответа]
+
+**Источник:**
+– **Коран, сура [номер], аят [номер]**
+
+Язык ответа: ${request.language || 'Русский'}`;
 
     let userMessage = request.question;
 
@@ -49,18 +62,22 @@ Language: ${request.language || 'Russian'}`;
       );
 
       if (ayah) {
-        userMessage += `\n\nContext: Surah ${request.context.surahNumber}, Ayah ${request.context.ayahNumber}:\n${ayah.textArabic}`;
+        userMessage += `\n\nКонтекст: Сура ${request.context.surahNumber}, Аят ${request.context.ayahNumber}:\n${ayah.textArabic}`;
         if (ayah.translations[0]) {
-          userMessage += `\nTranslation: ${ayah.translations[0].text}`;
+          userMessage += `\nПеревод: ${ayah.translations[0].text}`;
         }
       }
     }
 
-    const response = await client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1024,
-      system: systemPrompt,
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 1500,
+      temperature: 0.7,
       messages: [
+        {
+          role: 'system',
+          content: systemPrompt,
+        },
         {
           role: 'user',
           content: userMessage,
@@ -68,14 +85,19 @@ Language: ${request.language || 'Russian'}`;
       ],
     });
 
-    const textContent = response.content.find((c) => c.type === 'text');
-    return textContent?.type === 'text' ? textContent.text : '';
+    const answer = response.choices[0]?.message?.content || '';
+
+    return {
+      answer,
+      sources: [],
+      relatedVerses: [],
+    };
   }
 
   /**
    * Explain a specific verse
    */
-  static async explainVerse(request: AIExplainVerseRequest): Promise<string> {
+  static async explainVerse(request: AIExplainVerseRequest): Promise<AIResponse> {
     const client = this.getClient();
 
     const ayah = await QuranService.getAyah(
@@ -90,22 +112,33 @@ Language: ${request.language || 'Russian'}`;
 
     const detailLevel = request.detailLevel || 'detailed';
     const levelInstructions = {
-      brief: 'Explain this verse briefly and concisely.',
-      medium: 'Provide a moderate explanation with key context.',
-      detailed: 'Provide a detailed explanation with context and scholarly insights.',
+      brief: 'Объясните этот аят кратко и ясно.',
+      medium: 'Предоставьте умеренное объяснение с ключевым контекстом.',
+      detailed: 'Предоставьте подробное объяснение с контекстом и научными выводами.',
     };
 
-    const systemPrompt = `You are an expert in Quranic tafsir (exegesis).
+    const systemPrompt = `Вы - эксперт по коранической тафсир (толкованию).
 ${levelInstructions[detailLevel]}
-Language: ${request.language || 'Russian'}`;
 
-    const userMessage = `Explain this verse:\n\nSurah ${request.surahNumber}, Ayah ${request.ayahNumber}:\n${ayah.textArabic}\n\nTranslation: ${ayah.translations[0]?.text || 'N/A'}`;
+ВАЖНО:
+- Используйте точные цитаты из Корана
+- Указывайте источники в формате: **Коран, сура X, аят Y**
+- Объясняйте контекст и историю откровения (если известно)
+- Будьте точны и уважительны к священному тексту
 
-    const response = await client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 1024,
-      system: systemPrompt,
+Язык ответа: ${request.language || 'Русский'}`;
+
+    const userMessage = `Объясните этот аят:\n\nСура ${request.surahNumber}, Аят ${request.ayahNumber}:\n${ayah.textArabic}\n\nПеревод: ${ayah.translations[0]?.text || 'Н/Д'}`;
+
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 1500,
+      temperature: 0.7,
       messages: [
+        {
+          role: 'system',
+          content: systemPrompt,
+        },
         {
           role: 'user',
           content: userMessage,
@@ -113,34 +146,55 @@ Language: ${request.language || 'Russian'}`;
       ],
     });
 
-    const textContent = response.content.find((c) => c.type === 'text');
-    return textContent?.type === 'text' ? textContent.text : '';
+    const explanation = response.choices[0]?.message?.content || '';
+
+    return {
+      answer: explanation,
+      sources: [
+        {
+          type: 'quran',
+          reference: `Сура ${request.surahNumber}, Аят ${request.ayahNumber}`,
+          text: ayah.textArabic,
+        },
+      ],
+      relatedVerses: [
+        {
+          surahNumber: request.surahNumber,
+          ayahNumber: request.ayahNumber,
+          text: ayah.translations[0]?.text || '',
+        },
+      ],
+    };
   }
 
   /**
    * Recommend books based on user interests
    */
-  static async recommendBooks(request: AIRecommendBookRequest): Promise<string> {
+  static async recommendBooks(request: AIRecommendBookRequest): Promise<AIResponse> {
     const client = this.getClient();
 
-    const systemPrompt = `You are a knowledgeable librarian specializing in Islamic literature.
-Recommend relevant Islamic books based on user interests.
-Be concise and explain why each book is recommended.
-Language: ${request.language || 'Russian'}`;
+    const systemPrompt = `Вы - знающий библиотекарь, специализирующийся на исламской литературе.
+Рекомендуйте соответствующие исламские книги на основе интересов пользователя.
+Будьте лаконичны и объясняйте, почему каждая книга рекомендована.
+Язык ответа: ${request.language || 'Русский'}`;
 
-    let userMessage = 'Recommend Islamic books';
+    let userMessage = 'Порекомендуйте исламские книги';
     if (request.interests && request.interests.length > 0) {
-      userMessage += ` related to: ${request.interests.join(', ')}`;
+      userMessage += ` по темам: ${request.interests.join(', ')}`;
     }
     if (request.readBooks && request.readBooks.length > 0) {
-      userMessage += `\n\nI have already read books with IDs: ${request.readBooks.join(', ')}`;
+      userMessage += `\n\nЯ уже прочитал книги с ID: ${request.readBooks.join(', ')}`;
     }
 
-    const response = await client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 512,
-      system: systemPrompt,
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 800,
+      temperature: 0.8,
       messages: [
+        {
+          role: 'system',
+          content: systemPrompt,
+        },
         {
           role: 'user',
           content: userMessage,
@@ -148,28 +202,37 @@ Language: ${request.language || 'Russian'}`;
       ],
     });
 
-    const textContent = response.content.find((c) => c.type === 'text');
-    return textContent?.type === 'text' ? textContent.text : '';
+    const answer = response.choices[0]?.message?.content || '';
+
+    return {
+      answer,
+      sources: [],
+      relatedVerses: [],
+    };
   }
 
   /**
    * Smart search across all content
    */
-  static async search(request: AISearchRequest): Promise<string> {
+  static async search(request: AISearchRequest): Promise<AIResponse> {
     const client = this.getClient();
 
-    const systemPrompt = `You are a smart search assistant for an Islamic digital platform.
-Help users find relevant content (Quran verses, books, lessons) based on their query.
-Provide specific references and suggestions.
-Language: ${request.language || 'Russian'}`;
+    const systemPrompt = `Вы - умный поисковый ассистент для исламской цифровой платформы.
+Помогайте пользователям находить релевантный контент (аяты Корана, книги, уроки) на основе их запроса.
+Предоставляйте конкретные ссылки и предложения.
+Язык ответа: ${request.language || 'Русский'}`;
 
-    const userMessage = `Search query: ${request.query}\nContent type: ${request.type}`;
+    const userMessage = `Поисковый запрос: ${request.query}\nТип контента: ${request.type}`;
 
-    const response = await client.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
-      max_tokens: 512,
-      system: systemPrompt,
+    const response = await client.chat.completions.create({
+      model: 'gpt-4o-mini',
+      max_tokens: 800,
+      temperature: 0.7,
       messages: [
+        {
+          role: 'system',
+          content: systemPrompt,
+        },
         {
           role: 'user',
           content: userMessage,
@@ -177,7 +240,12 @@ Language: ${request.language || 'Russian'}`;
       ],
     });
 
-    const textContent = response.content.find((c) => c.type === 'text');
-    return textContent?.type === 'text' ? textContent.text : '';
+    const answer = response.choices[0]?.message?.content || '';
+
+    return {
+      answer,
+      sources: [],
+      relatedVerses: [],
+    };
   }
 }

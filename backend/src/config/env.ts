@@ -19,7 +19,8 @@ export const config = {
   jwtSecret: process.env.JWT_SECRET || 'change-this-secret-in-production',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '7d',
 
-  // Anthropic AI
+  // AI Services
+  openaiApiKey: process.env.OPENAI_API_KEY || '',
   anthropicApiKey: process.env.ANTHROPIC_API_KEY || '',
 
   // Elasticsearch

@@ -9,3 +9,4 @@ export { default as Book } from './Book.js';
 export { default as Nashid } from './Nashid.js';
 export { default as Lesson } from './Lesson.js';
 export { default as SubscriptionPlan } from './SubscriptionPlan.js';
+export { default as Conversation } from './Conversation.js';
