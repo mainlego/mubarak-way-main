@@ -78,6 +78,7 @@ import aiRoutes from './routes/ai.js';
 import webhookRoutes from './routes/webhook.js';
 import bookmarkRoutes from './routes/bookmark.js';
 import searchHistoryRoutes from './routes/searchHistory.js';
+import adminRoutes from './routes/admin.js';
 // import subscriptionRoutes from './routes/subscription.js';
 
 // Use routes
@@ -88,6 +89,7 @@ app.use('/api/v1/prayer', prayerRoutes);
 app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/bookmarks', bookmarkRoutes);
 app.use('/api/v1/search-history', searchHistoryRoutes);
+app.use('/api/v1/admin', adminRoutes);
 app.use('/webhook', webhookRoutes);
 // app.use('/api/v1/subscription', subscriptionRoutes);
 

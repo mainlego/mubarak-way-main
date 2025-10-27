@@ -123,7 +123,7 @@ export const validateJWT = (req: Request, res: Response, next: NextFunction) => 
 };
 
 /**
- * Check if user is admin
+ * Check if user is admin (for JWT-based auth)
  */
 export const requireAdmin = (req: Request, res: Response, next: NextFunction) => {
   if (req.user?.role !== 'admin') {
@@ -136,6 +136,125 @@ export const requireAdmin = (req: Request, res: Response, next: NextFunction) =>
     });
   }
   next();
+};
+
+/**
+ * Check if Telegram user has admin role in database
+ * Must be used after validateTelegramAuth
+ */
+export const requireTelegramAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.telegramUser) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
+      });
+    }
+
+    // Import User model dynamically to avoid circular dependencies
+    const { default: UserModel } = await import('../models/User.js');
+
+    const user = await UserModel.findOne({ telegramId: req.telegramUser.id.toString() });
+
+    if (!user) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'User not found',
+        },
+      });
+    }
+
+    if (user.role !== 'admin') {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'Admin access required',
+        },
+      });
+    }
+
+    // Attach user to request for later use
+    req.user = {
+      id: user._id.toString(),
+      telegramId: user.telegramId,
+      role: user.role,
+    };
+
+    next();
+  } catch (error) {
+    console.error('Admin check error:', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to verify admin access',
+      },
+    });
+  }
+};
+
+/**
+ * Check if Telegram user has moderator or admin role
+ */
+export const requireModerator = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    if (!req.telegramUser) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication required',
+        },
+      });
+    }
+
+    const { default: UserModel } = await import('../models/User.js');
+
+    const user = await UserModel.findOne({ telegramId: req.telegramUser.id.toString() });
+
+    if (!user) {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'User not found',
+        },
+      });
+    }
+
+    if (user.role !== 'admin' && user.role !== 'moderator') {
+      return res.status(403).json({
+        success: false,
+        error: {
+          code: 'FORBIDDEN',
+          message: 'Moderator or admin access required',
+        },
+      });
+    }
+
+    req.user = {
+      id: user._id.toString(),
+      telegramId: user.telegramId,
+      role: user.role,
+    };
+
+    next();
+  } catch (error) {
+    console.error('Moderator check error:', error);
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to verify moderator access',
+      },
+    });
+  }
 };
 
 // Extend Express Request type
