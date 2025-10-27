@@ -16,6 +16,7 @@ export default function SurahReaderPage() {
   const [translationLanguage, setTranslationLanguage] = useState(i18n.language);
   const [fontSize, setFontSize] = useState<'small' | 'medium' | 'large'>('medium');
   const [playingAudio, setPlayingAudio] = useState(false);
+  const [showSimplified, setShowSimplified] = useState(user?.preferences?.showSimplifiedArabic ?? false);
 
   useEffect(() => {
     if (surahNumber) {
@@ -114,6 +115,14 @@ export default function SurahReaderPage() {
             {showTranslation ? '🌐 Hide Translation' : '🌐 Show Translation'}
           </Button>
 
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => setShowSimplified(!showSimplified)}
+          >
+            {showSimplified ? 'ﭐ Full Arabic' : 'ﭐ Simplified'}
+          </Button>
+
           <select
             value={fontSize}
             onChange={(e) => setFontSize(e.target.value as any)}
@@ -174,7 +183,7 @@ export default function SurahReaderPage() {
 
               {/* Arabic Text */}
               <div className={`text-right font-arabic ${getFontSizeClass()} leading-relaxed text-gray-900 dark:text-white mb-4 pt-12`}>
-                {ayah.textArabic}
+                {showSimplified ? ayah.textSimple : ayah.textArabic}
               </div>
 
               {/* Translation */}

@@ -58,6 +58,7 @@ export interface UserPreferences {
   theme: 'light' | 'dark';
   fontSize: 'small' | 'medium' | 'large';
   notifications: boolean;
+  showSimplifiedArabic: boolean;
 }
 
 export interface ReadingProgress {

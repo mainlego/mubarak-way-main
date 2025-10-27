@@ -99,6 +99,10 @@ const userSchema = new Schema<User>(
         type: Boolean,
         default: true,
       },
+      showSimplifiedArabic: {
+        type: Boolean,
+        default: false,
+      },
     },
 
     // Prayer settings
