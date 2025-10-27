@@ -39,6 +39,7 @@ import SettingsPage from '@pages/SettingsPage';
 
 // Widgets
 import BottomNav from '@widgets/BottomNav';
+import DebugPanel from '@widgets/DebugPanel';
 
 function App() {
   const { login } = useUserStore();
@@ -109,6 +110,9 @@ function App() {
 
         {/* Bottom Navigation */}
         <BottomNav />
+
+        {/* Debug Panel (only in development or when needed) */}
+        <DebugPanel />
       </div>
     </BrowserRouter>
   );
