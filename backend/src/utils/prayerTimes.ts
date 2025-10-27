@@ -4,7 +4,7 @@
  * Supports 12 different calculation methods used worldwide
  */
 
-const adhan = require('adhan');
+import * as adhan from 'adhan';
 import type {
   PrayerCalculationMethod,
   Madhab,
@@ -110,7 +110,7 @@ export function calculatePrayerTimes(
     const prayerTimes = new adhan.PrayerTimes(coordinates, date, calculationParams);
 
     // Calculate Qibla direction
-    const qibla = new adhan.Qibla(coordinates);
+    const qibla = adhan.Qibla(coordinates) as any;
 
     // Get current and next prayer
     const now = new Date();
@@ -284,7 +284,7 @@ export function getCalculationMethods() {
  */
 export function calculateQibla(latitude: number, longitude: number): number {
   const coordinates = new adhan.Coordinates(latitude, longitude);
-  const qibla = new adhan.Qibla(coordinates);
+  const qibla = adhan.Qibla(coordinates) as any;
   return qibla.direction;
 }
 
