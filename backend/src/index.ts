@@ -75,6 +75,7 @@ import quranRoutes from './routes/quran.js';
 import libraryRoutes from './routes/library.js';
 import prayerRoutes from './routes/prayer.js';
 import aiRoutes from './routes/ai.js';
+import webhookRoutes from './routes/webhook.js';
 // import subscriptionRoutes from './routes/subscription.js';
 
 // Use routes
@@ -83,6 +84,7 @@ app.use('/api/v1/quran', quranRoutes);
 app.use('/api/v1/library', libraryRoutes);
 app.use('/api/v1/prayer', prayerRoutes);
 app.use('/api/v1/ai', aiRoutes);
+app.use('/webhook', webhookRoutes);
 // app.use('/api/v1/subscription', subscriptionRoutes);
 
 // 404 handler
@@ -110,6 +112,9 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
   });
 });
 
+// Import bot
+import { startBot } from './bot/index.js';
+
 // Start server
 const startServer = async () => {
   try {
@@ -120,8 +125,17 @@ const startServer = async () => {
       console.log('⚠️  Using mock data - MongoDB connection skipped');
     }
 
-    // TODO: Initialize Telegram bot
-    // await initBot();
+    // Initialize Telegram bot
+    if (config.telegramBotToken) {
+      try {
+        await startBot();
+      } catch (error) {
+        console.error('⚠️  Failed to start Telegram bot:', error);
+        console.log('⚠️  Continuing without Telegram bot...');
+      }
+    } else {
+      console.log('⚠️  TELEGRAM_BOT_TOKEN not set - bot disabled');
+    }
 
     // Start Express server
     app.listen(config.port, () => {
@@ -133,6 +147,7 @@ const startServer = async () => {
 🌐 Health check: http://localhost:${config.port}/health
 📋 API status: http://localhost:${config.port}/api/v1/status
 ${process.env.USE_MOCK_DATA === 'true' ? '⚠️  Mode: MOCK DATA (no database)' : '✅ Mode: DATABASE CONNECTED'}
+🤖 Telegram Bot: ${config.telegramBotToken ? 'ENABLED' : 'DISABLED'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       `);
     });
