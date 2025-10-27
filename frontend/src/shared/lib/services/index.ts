@@ -8,3 +8,4 @@ export * from './libraryService';
 export * from './prayerService';
 export * from './aiService';
 export * from './bookmarkService';
+export * from './searchHistoryService';

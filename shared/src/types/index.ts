@@ -17,6 +17,9 @@ export * from './prayer';
 // Bookmark types
 export * from './bookmark';
 
+// Search History types
+export * from './searchHistory';
+
 // Subscription types
 export * from './subscription';
 
