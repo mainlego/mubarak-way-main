@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useUserStore } from '@shared/store';
+import { useUserStore, usePrayerStore } from '@shared/store';
 import { Card, Button, Spinner } from '@shared/ui';
 
 interface PrayerTime {
@@ -14,29 +14,30 @@ export default function PrayerTimesPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { user } = useUserStore();
+  const { prayerTimes: apiPrayerTimes, calculatePrayerTimes, isLoading: storeLoading, error: storeError } = usePrayerStore();
 
-  const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [locationName, setLocationName] = useState<string>('');
   const [prayerTimes, setPrayerTimes] = useState<PrayerTime[]>([]);
   const [nextPrayer, setNextPrayer] = useState<PrayerTime | null>(null);
+  const [timeUntilNext, setTimeUntilNext] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Get location from user settings or browser
-    if (user?.location) {
-      setLocation({ lat: user.location.latitude, lon: user.location.longitude });
-      setLocationName(user.location.city || '');
+    if (user?.prayerSettings?.location) {
+      const loc = user.prayerSettings.location;
+      setLocationName(loc.city || `${loc.latitude.toFixed(2)}, ${loc.longitude.toFixed(2)}`);
+      fetchPrayerTimes(loc.latitude, loc.longitude, loc.city, loc.country);
     } else {
       // Request geolocation
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
           (position) => {
-            setLocation({
-              lat: position.coords.latitude,
-              lon: position.coords.longitude,
-            });
-            fetchLocationName(position.coords.latitude, position.coords.longitude);
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            setLocationName(`${lat.toFixed(2)}, ${lon.toFixed(2)}`);
+            fetchPrayerTimes(lat, lon);
           },
           (err) => {
             console.error('Geolocation error:', err);
@@ -51,69 +52,113 @@ export default function PrayerTimesPage() {
     }
   }, [user, t]);
 
+  // Process API prayer times when available
   useEffect(() => {
-    if (location) {
-      fetchPrayerTimes();
-    }
-  }, [location]);
-
-  const fetchLocationName = async (lat: number, lon: number) => {
-    try {
-      // In production, use reverse geocoding API
-      setLocationName(`${lat.toFixed(2)}, ${lon.toFixed(2)}`);
-    } catch (err) {
-      console.error('Error fetching location name:', err);
-    }
-  };
-
-  const fetchPrayerTimes = async () => {
-    if (!location) return;
-
-    try {
-      setIsLoading(true);
-      setError(null);
-
-      // In production, call backend API to get prayer times
-      // For now, generate mock data
+    if (apiPrayerTimes) {
       const now = new Date();
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-
       const times: PrayerTime[] = [
         {
           name: t('prayer.fajr'),
-          time: '05:30',
-          isPassed: currentHour > 5 || (currentHour === 5 && currentMinute >= 30),
+          time: formatTime(new Date(apiPrayerTimes.fajr)),
+          isPassed: new Date(apiPrayerTimes.fajr) < now,
         },
         {
           name: t('prayer.dhuhr'),
-          time: '13:00',
-          isPassed: currentHour >= 13,
+          time: formatTime(new Date(apiPrayerTimes.dhuhr)),
+          isPassed: new Date(apiPrayerTimes.dhuhr) < now,
         },
         {
           name: t('prayer.asr'),
-          time: '16:30',
-          isPassed: currentHour > 16 || (currentHour === 16 && currentMinute >= 30),
+          time: formatTime(new Date(apiPrayerTimes.asr)),
+          isPassed: new Date(apiPrayerTimes.asr) < now,
         },
         {
           name: t('prayer.maghrib'),
-          time: '19:15',
-          isPassed: currentHour > 19 || (currentHour === 19 && currentMinute >= 15),
+          time: formatTime(new Date(apiPrayerTimes.maghrib)),
+          isPassed: new Date(apiPrayerTimes.maghrib) < now,
         },
         {
           name: t('prayer.isha'),
-          time: '20:45',
-          isPassed: currentHour > 20 || (currentHour === 20 && currentMinute >= 45),
+          time: formatTime(new Date(apiPrayerTimes.isha)),
+          isPassed: new Date(apiPrayerTimes.isha) < now,
         },
       ];
 
       setPrayerTimes(times);
 
-      // Find next prayer
-      const next = times.find(t => !t.isPassed);
-      setNextPrayer(next || times[0]); // If all passed, next is Fajr tomorrow
+      // Set next prayer from API
+      if (apiPrayerTimes.nextPrayer) {
+        const nextTime = formatTime(new Date(apiPrayerTimes.nextPrayer.time));
+        const nextName = t(`prayer.${apiPrayerTimes.nextPrayer.name}`);
+        setNextPrayer({ name: nextName, time: nextTime, isPassed: false });
+        setTimeUntilNext(apiPrayerTimes.nextPrayer.timeRemaining.formatted);
+      } else {
+        // Find next prayer manually
+        const next = times.find(t => !t.isPassed);
+        setNextPrayer(next || times[0]);
+      }
 
       setIsLoading(false);
+    }
+  }, [apiPrayerTimes, t]);
+
+  // Update time until next prayer every minute
+  useEffect(() => {
+    if (!nextPrayer) return;
+
+    const interval = setInterval(() => {
+      if (apiPrayerTimes?.nextPrayer) {
+        setTimeUntilNext(calculateTimeRemaining(apiPrayerTimes.nextPrayer.time));
+      }
+    }, 60000); // Update every minute
+
+    return () => clearInterval(interval);
+  }, [nextPrayer, apiPrayerTimes]);
+
+  const formatTime = (date: Date): string => {
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    });
+  };
+
+  const calculateTimeRemaining = (targetTime: string | Date): string => {
+    const now = new Date();
+    const target = new Date(targetTime);
+    const diff = target.getTime() - now.getTime();
+
+    if (diff <= 0) return '0m';
+
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (hours > 0) {
+      return `${hours}${t('common.hour')} ${minutes}${t('common.minute')}`;
+    }
+    return `${minutes}${t('common.minute')}`;
+  };
+
+  const fetchPrayerTimes = async (
+    latitude: number,
+    longitude: number,
+    city?: string,
+    country?: string
+  ) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      // Get calculation method and madhab from user settings
+      const params = {
+        calculationMethod: user?.prayerSettings?.calculationMethod || 'MuslimWorldLeague',
+        madhab: user?.prayerSettings?.madhab || 'hanafi',
+      };
+
+      await calculatePrayerTimes(
+        { latitude, longitude, city, country },
+        params
+      );
     } catch (err: any) {
       console.error('Error fetching prayer times:', err);
       setError(err.message || t('errors.serverError'));
@@ -208,7 +253,7 @@ export default function PrayerTimesPage() {
             <h2 className="text-3xl font-bold mb-2">{nextPrayer.name}</h2>
             <p className="text-4xl font-bold mb-2">{nextPrayer.time}</p>
             <p className="text-sm opacity-90">
-              {t('prayer.in', { defaultValue: 'in' })} {getTimeUntilPrayer(nextPrayer.time)}
+              {t('prayer.in', { defaultValue: 'in' })} {timeUntilNext || getTimeUntilPrayer(nextPrayer.time)}
             </p>
           </div>
         </Card>

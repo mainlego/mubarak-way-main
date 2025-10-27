@@ -1,35 +1,45 @@
 import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { usePrayerStore } from '@shared/store';
 import { Card, Button, Spinner } from '@shared/ui';
 
 export default function QiblaPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { qibla, calculateQibla } = usePrayerStore();
 
   const [location, setLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [heading, setHeading] = useState<number>(0); // Device heading
   const [qiblaDirection, setQiblaDirection] = useState<number>(0); // Qibla direction from north
+  const [distance, setDistance] = useState<number>(0); // Distance to Kaaba in km
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasCompass, setHasCompass] = useState(false);
 
   const compassRef = useRef<HTMLDivElement>(null);
 
-  // Kaaba coordinates
-  const KAABA = { lat: 21.4225, lon: 39.8262 };
-
   useEffect(() => {
     // Request geolocation
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
+        async (position) => {
           const userLocation = {
             lat: position.coords.latitude,
             lon: position.coords.longitude,
           };
           setLocation(userLocation);
-          calculateQiblaDirection(userLocation);
+
+          // Calculate Qibla using API
+          try {
+            await calculateQibla({
+              latitude: userLocation.lat,
+              longitude: userLocation.lon
+            });
+          } catch (err) {
+            console.error('Failed to calculate Qibla:', err);
+          }
+
           setIsLoading(false);
         },
         (err) => {
@@ -63,28 +73,15 @@ export default function QiblaPage() {
     return () => {
       window.removeEventListener('deviceorientation', handleOrientation);
     };
-  }, []);
+  }, [calculateQibla]);
 
-  const calculateQiblaDirection = (userLocation: { lat: number; lon: number }) => {
-    // Calculate bearing from user location to Kaaba using Haversine formula
-    const lat1 = toRadians(userLocation.lat);
-    const lon1 = toRadians(userLocation.lon);
-    const lat2 = toRadians(KAABA.lat);
-    const lon2 = toRadians(KAABA.lon);
-
-    const dLon = lon2 - lon1;
-
-    const y = Math.sin(dLon) * Math.cos(lat2);
-    const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
-
-    let bearing = toDegrees(Math.atan2(y, x));
-    bearing = (bearing + 360) % 360; // Normalize to 0-360
-
-    setQiblaDirection(bearing);
-  };
-
-  const toRadians = (degrees: number) => degrees * (Math.PI / 180);
-  const toDegrees = (radians: number) => radians * (180 / Math.PI);
+  // Update Qibla direction and distance when API data is available
+  useEffect(() => {
+    if (qibla) {
+      setQiblaDirection(qibla.direction);
+      setDistance(qibla.distance);
+    }
+  }, [qibla]);
 
   const startCompass = () => {
     setHasCompass(true);
@@ -115,26 +112,14 @@ export default function QiblaPage() {
   const needleRotation = hasCompass ? qiblaDirection - heading : qiblaDirection;
 
   const getDistance = (): string => {
+    // Use distance from API if available, otherwise show loading
+    if (distance > 0) {
+      return `${distance.toFixed(0)} km`;
+    }
+
     if (!location) return '';
 
-    // Calculate distance using Haversine formula
-    const R = 6371; // Earth's radius in km
-    const lat1 = toRadians(location.lat);
-    const lon1 = toRadians(location.lon);
-    const lat2 = toRadians(KAABA.lat);
-    const lon2 = toRadians(KAABA.lon);
-
-    const dLat = lat2 - lat1;
-    const dLon = lon2 - lon1;
-
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
-
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
-
-    return `${Math.round(distance)} km`;
+    return t('common.calculating', { defaultValue: 'Calculating...' });
   };
 
   if (isLoading) {
