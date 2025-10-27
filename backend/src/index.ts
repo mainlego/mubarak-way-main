@@ -76,6 +76,7 @@ import libraryRoutes from './routes/library.js';
 import prayerRoutes from './routes/prayer.js';
 import aiRoutes from './routes/ai.js';
 import webhookRoutes from './routes/webhook.js';
+import bookmarkRoutes from './routes/bookmark.js';
 // import subscriptionRoutes from './routes/subscription.js';
 
 // Use routes
@@ -84,6 +85,7 @@ app.use('/api/v1/quran', quranRoutes);
 app.use('/api/v1/library', libraryRoutes);
 app.use('/api/v1/prayer', prayerRoutes);
 app.use('/api/v1/ai', aiRoutes);
+app.use('/api/v1/bookmarks', bookmarkRoutes);
 app.use('/webhook', webhookRoutes);
 // app.use('/api/v1/subscription', subscriptionRoutes);
 

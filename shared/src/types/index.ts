@@ -14,6 +14,9 @@ export * from './library';
 // Prayer types
 export * from './prayer';
 
+// Bookmark types
+export * from './bookmark';
+
 // Subscription types
 export * from './subscription';
 

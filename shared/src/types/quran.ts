@@ -63,16 +63,6 @@ export interface QuranSearchResult {
   relevanceScore: number;
 }
 
-export interface Bookmark {
-  _id: string;
-  userId: string;
-  type: 'ayah' | 'surah';
-  surahNumber: number;
-  ayahNumber?: number;
-  note?: string;
-  createdAt: Date;
-}
-
 export interface AIResponse {
   _id: string;
   userId: string;
