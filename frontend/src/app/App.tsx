@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { initTelegramSDK } from '@shared/lib/telegram';
+import { initTelegramSDK, isTelegram } from '@shared/lib/telegram';
+import { useUserStore } from '@shared/store';
 
 // Pages
 import HomePage from '@pages/HomePage';
@@ -40,16 +41,32 @@ import SettingsPage from '@pages/SettingsPage';
 import BottomNav from '@widgets/BottomNav';
 
 function App() {
-  useEffect(() => {
-    // Initialize Telegram WebApp SDK
-    initTelegramSDK();
+  const { login } = useUserStore();
 
-    // Set theme based on Telegram theme
-    const isDark = window.Telegram?.WebApp?.colorScheme === 'dark';
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+  useEffect(() => {
+    const initializeApp = async () => {
+      // Initialize Telegram WebApp SDK
+      initTelegramSDK();
+
+      // Set theme based on Telegram theme
+      const isDark = window.Telegram?.WebApp?.colorScheme === 'dark';
+      if (isDark) {
+        document.documentElement.classList.add('dark');
+      }
+
+      // Auto-login if in Telegram
+      if (isTelegram()) {
+        try {
+          await login();
+          console.log('✅ Auto-login successful');
+        } catch (error) {
+          console.error('❌ Auto-login failed:', error);
+        }
+      }
+    };
+
+    initializeApp();
+  }, [login]);
 
   return (
     <BrowserRouter>
