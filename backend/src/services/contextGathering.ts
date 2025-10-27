@@ -8,11 +8,13 @@ const openai = new OpenAI({
 });
 
 export interface QueryAnalysis {
-  intent: 'question' | 'explanation' | 'search' | 'general';
+  intent: 'question' | 'explanation' | 'search' | 'guidance' | 'general';
   topics: string[];
   mentioned_surahs: number[];
   mentioned_ayahs: Array<{ surah: number; ayah: number }>;
   keywords: string[];
+  synonyms: string[];
+  arabicKeywords: string[];
   language: string;
 }
 
@@ -35,19 +37,48 @@ export interface GatheredContext {
  */
 export async function analyzeUserQuery(query: string): Promise<QueryAnalysis> {
   try {
-    const systemPrompt = `Ты - аналитик исламских запросов. Проанализируй запрос пользователя и верни JSON с:
-- intent: "question" (вопрос), "explanation" (объяснение), "search" (поиск), "general" (общее)
-- topics: массив тем (например, ["молитва", "пост", "закят"])
-- mentioned_surahs: номера упомянутых сур (например, [2, 3])
-- mentioned_ayahs: упомянутые аяты в формате [{surah: 2, ayah: 155}]
-- keywords: ключевые слова для поиска
-- language: "ru", "en", или "ar"
+    const systemPrompt = `Ты - эксперт по исламским запросам. Проанализируй запрос пользователя максимально глубоко и верни JSON с:
 
-Отвечай только JSON, без дополнительного текста.`;
+- intent: тип запроса
+  * "question" - если пользователь задает вопрос о религии (Что? Как? Почему? Разрешено ли?)
+  * "explanation" - если просит объяснить аят, суру или термин
+  * "search" - если ищет конкретный аят по теме (найди, покажи, где говорится)
+  * "guidance" - если просит совет, наставление (как мне поступить, помоги разобраться)
+  * "general" - общая беседа
+
+- topics: массив главных тем из запроса (на русском)
+  Примеры: ["молитва", "намаз"], ["пост", "рамадан"], ["терпение", "испытания"], ["закят", "милостыня"]
+
+- mentioned_surahs: массив номеров сур, если упоминаются (например, [2, 3, 5])
+
+- mentioned_ayahs: массив объектов {surah: число, ayah: число} если упоминаются конкретные аяты
+
+- keywords: ключевые слова из запроса на оригинальном языке (2-5 слов)
+  Извлекай ТОЛЬКО важные существительные и глаголы, убирай служебные слова
+
+- synonyms: синонимы и связанные слова для keywords (3-5 синонимов на каждое ключевое слово)
+  Примеры:
+  * "терпение" → ["сабр", "стойкость", "выдержка", "терпеливость"]
+  * "молитва" → ["намаз", "салят", "поклонение", "дуа"]
+  * "пост" → ["ураза", "савм", "воздержание"]
+
+- arabicKeywords: арабские транслитерации ключевых слов (для поиска в Коране)
+  Используй стандартную транслитерацию:
+  * "терпение" → ["sabr", "صبر"]
+  * "молитва" → ["salat", "salah", "صلاة"]
+  * "пост" → ["sawm", "siyam", "صوم"]
+  * "милостыня" → ["zakat", "zakah", "زكاة"]
+  * "вера" → ["iman", "إيمان"]
+
+- language: язык запроса ("ru", "en", "ar", "uz", "kk", "tr")
+
+ВАЖНО: Будь максимально точен в извлечении ключевых слов и синонимов - от этого зависит качество поиска аятов!
+
+Отвечай ТОЛЬКО валидным JSON, без дополнительного текста.`;
 
     const response = await openai.chat.completions.create({
       model: 'gpt-4o-mini',
-      max_tokens: 500,
+      max_tokens: 800,
       temperature: 0.3,
       messages: [
         { role: 'system', content: systemPrompt },
@@ -64,6 +95,8 @@ export async function analyzeUserQuery(query: string): Promise<QueryAnalysis> {
       mentioned_surahs: analysis.mentioned_surahs || [],
       mentioned_ayahs: analysis.mentioned_ayahs || [],
       keywords: analysis.keywords || [],
+      synonyms: analysis.synonyms || [],
+      arabicKeywords: analysis.arabicKeywords || [],
       language: analysis.language || 'ru',
     };
   } catch (error) {
@@ -74,6 +107,8 @@ export async function analyzeUserQuery(query: string): Promise<QueryAnalysis> {
       mentioned_surahs: [],
       mentioned_ayahs: [],
       keywords: [],
+      synonyms: [],
+      arabicKeywords: [],
       language: 'ru',
     };
   }
@@ -116,7 +151,16 @@ export async function gatherContext(
     // 2. Семантический поиск через Elasticsearch (если доступен)
     if (analysis.keywords && analysis.keywords.length > 0) {
       try {
-        const searchQuery = analysis.keywords.join(' ');
+        // Объединяем keywords + synonyms + arabicKeywords для более широкого поиска
+        const allSearchTerms = [
+          ...analysis.keywords,
+          ...analysis.synonyms,
+          ...analysis.arabicKeywords,
+        ].filter(Boolean);
+
+        const searchQuery = allSearchTerms.join(' ');
+        console.log(`Searching with extended query: ${searchQuery}`);
+
         const elasticResults = await elasticsearchService.search(
           searchQuery,
           analysis.language || 'ru',
@@ -138,6 +182,33 @@ export async function gatherContext(
                 arabicText: result.arabicText || '',
                 translation: result.translation || '',
                 relevanceScore: result.score || 0.5,
+              });
+            }
+          }
+        }
+
+        // Если недостаточно результатов, попробуем поиск по topics
+        if (context.relatedAyahs.length < 5 && analysis.topics && analysis.topics.length > 0) {
+          console.log(`Not enough results, searching by topics: ${analysis.topics.join(', ')}`);
+          const topicQuery = analysis.topics.join(' ');
+          const topicResults = await elasticsearchService.search(
+            topicQuery,
+            analysis.language || 'ru',
+            15
+          );
+
+          for (const result of topicResults) {
+            const exists = context.relatedAyahs.some(
+              (a) => a.surahNumber === result.surahNumber && a.ayahNumber === result.ayahNumber
+            );
+
+            if (!exists && context.relatedAyahs.length < 10) {
+              context.relatedAyahs.push({
+                surahNumber: result.surahNumber,
+                ayahNumber: result.ayahNumber,
+                arabicText: result.arabicText || '',
+                translation: result.translation || '',
+                relevanceScore: (result.score || 0.3) * 0.8, // Немного ниже relevance для topic search
               });
             }
           }

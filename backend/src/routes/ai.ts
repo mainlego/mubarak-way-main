@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { AIService } from '../services/AIService.js';
 import { createOrResumeConversation, quickResponse } from '../services/InteractiveAssistant.js';
 import { elasticsearchService } from '../services/elasticsearchProxy.js';
+import * as AdvancedAI from '../services/AdvancedAIService.js';
 import { aiLimiter } from '../middlewares/rateLimiter.js';
 import type {
   ApiResponse,
@@ -397,6 +398,284 @@ router.get('/elasticsearch/health', async (req: Request, res: Response) => {
       error: {
         code: 'HEALTH_CHECK_ERROR',
         message: error.message || 'Failed to check health',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
+ * POST /api/v1/ai/tafsir
+ * Get tafsir (exegesis) for a specific verse
+ */
+router.post('/tafsir', async (req: Request, res: Response) => {
+  try {
+    const { surahNumber, ayahNumber, language = 'ru', tafsirId } = req.body;
+
+    if (!surahNumber || !ayahNumber) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_VERSE',
+          message: 'surahNumber and ayahNumber are required',
+        },
+      } as ApiResponse);
+    }
+
+    const tafsir = await elasticsearchService.getTafsir(
+      surahNumber,
+      ayahNumber,
+      language,
+      tafsirId
+    );
+
+    if (!tafsir) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'TAFSIR_NOT_FOUND',
+          message: 'Tafsir not found for this verse',
+        },
+      } as ApiResponse);
+    }
+
+    res.json({
+      success: true,
+      data: tafsir,
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Get tafsir error:', error);
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'TAFSIR_ERROR',
+        message: error.message || 'Failed to get tafsir',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
+ * POST /api/v1/ai/hadiths/search
+ * Search hadiths by query
+ */
+router.post('/hadiths/search', async (req: Request, res: Response) => {
+  try {
+    const { query, book, limit = 10 } = req.body;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_QUERY',
+          message: 'Search query is required',
+        },
+      } as ApiResponse);
+    }
+
+    const hadiths = await elasticsearchService.searchHadiths(query, book, limit);
+
+    res.json({
+      success: true,
+      data: { hadiths },
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Hadith search error:', error);
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'HADITH_SEARCH_ERROR',
+        message: error.message || 'Failed to search hadiths',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
+ * GET /api/v1/ai/allah-names
+ * Get 99 Names of Allah
+ */
+router.get('/allah-names', async (req: Request, res: Response) => {
+  try {
+    const names = await elasticsearchService.getAllahNames();
+
+    res.json({
+      success: true,
+      data: { names },
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Get Allah names error:', error);
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'ALLAH_NAMES_ERROR',
+        message: error.message || 'Failed to get Allah names',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
+ * POST /api/v1/ai/smart-search
+ * AI-powered smart search with relevant verses
+ */
+router.post('/smart-search', async (req: Request, res: Response) => {
+  try {
+    const { query, language = 'ru' } = req.body;
+
+    if (!query) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_QUERY',
+          message: 'Search query is required',
+        },
+      } as ApiResponse);
+    }
+
+    const result = await AdvancedAI.aiSmartSearch(query, language);
+
+    res.json({
+      success: true,
+      data: result,
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Smart search error:', error);
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SMART_SEARCH_ERROR',
+        message: error.message || 'Failed to perform smart search',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
+ * POST /api/v1/ai/ask-quran
+ * Answer life questions from Quran
+ */
+router.post('/ask-quran', async (req: Request, res: Response) => {
+  try {
+    const { question, language = 'ru' } = req.body;
+
+    if (!question) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_QUESTION',
+          message: 'Question is required',
+        },
+      } as ApiResponse);
+    }
+
+    const result = await AdvancedAI.askQuran(question, language);
+
+    res.json({
+      success: true,
+      data: result,
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Ask Quran error:', error);
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'ASK_QURAN_ERROR',
+        message: error.message || 'Failed to answer from Quran',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
+ * POST /api/v1/ai/analyze-word
+ * Statistical analysis of word in Quran
+ */
+router.post('/analyze-word', async (req: Request, res: Response) => {
+  try {
+    const { word, language = 'ru' } = req.body;
+
+    if (!word) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_WORD',
+          message: 'Word is required',
+        },
+      } as ApiResponse);
+    }
+
+    const result = await AdvancedAI.analyzeWord(word, language);
+
+    res.json({
+      success: true,
+      data: result,
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Analyze word error:', error);
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'ANALYZE_WORD_ERROR',
+        message: error.message || 'Failed to analyze word',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
+ * POST /api/v1/ai/explain-simple
+ * Age-appropriate verse explanation
+ */
+router.post('/explain-simple', async (req: Request, res: Response) => {
+  try {
+    const { surahNumber, ayahNumber, ayahText, level = 'adult', language = 'ru' } = req.body;
+
+    if (!surahNumber || !ayahNumber || !ayahText) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_PARAMETERS',
+          message: 'surahNumber, ayahNumber, and ayahText are required',
+        },
+      } as ApiResponse);
+    }
+
+    if (!['child', 'teen', 'adult'].includes(level)) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'INVALID_LEVEL',
+          message: 'Level must be one of: child, teen, adult',
+        },
+      } as ApiResponse);
+    }
+
+    const result = await AdvancedAI.explainSimple(
+      surahNumber,
+      ayahNumber,
+      ayahText,
+      level as 'child' | 'teen' | 'adult',
+      language
+    );
+
+    res.json({
+      success: true,
+      data: result,
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Explain simple error:', error);
+
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'EXPLAIN_SIMPLE_ERROR',
+        message: error.message || 'Failed to explain verse',
       },
     } as ApiResponse);
   }

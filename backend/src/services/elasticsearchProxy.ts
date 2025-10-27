@@ -20,6 +20,24 @@ export interface ElasticsearchResult {
   score?: number;
 }
 
+export interface TafsirResult {
+  surahNumber: number;
+  ayahNumber: number;
+  text: string;
+  author: string;
+  language: string;
+}
+
+export interface HadithResult {
+  hadithNumber: number;
+  text: string;
+  arabicText?: string;
+  bookName: string;
+  narrator?: string;
+  grades?: string[];
+  score?: number;
+}
+
 /**
  * Кэш для поисковых запросов
  */
@@ -200,6 +218,176 @@ class ElasticsearchProxyService {
   clearCache(): void {
     searchCache.clear();
     console.log('Elasticsearch cache cleared');
+  }
+
+  /**
+   * Получить тафсир (толкование) для конкретного аята
+   */
+  async getTafsir(
+    surahNumber: number,
+    ayahNumber: number,
+    language: string = 'ru',
+    tafsirId?: string
+  ): Promise<TafsirResult | null> {
+    try {
+      const cacheKey = `tafsir:${surahNumber}:${ayahNumber}:${language}:${tafsirId || 'default'}`;
+      const cached = searchCache.get(cacheKey);
+      if (cached) {
+        console.log('Returning cached tafsir');
+        return cached;
+      }
+
+      // Дефолтные тафсиры для разных языков
+      const defaultTafsirs: Record<string, string> = {
+        ar: 'ar.jalalayn', // Тафсир аль-Джалалайн
+        ru: 'ru.kuliev', // Тафсир Кулиева
+        en: 'en.sahih', // Sahih International notes
+      };
+
+      const tafsir = tafsirId || defaultTafsirs[language] || 'en.sahih';
+
+      console.log(`Fetching tafsir for ${surahNumber}:${ayahNumber}, tafsir: ${tafsir}`);
+
+      const response = await axios.post(
+        `${this.baseUrl}/tafsir`,
+        {
+          surahNumber,
+          ayahNumber,
+          tafsir,
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiToken}`,
+          },
+          timeout: 10000,
+        }
+      );
+
+      if (!response.data || !response.data.text) {
+        console.warn('Invalid tafsir response format');
+        return null;
+      }
+
+      const result: TafsirResult = {
+        surahNumber,
+        ayahNumber,
+        text: response.data.text,
+        author: response.data.author || tafsir,
+        language,
+      };
+
+      searchCache.set(cacheKey, result);
+      return result;
+    } catch (error: any) {
+      console.error('Elasticsearch tafsir fetch error:', error.message);
+      return null;
+    }
+  }
+
+  /**
+   * Поиск хадисов
+   */
+  async searchHadiths(
+    query: string,
+    book?: string,
+    limit: number = 10
+  ): Promise<HadithResult[]> {
+    try {
+      const cacheKey = `hadith:${query}:${book || 'all'}:${limit}`;
+      const cached = searchCache.get(cacheKey);
+      if (cached) {
+        console.log('Returning cached hadith results');
+        return cached;
+      }
+
+      console.log(`Searching hadiths: query="${query}", book="${book || 'all'}"`);
+
+      const requestBody: any = {
+        query,
+        size: limit,
+      };
+
+      if (book) {
+        requestBody.book = book;
+      }
+
+      const response = await axios.post(
+        `${this.baseUrl}/hadiths-search`,
+        requestBody,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiToken}`,
+          },
+          timeout: 10000,
+        }
+      );
+
+      if (!response.data || !response.data.hits) {
+        console.warn('Invalid hadith search response format');
+        return [];
+      }
+
+      const results: HadithResult[] = response.data.hits.map((hit: any) => ({
+        hadithNumber: hit.hadith_number || hit.hadithNumber || 0,
+        text: hit.text || hit.translation || '',
+        arabicText: hit.arabic_text || hit.arabicText || '',
+        bookName: hit.book_name || hit.bookName || book || 'Unknown',
+        narrator: hit.narrator || '',
+        grades: hit.grades || [],
+        score: hit.score || 0,
+      }));
+
+      searchCache.set(cacheKey, results);
+      console.log(`Found ${results.length} hadiths`);
+      return results;
+    } catch (error: any) {
+      console.error('Elasticsearch hadith search error:', error.message);
+      return [];
+    }
+  }
+
+  /**
+   * Получить 99 имен Аллаха
+   */
+  async getAllahNames(): Promise<Array<{ name: string; transliteration: string; meaning: string }>> {
+    try {
+      const cacheKey = 'allah-names';
+      const cached = searchCache.get(cacheKey);
+      if (cached) {
+        console.log('Returning cached Allah names');
+        return cached;
+      }
+
+      console.log('Fetching 99 Names of Allah');
+
+      const response = await axios.get(`${this.baseUrl}/allah-names`, {
+        headers: {
+          Authorization: `Bearer ${this.apiToken}`,
+        },
+        timeout: 10000,
+      });
+
+      if (!response.data || !Array.isArray(response.data.names)) {
+        console.warn('Invalid Allah names response format');
+        return [];
+      }
+
+      const results = response.data.names.map((item: any) => ({
+        name: item.name || item.arabic || '',
+        transliteration: item.transliteration || item.latin || '',
+        meaning: item.meaning || item.translation || '',
+      }));
+
+      // Кэшируем на 1 час (имена не меняются)
+      searchCache.set(cacheKey, results);
+      console.log(`Fetched ${results.length} Allah names`);
+      return results;
+    } catch (error: any) {
+      console.error('Elasticsearch Allah names fetch error:', error.message);
+      return [];
+    }
   }
 
   /**
