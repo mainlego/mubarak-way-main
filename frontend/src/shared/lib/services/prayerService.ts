@@ -1,5 +1,5 @@
-import { apiGet } from '../api';
-import type { Lesson } from '@mubarak-way/shared';
+import { apiGet, apiPost } from '../api';
+import type { Lesson, PrayerTimes, PrayerCalculationParams, QiblaDirection } from '@mubarak-way/shared';
 
 export const prayerService = {
   /**
@@ -51,5 +51,44 @@ export const prayerService = {
    */
   getStats: async (): Promise<any> => {
     return await apiGet('/prayer/stats');
+  },
+
+  /**
+   * Calculate prayer times
+   */
+  calculatePrayerTimes: async (
+    latitude: number,
+    longitude: number,
+    params: Partial<PrayerCalculationParams>,
+    city?: string,
+    country?: string
+  ): Promise<PrayerTimes> => {
+    return await apiPost<PrayerTimes>('/prayer/times', {
+      latitude,
+      longitude,
+      calculationMethod: params.calculationMethod || 'MuslimWorldLeague',
+      madhab: params.madhab || 'hanafi',
+      highLatitudeRule: params.highLatitudeRule,
+      adjustments: params.adjustments,
+      city,
+      country,
+    });
+  },
+
+  /**
+   * Get all calculation methods
+   */
+  getCalculationMethods: async (): Promise<any[]> => {
+    return await apiGet('/prayer/times/methods');
+  },
+
+  /**
+   * Calculate Qibla direction
+   */
+  calculateQibla: async (latitude: number, longitude: number): Promise<QiblaDirection> => {
+    return await apiPost<QiblaDirection>('/prayer/qibla', {
+      latitude,
+      longitude,
+    });
   },
 };
