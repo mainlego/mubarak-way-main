@@ -3,6 +3,7 @@
  */
 
 import type { AccessLevel } from './library.js';
+import type { Madhab } from './user.js';
 
 export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha' | 'witr';
 
@@ -27,6 +28,24 @@ export type PrayerCalculationMethod =
   | 'Tehran'
   | 'Turkey'
   | 'NorthAmerica';
+
+export type HighLatitudeRule = 'MiddleOfTheNight' | 'SeventhOfTheNight' | 'TwilightAngle';
+
+export interface PrayerAdjustments {
+  fajr: number;
+  sunrise: number;
+  dhuhr: number;
+  asr: number;
+  maghrib: number;
+  isha: number;
+}
+
+export interface PrayerCalculationParams {
+  calculationMethod: PrayerCalculationMethod;
+  madhab: Madhab;
+  highLatitudeRule?: HighLatitudeRule;
+  adjustments?: Partial<PrayerAdjustments>;
+}
 
 export interface LessonSection {
   id: string;
@@ -85,6 +104,12 @@ export interface PrayerTime {
 }
 
 export interface PrayerTimes {
+  fajr: Date;
+  sunrise: Date;
+  dhuhr: Date;
+  asr: Date;
+  maghrib: Date;
+  isha: Date;
   date: Date;
   location: {
     latitude: number;
@@ -93,11 +118,21 @@ export interface PrayerTimes {
     country?: string;
   };
   calculationMethod: PrayerCalculationMethod;
-  prayers: PrayerTime[];
+  madhab: Madhab;
+  qibla?: number;  // Qibla direction in degrees
   nextPrayer?: {
-    name: PrayerName;
+    name: PrayerName | 'sunrise';
     time: Date;
-    timeRemaining: string;
+    timeRemaining: {
+      hours: number;
+      minutes: number;
+      seconds: number;
+      formatted: string;
+    };
+  };
+  currentPrayer?: {
+    name: PrayerName | 'sunrise';
+    time: Date;
   };
 }
 

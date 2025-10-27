@@ -188,4 +188,120 @@ router.get('/stats', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/v1/prayer/times
+ * Calculate prayer times for a location
+ * Body: { latitude, longitude, date?, calculationMethod?, madhab?, city?, country? }
+ */
+router.post('/times', async (req: Request, res: Response) => {
+  try {
+    const { latitude, longitude, date, calculationMethod, madhab, highLatitudeRule, adjustments, city, country } = req.body;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_LOCATION',
+          message: 'Latitude and longitude are required',
+        },
+      } as ApiResponse);
+    }
+
+    const prayerDate = date ? new Date(date) : new Date();
+    const params = {
+      calculationMethod: calculationMethod || 'MuslimWorldLeague',
+      madhab: madhab || 'hanafi',
+      highLatitudeRule,
+      adjustments,
+    };
+
+    const times = PrayerService.calculatePrayerTimes(
+      parseFloat(latitude),
+      parseFloat(longitude),
+      prayerDate,
+      params,
+      city,
+      country
+    );
+
+    res.json({
+      success: true,
+      data: times,
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Calculate prayer times error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'PRAYER_TIMES_ERROR',
+        message: error.message || 'Failed to calculate prayer times',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
+ * GET /api/v1/prayer/times/methods
+ * Get all available calculation methods
+ */
+router.get('/times/methods', async (req: Request, res: Response) => {
+  try {
+    const methods = PrayerService.getCalculationMethods();
+
+    res.json({
+      success: true,
+      data: methods,
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Get calculation methods error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'GET_METHODS_ERROR',
+        message: error.message || 'Failed to get calculation methods',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
+ * POST /api/v1/prayer/qibla
+ * Calculate Qibla direction
+ * Body: { latitude, longitude }
+ */
+router.post('/qibla', async (req: Request, res: Response) => {
+  try {
+    const { latitude, longitude } = req.body;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_LOCATION',
+          message: 'Latitude and longitude are required',
+        },
+      } as ApiResponse);
+    }
+
+    const qibla = PrayerService.calculateQiblaDirection(
+      parseFloat(latitude),
+      parseFloat(longitude)
+    );
+
+    res.json({
+      success: true,
+      data: qibla,
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Calculate Qibla error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'QIBLA_ERROR',
+        message: error.message || 'Failed to calculate Qibla direction',
+      },
+    } as ApiResponse);
+  }
+});
+
 export default router;

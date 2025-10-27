@@ -1,5 +1,16 @@
 import Lesson from '../models/Lesson.js';
-import type { Lesson as LessonType } from '@mubarak-way/shared';
+import type {
+  Lesson as LessonType,
+  PrayerTimes,
+  PrayerCalculationParams,
+  QiblaDirection,
+} from '@mubarak-way/shared';
+import {
+  calculatePrayerTimes,
+  calculateQibla,
+  calculateDistanceToMecca,
+  getCalculationMethods,
+} from '../utils/prayerTimes.js';
 
 export class PrayerService {
   /**
@@ -78,6 +89,44 @@ export class PrayerService {
         optional: optionalLessons,
         special: specialLessons,
         ablution: ablutionLessons,
+      },
+    };
+  }
+
+  /**
+   * Calculate prayer times for a location
+   */
+  static calculatePrayerTimes(
+    latitude: number,
+    longitude: number,
+    date: Date,
+    params: PrayerCalculationParams,
+    city?: string,
+    country?: string
+  ): PrayerTimes {
+    return calculatePrayerTimes(latitude, longitude, date, params, city, country);
+  }
+
+  /**
+   * Get all available calculation methods
+   */
+  static getCalculationMethods() {
+    return getCalculationMethods();
+  }
+
+  /**
+   * Calculate Qibla direction and distance to Mecca
+   */
+  static calculateQiblaDirection(latitude: number, longitude: number): QiblaDirection {
+    const direction = calculateQibla(latitude, longitude);
+    const distance = calculateDistanceToMecca(latitude, longitude);
+
+    return {
+      direction,
+      distance,
+      location: {
+        latitude,
+        longitude,
       },
     };
   }

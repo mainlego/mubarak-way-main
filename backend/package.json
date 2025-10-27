@@ -16,6 +16,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.1",
     "@mubarak-way/shared": "*",
+    "adhan": "^4.4.3",
     "axios": "^1.7.2",
     "bcrypt": "^5.1.1",
     "compression": "^1.7.4",
