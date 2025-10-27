@@ -267,6 +267,45 @@ userSchema.methods.resetUsageLimits = function() {
   return this;
 };
 
+// Clean expired search history based on subscription tier
+// Free users: 1 day TTL
+// Pro/Premium users: 30 days TTL
+// Favorite items: never expire
+userSchema.methods.cleanSearchHistory = function() {
+  const now = new Date();
+  const tier = this.subscription?.tier || 'free';
+
+  // TTL based on subscription
+  const ttlDays = tier === 'free' ? 1 : 30;
+  const ttlMs = ttlDays * 24 * 60 * 60 * 1000;
+  const cutoffDate = new Date(now.getTime() - ttlMs);
+
+  // Keep only:
+  // 1. Favorites (never expire)
+  // 2. Recent items within TTL
+  this.searchHistory = this.searchHistory.filter((item: any) => {
+    return item.favorite || item.timestamp >= cutoffDate;
+  });
+
+  return this.save();
+};
+
+// Toggle search history item as favorite (makes it permanent)
+userSchema.methods.toggleSearchFavorite = function(searchId: string) {
+  const item = this.searchHistory.id(searchId);
+  if (item) {
+    item.favorite = !item.favorite;
+    return this.save();
+  }
+  return this;
+};
+
+// Clear non-favorite search history
+userSchema.methods.clearSearchHistory = function() {
+  this.searchHistory = this.searchHistory.filter((item: any) => item.favorite);
+  return this.save();
+};
+
 // Static methods
 userSchema.statics.findByTelegramId = function(telegramId: string) {
   return this.findOne({ telegramId });
