@@ -88,6 +88,7 @@ import bookmarkRoutes from './routes/bookmark.js';
 import searchHistoryRoutes from './routes/searchHistory.js';
 import adminRoutes from './routes/admin.js';
 import lessonRoutes from './routes/lesson.js';
+import debugRoutes from './routes/debug.js';
 // import subscriptionRoutes from './routes/subscription.js';
 
 // Use routes
@@ -100,6 +101,7 @@ app.use('/api/v1/bookmarks', bookmarkRoutes);
 app.use('/api/v1/search-history', searchHistoryRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/lessons', lessonRoutes);
+app.use('/api/v1/debug', debugRoutes);
 app.use('/webhook', webhookRoutes);
 // app.use('/api/v1/subscription', subscriptionRoutes);
 
