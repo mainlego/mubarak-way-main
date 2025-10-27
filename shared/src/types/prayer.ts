@@ -9,11 +9,22 @@ export type PrayerName = 'fajr' | 'dhuhr' | 'asr' | 'maghrib' | 'isha' | 'witr';
 
 export type PrayerType = 'obligatory' | 'optional' | 'special';
 
+export type DifficultyLevel = 'beginner' | 'intermediate' | 'advanced';
+
 export type LessonCategory =
   | 'obligatory-prayers'
   | 'optional-prayers'
   | 'special-prayers'
-  | 'ablution';
+  | 'ablution'
+  | 'fiqh-basics'
+  | 'fasting'
+  | 'zakat'
+  | 'hajj'
+  | 'marriage-family'
+  | 'business'
+  | 'purification'
+  | 'food-drink'
+  | 'other';
 
 export type PrayerCalculationMethod =
   | 'MuslimWorldLeague'
@@ -80,6 +91,7 @@ export interface Lesson {
   titleArabic?: string;
   description: string;
   category: LessonCategory;
+  madhab?: 'hanafi' | 'shafi' | 'maliki' | 'hanbali' | 'general';
   prayerType?: PrayerType;
   prayerName?: PrayerName;
 
@@ -92,6 +104,28 @@ export interface Lesson {
 
   accessLevel: AccessLevel;
   isFeatured: boolean;
+
+  // Statistics
+  viewCount?: number;
+  completionCount?: number;
+
+  // Rating
+  rating?: number;
+  ratingCount?: number;
+
+  // Prerequisites
+  prerequisites?: string[];
+
+  // Tags for search and organization
+  tags?: string[];
+
+  // Publishing
+  isPublished?: boolean;
+  publishedAt?: Date;
+
+  // Author
+  author?: string;
+  sources?: string[];
 
   createdAt: Date;
   updatedAt: Date;
@@ -168,4 +202,26 @@ export interface Achievement {
     current: number;
     total: number;
   };
+}
+
+export interface LessonFilters {
+  category?: LessonCategory;
+  madhab?: 'hanafi' | 'shafi' | 'maliki' | 'hanbali' | 'general';
+  difficulty?: DifficultyLevel;
+  accessLevel?: AccessLevel;
+  isFeatured?: boolean;
+  isPublished?: boolean;
+  search?: string;
+  limit?: number;
+  skip?: number;
+}
+
+export interface LessonStats {
+  totalLessons: number;
+  byCategory: Record<LessonCategory, number>;
+  byMadhab: Record<'hanafi' | 'shafi' | 'maliki' | 'hanbali' | 'general', number>;
+  byDifficulty: Record<DifficultyLevel, number>;
+  mostViewed: Lesson[];
+  mostCompleted: Lesson[];
+  recentlyAdded: Lesson[];
 }

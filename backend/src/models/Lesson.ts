@@ -20,8 +20,28 @@ const lessonSchema = new Schema<Lesson>(
     },
     category: {
       type: String,
-      enum: ['obligatory-prayers', 'optional-prayers', 'special-prayers', 'ablution'],
+      enum: [
+        'obligatory-prayers',
+        'optional-prayers',
+        'special-prayers',
+        'ablution',
+        'fiqh-basics',
+        'fasting',
+        'zakat',
+        'hajj',
+        'marriage-family',
+        'business',
+        'purification',
+        'food-drink',
+        'other',
+      ],
       required: true,
+      index: true,
+    },
+    madhab: {
+      type: String,
+      enum: ['hanafi', 'shafi', 'maliki', 'hanbali', 'general'],
+      default: 'general',
       index: true,
     },
     prayerType: {
@@ -80,6 +100,53 @@ const lessonSchema = new Schema<Lesson>(
       type: Boolean,
       default: false,
     },
+
+    // Statistics
+    viewCount: {
+      type: Number,
+      default: 0,
+    },
+    completionCount: {
+      type: Number,
+      default: 0,
+    },
+
+    // Rating
+    rating: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 5,
+    },
+    ratingCount: {
+      type: Number,
+      default: 0,
+    },
+
+    // Prerequisites
+    prerequisites: {
+      type: [String],
+      default: [],
+    },
+
+    // Tags for search and organization
+    tags: {
+      type: [String],
+      default: [],
+      index: true,
+    },
+
+    // Publishing
+    isPublished: {
+      type: Boolean,
+      default: true,
+      index: true,
+    },
+    publishedAt: Date,
+
+    // Author
+    author: String,
+    sources: [String],
   },
   {
     timestamps: true,
@@ -89,15 +156,24 @@ const lessonSchema = new Schema<Lesson>(
 // Indexes
 lessonSchema.index({ slug: 1 });
 lessonSchema.index({ category: 1 });
+lessonSchema.index({ madhab: 1 });
 lessonSchema.index({ difficulty: 1 });
 lessonSchema.index({ accessLevel: 1 });
 lessonSchema.index({ isFeatured: -1 });
+lessonSchema.index({ isPublished: 1 });
+
+// Compound indexes
+lessonSchema.index({ madhab: 1, category: 1 });
+lessonSchema.index({ madhab: 1, difficulty: 1 });
+lessonSchema.index({ category: 1, difficulty: 1 });
+lessonSchema.index({ isPublished: 1, madhab: 1 });
 
 // Text search index
 lessonSchema.index({
   title: 'text',
   titleArabic: 'text',
   description: 'text',
+  tags: 'text',
 });
 
 const LessonModel = mongoose.model<Lesson>('Lesson', lessonSchema);
