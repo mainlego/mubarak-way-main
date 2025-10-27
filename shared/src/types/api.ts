@@ -53,12 +53,7 @@ export interface AIAskRequest {
   language?: string;
 }
 
-export interface AIExplainVerseRequest {
-  surahNumber: number;
-  ayahNumber: number;
-  language?: string;
-  level?: 'simple' | 'detailed';
-}
+// AIExplainVerseRequest moved to ai.ts
 
 export interface AIRecommendBookRequest {
   interests?: string[];

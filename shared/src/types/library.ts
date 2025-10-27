@@ -55,6 +55,13 @@ export interface Book {
 
   createdAt: Date;
   updatedAt: Date;
+
+  // Aliases for backwards compatibility
+  id?: number; // Same as bookId
+  coverUrl?: string; // Same as cover
+  pages?: number; // Same as pageCount
+  isPremium?: boolean; // isPro || accessLevel === 'premium'
+  pdfUrl?: string; // Same as content (for PDF books)
 }
 
 export type NashidCategory =
@@ -89,6 +96,10 @@ export interface Nashid {
 
   createdAt: Date;
   updatedAt: Date;
+
+  // Aliases for backwards compatibility
+  id?: number; // Same as nashidId
+  coverUrl?: string; // Same as cover or coverImage
 }
 
 export interface LibrarySearchQuery {

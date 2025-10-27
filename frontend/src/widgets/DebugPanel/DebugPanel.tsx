@@ -108,7 +108,7 @@ export default function DebugPanel() {
         quran: {
           surahsCount: quranState.surahs?.length || 0,
           currentSurah: quranState.currentSurah?.number,
-          bookmarksCount: quranState.bookmarks?.length || 0,
+          bookmarksCount: userState.user?.favorites.ayahs?.length || 0,
         },
         library: {
           booksCount: libraryState.books?.length || 0,

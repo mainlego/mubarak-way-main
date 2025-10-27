@@ -14,6 +14,9 @@ export * from './library';
 // Prayer types
 export * from './prayer';
 
+// AI types
+export * from './ai';
+
 // Bookmark types
 export * from './bookmark';
 

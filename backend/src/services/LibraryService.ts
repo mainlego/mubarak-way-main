@@ -7,6 +7,26 @@ import type {
   LibrarySearchResult,
 } from '@mubarak-way/shared';
 
+// Helper functions to add backwards compatibility fields
+function addBookAliases(book: any): BookType {
+  return {
+    ...book,
+    id: book.bookId,
+    coverUrl: book.cover,
+    pages: book.pageCount,
+    isPremium: book.isPro || book.accessLevel === 'premium',
+    pdfUrl: book.content,
+  };
+}
+
+function addNashidAliases(nashid: any): NashidType {
+  return {
+    ...nashid,
+    id: nashid.nashidId,
+    coverUrl: nashid.cover || nashid.coverImage,
+  };
+}
+
 export class LibraryService {
   /**
    * Get all books with filters
@@ -51,10 +71,11 @@ export class LibraryService {
     const books = await Book.find(filter)
       .sort(sort)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     return {
-      items: books,
+      items: books.map(addBookAliases),
       total,
       page,
       totalPages: Math.ceil(total / limit),
@@ -65,16 +86,19 @@ export class LibraryService {
    * Get book by ID
    */
   static async getBookById(bookId: number): Promise<BookType | null> {
-    return await Book.findOne({ bookId });
+    const book = await Book.findOne({ bookId }).lean();
+    return book ? addBookAliases(book) : null;
   }
 
   /**
    * Get featured books
    */
   static async getFeaturedBooks(limit = 10): Promise<BookType[]> {
-    return await Book.find({ isNew: true })
+    const books = await Book.find({ isNew: true })
       .sort({ createdAt: -1 })
-      .limit(limit);
+      .limit(limit)
+      .lean();
+    return books.map(addBookAliases);
   }
 
   /**
@@ -118,10 +142,11 @@ export class LibraryService {
     const nashids = await Nashid.find(filter)
       .sort(sort)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .lean();
 
     return {
-      items: nashids,
+      items: nashids.map(addNashidAliases),
       total,
       page,
       totalPages: Math.ceil(total / limit),
@@ -132,7 +157,8 @@ export class LibraryService {
    * Get nashid by ID
    */
   static async getNashidById(nashidId: number): Promise<NashidType | null> {
-    return await Nashid.findOne({ nashidId });
+    const nashid = await Nashid.findOne({ nashidId }).lean();
+    return nashid ? addNashidAliases(nashid) : null;
   }
 
   /**

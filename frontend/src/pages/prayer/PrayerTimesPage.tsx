@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useUserStore, usePrayerStore } from '@shared/store';
 import { Card, Button, Spinner } from '@shared/ui';
+import type { PrayerCalculationParams } from '@mubarak-way/shared';
 
 interface PrayerTime {
   name: string;
@@ -150,8 +151,8 @@ export default function PrayerTimesPage() {
       setError(null);
 
       // Get calculation method and madhab from user settings
-      const params = {
-        calculationMethod: user?.prayerSettings?.calculationMethod || 'MuslimWorldLeague',
+      const params: Partial<PrayerCalculationParams> = {
+        calculationMethod: (user?.prayerSettings?.calculationMethod as any) || 'MuslimWorldLeague',
         madhab: user?.prayerSettings?.madhab || 'hanafi',
       };
 

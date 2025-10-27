@@ -82,6 +82,19 @@ export interface PrayerStep {
     hanbali?: string;
   };
   order: number;
+
+  // Additional fields for backwards compatibility
+  content?: string; // Same as description
+  type?: 'text' | 'video' | 'quiz' | 'practice' | 'image' | 'audio';
+  arabicText?: string; // Same as arabic
+  videoUrl?: string; // URL for video type steps
+  tips?: string[];
+  quiz?: {
+    question: string;
+    questions?: string[]; // Legacy field
+    options: string[];
+    correctAnswer: number;
+  };
 }
 
 export interface Lesson {
@@ -129,6 +142,9 @@ export interface Lesson {
 
   createdAt: Date;
   updatedAt: Date;
+
+  // Aliases for backwards compatibility
+  duration?: number; // Same as estimatedMinutes
 }
 
 export interface PrayerTime {

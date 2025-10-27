@@ -28,7 +28,7 @@ export default function SurahReaderPage() {
 
   const handleToggleBookmark = async (ayahId: string) => {
     if (!user) return;
-    await toggleFavorite('ayah', ayahId);
+    await toggleFavorite('ayahs', ayahId);
   };
 
   const handleNavigate = (direction: 'prev' | 'next') => {

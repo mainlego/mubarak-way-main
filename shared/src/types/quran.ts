@@ -14,6 +14,11 @@ export interface Surah {
   revelation: RevelationType;
   revelationOrder: number;
   bismillahPre?: boolean;
+
+  // Aliases for backwards compatibility
+  nameTranslation?: string; // Same as nameTransliteration
+  numberOfAyahs?: number; // Same as ayahCount
+  revelationType?: RevelationType; // Same as revelation
 }
 
 export interface Translation {
@@ -46,6 +51,12 @@ export interface Ayah {
     required: boolean;
     type: 'recommended' | 'obligatory';
   };
+
+  // Aliases for backwards compatibility
+  numberInSurah?: number; // Same as ayahNumber
+  translation?: string; // translations[0]?.text
+  transliteration?: string; // For future use
+  audio?: string; // For future use
 }
 
 export interface QuranSearchQuery {
@@ -63,7 +74,7 @@ export interface QuranSearchResult {
   relevanceScore: number;
 }
 
-export interface AIResponse {
+export interface SavedAIResponse {
   _id: string;
   userId: string;
   question: string;

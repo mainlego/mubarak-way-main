@@ -55,7 +55,7 @@ export default function BookmarksPage() {
   }, [user, t]);
 
   const handleRemoveBookmark = async (ayahId: string) => {
-    await toggleFavorite('ayah', ayahId);
+    await toggleFavorite('ayahs', ayahId);
     setBookmarkedAyahs(prev => prev.filter(a => a._id !== ayahId));
   };
 

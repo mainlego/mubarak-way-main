@@ -1,12 +1,71 @@
 import User from '../models/User.js';
 import type { User as UserType, UserCreateDto, UserUpdateDto } from '@mubarak-way/shared';
 
+// Helper function to calculate subscription limits based on tier
+function getSubscriptionLimits(tier: 'free' | 'pro' | 'premium') {
+  switch (tier) {
+    case 'free':
+      return { aiRequests: 5, offlineBooks: 3, offlineNashids: 5 };
+    case 'pro':
+      return { aiRequests: 50, offlineBooks: 20, offlineNashids: 30 };
+    case 'premium':
+      return { aiRequests: -1, offlineBooks: -1, offlineNashids: -1 }; // Unlimited
+    default:
+      return { aiRequests: 5, offlineBooks: 3, offlineNashids: 5 };
+  }
+}
+
+// Helper function to add backwards compatibility fields
+function addUserAliases(user: any): UserType {
+  const limits = getSubscriptionLimits(user.subscription?.tier || 'free');
+
+  // Convert readingProgress array to legacy nested structure
+  const readingHistory = {
+    books: user.readingProgress?.filter((p: any) => p.bookId) || [],
+    quran: user.readingProgress?.filter((p: any) => p.surahNumber) || [],
+  };
+
+  // Convert learningProgress array to legacy nested structure
+  const completedLessons = user.learningProgress?.filter((p: any) => p.completed).map((p: any) => p.lessonId) || [];
+  const lessonProgress: any = {};
+  user.learningProgress?.forEach((p: any) => {
+    lessonProgress[p.lessonId] = {
+      completedSteps: p.completedSteps,
+      totalSteps: p.totalSteps,
+      lastPracticed: p.lastPracticed,
+    };
+  });
+
+  const progress = {
+    completedLessons,
+    lessonProgress,
+    currentStreak: user.streaks?.currentDays || 0,
+    longestStreak: user.streaks?.longestDays || 0,
+  };
+
+  return {
+    ...user,
+    id: user._id?.toString() || user._id,
+    readingHistory,
+    progress,
+    subscription: {
+      ...user.subscription,
+      limits,
+    },
+    usage: {
+      ...user.usage,
+      aiRequests: user.usage?.aiRequestsPerDay || 0,
+    },
+  };
+}
+
 export class UserService {
   /**
    * Find user by Telegram ID
    */
   static async findByTelegramId(telegramId: string): Promise<UserType | null> {
-    return await User.findOne({ telegramId });
+    const user = await User.findOne({ telegramId }).lean();
+    return user ? addUserAliases(user) : null;
   }
 
   /**
@@ -24,7 +83,8 @@ export class UserService {
     });
 
     await user.save();
-    return user;
+    const saved = await User.findById(user._id).lean();
+    return addUserAliases(saved);
   }
 
   /**
@@ -87,7 +147,8 @@ export class UserService {
     user.lastActive = new Date();
     await user.save();
 
-    return user;
+    const updated = await User.findById(user._id).lean();
+    return updated ? addUserAliases(updated) : null;
   }
 
   /**

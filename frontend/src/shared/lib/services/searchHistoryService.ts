@@ -99,7 +99,11 @@ export const searchHistoryService = {
       params.keepFavorites = String(options.keepFavorites);
     }
 
-    return await apiDelete<{ deletedCount: number }>('/search-history', params);
+    // Build query string
+    const queryString = new URLSearchParams(params).toString();
+    const url = queryString ? `/search-history?${queryString}` : '/search-history';
+
+    return await apiDelete<{ deletedCount: number }>(url);
   },
 
   /**

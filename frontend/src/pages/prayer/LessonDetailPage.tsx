@@ -249,7 +249,7 @@ export default function LessonDetailPage() {
             <div className="space-y-6">
               <p className="text-gray-700 dark:text-gray-300 mb-4">{step.content}</p>
 
-              {step.quiz.questions.map((question, qIndex) => (
+              {(step.quiz.questions || [step.quiz]).map((question, qIndex) => (
                 <Card key={qIndex}>
                   <h3 className="font-semibold text-gray-900 dark:text-white mb-3">
                     {qIndex + 1}. {question.question}

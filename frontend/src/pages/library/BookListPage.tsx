@@ -16,7 +16,7 @@ export default function BookListPage() {
 
   useEffect(() => {
     if (searchQuery) {
-      searchBooks({ query: searchQuery, page, limit: 12 });
+      searchBooks(searchQuery);
     } else if (selectedCategory === 'all') {
       loadBooks({ page, limit: 12 });
     } else {
@@ -27,7 +27,7 @@ export default function BookListPage() {
   const handleToggleFavorite = async (e: React.MouseEvent, bookId: number) => {
     e.stopPropagation();
     if (!user) return;
-    await toggleFavorite('book', bookId);
+    await toggleFavorite('books', bookId);
   };
 
   const handleToggleOffline = async (e: React.MouseEvent, bookId: number) => {
@@ -45,7 +45,7 @@ export default function BookListPage() {
       }
     }
 
-    await toggleOffline('book', bookId);
+    await toggleOffline('books', bookId);
   };
 
   const categories = [

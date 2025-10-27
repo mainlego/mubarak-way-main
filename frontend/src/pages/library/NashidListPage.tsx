@@ -21,7 +21,7 @@ export default function NashidListPage() {
 
   useEffect(() => {
     if (searchQuery) {
-      searchNashids({ query: searchQuery, page: 1, limit: 20 });
+      searchNashids(searchQuery);
     } else {
       loadNashids({ page: 1, limit: 20 });
     }
@@ -118,7 +118,7 @@ export default function NashidListPage() {
   const handleToggleFavorite = async (e: React.MouseEvent, nashidId: number) => {
     e.stopPropagation();
     if (!user) return;
-    await toggleFavorite('nashid', nashidId);
+    await toggleFavorite('nashids', nashidId);
   };
 
   const handleToggleOffline = async (e: React.MouseEvent, nashidId: number) => {
@@ -135,7 +135,7 @@ export default function NashidListPage() {
       }
     }
 
-    await toggleOffline('nashid', nashidId);
+    await toggleOffline('nashids', nashidId);
   };
 
   const formatTime = (seconds: number) => {

@@ -6,7 +6,25 @@ import type {
   LessonStats,
   LessonCategory,
   DifficultyLevel,
+  PrayerStep,
 } from '@mubarak-way/shared';
+
+// Helper functions to add backwards compatibility fields
+function addStepAliases(step: any): PrayerStep {
+  return {
+    ...step,
+    content: step.description,
+    arabicText: step.arabic,
+  };
+}
+
+function addLessonAliases(lesson: any): Lesson {
+  return {
+    ...lesson,
+    duration: lesson.estimatedMinutes,
+    steps: lesson.steps?.map(addStepAliases) || [],
+  };
+}
 
 export class LessonService {
   /**
@@ -39,7 +57,7 @@ export class LessonService {
       .skip(filters.skip || 0)
       .lean();
 
-    return lessons;
+    return lessons.map(addLessonAliases);
   }
 
   /**
@@ -74,24 +92,26 @@ export class LessonService {
       await lesson.save();
     }
 
-    return lesson ? lesson.toObject() : null;
+    return lesson ? addLessonAliases(lesson.toObject()) : null;
   }
 
   /**
    * Get single lesson by ID
    */
   static async getLessonById(id: string): Promise<Lesson | null> {
-    return await LessonModel.findById(id).lean();
+    const lesson = await LessonModel.findById(id).lean();
+    return lesson ? addLessonAliases(lesson) : null;
   }
 
   /**
    * Get featured lessons
    */
   static async getFeaturedLessons(limit: number = 10): Promise<Lesson[]> {
-    return await LessonModel.find({ isFeatured: true, isPublished: true })
+    const lessons = await LessonModel.find({ isFeatured: true, isPublished: true })
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
+    return lessons.map(addLessonAliases);
   }
 
   /**

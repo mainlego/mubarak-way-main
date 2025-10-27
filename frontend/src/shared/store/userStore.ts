@@ -59,7 +59,9 @@ export const useUserStore = create<UserState>()(
         const { user } = get();
         if (!user) return;
 
-        const isFavorite = user.favorites[type].includes(itemId as any);
+        // Type-safe check: favorites can be number[] or string[]
+        const favoritesArray = user.favorites[type] as Array<string | number>;
+        const isFavorite = favoritesArray.includes(itemId);
         const action = isFavorite ? 'remove' : 'add';
 
         try {

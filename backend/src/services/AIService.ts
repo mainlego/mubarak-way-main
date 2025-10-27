@@ -88,14 +88,15 @@ Language: ${request.language || 'Russian'}`;
       throw new Error('Verse not found');
     }
 
-    const level = request.level || 'detailed';
+    const detailLevel = request.detailLevel || 'detailed';
     const levelInstructions = {
-      simple: 'Explain this verse in simple terms suitable for a beginner or child.',
+      brief: 'Explain this verse briefly and concisely.',
+      medium: 'Provide a moderate explanation with key context.',
       detailed: 'Provide a detailed explanation with context and scholarly insights.',
     };
 
     const systemPrompt = `You are an expert in Quranic tafsir (exegesis).
-${levelInstructions[level]}
+${levelInstructions[detailLevel]}
 Language: ${request.language || 'Russian'}`;
 
     const userMessage = `Explain this verse:\n\nSurah ${request.surahNumber}, Ayah ${request.ayahNumber}:\n${ayah.textArabic}\n\nTranslation: ${ayah.translations[0]?.text || 'N/A'}`;

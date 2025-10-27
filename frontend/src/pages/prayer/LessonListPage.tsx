@@ -17,12 +17,10 @@ export default function LessonListPage() {
 
   useEffect(() => {
     if (searchQuery) {
-      searchLessons({ query: searchQuery, page: 1, limit: 20 });
+      searchLessons(searchQuery);
     } else {
-      const filters: any = { page: 1, limit: 20 };
-      if (selectedType !== 'all') filters.type = selectedType;
-      if (selectedDifficulty !== 'all') filters.difficulty = selectedDifficulty;
-      loadLessons(filters);
+      const category = selectedType !== 'all' ? selectedType : undefined;
+      loadLessons(category);
     }
   }, [searchQuery, selectedType, selectedDifficulty, loadLessons, searchLessons]);
 
@@ -74,7 +72,7 @@ export default function LessonListPage() {
       <div className="page-container p-4">
         <div className="text-center text-red-600 dark:text-red-400">
           <p className="mb-4">{error}</p>
-          <Button onClick={() => loadLessons({ page: 1, limit: 20 })}>
+          <Button onClick={() => loadLessons()}>
             {t('common.retry')}
           </Button>
         </div>

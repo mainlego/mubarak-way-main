@@ -2,19 +2,39 @@ import Surah from '../models/Surah.js';
 import Ayah from '../models/Ayah.js';
 import type { Surah as SurahType, Ayah as AyahType, QuranSearchQuery } from '@mubarak-way/shared';
 
+// Helper functions to add backwards compatibility fields
+function addSurahAliases(surah: any): SurahType {
+  return {
+    ...surah,
+    nameTranslation: surah.nameTransliteration,
+    numberOfAyahs: surah.ayahCount,
+    revelationType: surah.revelation,
+  };
+}
+
+function addAyahAliases(ayah: any): AyahType {
+  return {
+    ...ayah,
+    numberInSurah: ayah.ayahNumber,
+    translation: ayah.translations?.[0]?.text || '',
+  };
+}
+
 export class QuranService {
   /**
    * Get all surahs
    */
   static async getAllSurahs(): Promise<SurahType[]> {
-    return await Surah.find().sort({ number: 1 });
+    const surahs = await Surah.find().sort({ number: 1 }).lean();
+    return surahs.map(addSurahAliases);
   }
 
   /**
    * Get surah by number
    */
   static async getSurahByNumber(number: number): Promise<SurahType | null> {
-    return await Surah.findOne({ number });
+    const surah = await Surah.findOne({ number }).lean();
+    return surah ? addSurahAliases(surah) : null;
   }
 
   /**
@@ -26,17 +46,17 @@ export class QuranService {
   ): Promise<AyahType[]> {
     const query: any = { surahNumber };
 
-    const ayahs = await Ayah.find(query).sort({ ayahNumber: 1 });
+    const ayahs = await Ayah.find(query).sort({ ayahNumber: 1 }).lean();
 
     // Filter translations by language if specified
     if (language) {
-      return ayahs.map(ayah => ({
-        ...ayah.toObject(),
-        translations: ayah.translations.filter(t => t.language === language),
+      return ayahs.map(ayah => addAyahAliases({
+        ...ayah,
+        translations: ayah.translations.filter((t: any) => t.language === language),
       }));
     }
 
-    return ayahs;
+    return ayahs.map(addAyahAliases);
   }
 
   /**
@@ -47,40 +67,43 @@ export class QuranService {
     ayahNumber: number,
     language?: string
   ): Promise<AyahType | null> {
-    const ayah = await Ayah.findOne({ surahNumber, ayahNumber });
+    const ayah = await Ayah.findOne({ surahNumber, ayahNumber }).lean();
 
     if (!ayah) return null;
 
     // Filter translations by language if specified
     if (language) {
-      return {
-        ...ayah.toObject(),
-        translations: ayah.translations.filter(t => t.language === language),
-      };
+      return addAyahAliases({
+        ...ayah,
+        translations: ayah.translations.filter((t: any) => t.language === language),
+      });
     }
 
-    return ayah;
+    return addAyahAliases(ayah);
   }
 
   /**
    * Get ayahs by Juz number
    */
   static async getAyahsByJuz(juzNumber: number): Promise<AyahType[]> {
-    return await Ayah.find({ juzNumber }).sort({ globalNumber: 1 });
+    const ayahs = await Ayah.find({ juzNumber }).sort({ globalNumber: 1 }).lean();
+    return ayahs.map(addAyahAliases);
   }
 
   /**
    * Get ayahs by page number
    */
   static async getAyahsByPage(pageNumber: number): Promise<AyahType[]> {
-    return await Ayah.find({ pageNumber }).sort({ globalNumber: 1 });
+    const ayahs = await Ayah.find({ pageNumber }).sort({ globalNumber: 1 }).lean();
+    return ayahs.map(addAyahAliases);
   }
 
   /**
    * Get Sajda ayahs
    */
   static async getSajdahAyahs(): Promise<AyahType[]> {
-    return await Ayah.find({ 'sajdah.required': true }).sort({ globalNumber: 1 });
+    const ayahs = await Ayah.find({ 'sajdah.required': true }).sort({ globalNumber: 1 }).lean();
+    return ayahs.map(addAyahAliases);
   }
 
   /**
@@ -111,17 +134,18 @@ export class QuranService {
 
     const ayahs = await Ayah.find(searchQuery)
       .sort({ score: { $meta: 'textScore' } })
-      .limit(50);
+      .limit(50)
+      .lean();
 
     // Filter translations by language if specified
     if (query.language) {
-      return ayahs.map(ayah => ({
-        ...ayah.toObject(),
-        translations: ayah.translations.filter(t => t.language === query.language),
+      return ayahs.map(ayah => addAyahAliases({
+        ...ayah,
+        translations: ayah.translations.filter((t: any) => t.language === query.language),
       }));
     }
 
-    return ayahs;
+    return ayahs.map(addAyahAliases);
   }
 
   /**
@@ -130,8 +154,8 @@ export class QuranService {
   static async getRandomAyah(): Promise<AyahType | null> {
     const count = await Ayah.countDocuments();
     const random = Math.floor(Math.random() * count);
-    const ayah = await Ayah.findOne().skip(random);
-    return ayah;
+    const ayah = await Ayah.findOne().skip(random).lean();
+    return ayah ? addAyahAliases(ayah) : null;
   }
 
   /**

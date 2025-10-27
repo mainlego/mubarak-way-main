@@ -13,8 +13,10 @@ interface LibraryState {
   // Actions
   loadBooks: (filters?: any) => Promise<void>;
   loadBook: (bookId: number) => Promise<void>;
+  searchBooks: (query: string) => Promise<Book[]>;
   loadNashids: (filters?: any) => Promise<void>;
   loadNashid: (nashidId: number) => Promise<void>;
+  searchNashids: (query: string) => Promise<Nashid[]>;
   clearCurrentBook: () => void;
   clearCurrentNashid: () => void;
 }
@@ -49,6 +51,18 @@ export const useLibraryStore = create<LibraryState>((set) => ({
     }
   },
 
+  searchBooks: async (query) => {
+    set({ isLoading: true, error: null });
+    try {
+      const result = await libraryService.getBooks({ query });
+      set({ books: result.items, isLoading: false });
+      return result.items;
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false });
+      throw error;
+    }
+  },
+
   loadNashids: async (filters = {}) => {
     set({ isLoading: true, error: null });
     try {
@@ -65,6 +79,18 @@ export const useLibraryStore = create<LibraryState>((set) => ({
     try {
       const nashid = await libraryService.getNashid(nashidId);
       set({ currentNashid: nashid, isLoading: false });
+    } catch (error: any) {
+      set({ error: error.message, isLoading: false });
+      throw error;
+    }
+  },
+
+  searchNashids: async (query) => {
+    set({ isLoading: true, error: null });
+    try {
+      const result = await libraryService.getNashids({ query });
+      set({ nashids: result.items, isLoading: false });
+      return result.items;
     } catch (error: any) {
       set({ error: error.message, isLoading: false });
       throw error;

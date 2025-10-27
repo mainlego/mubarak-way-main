@@ -27,6 +27,13 @@ export interface Subscription {
   startedAt: Date;
   expiresAt?: Date;
   autoRenew?: boolean;
+
+  // Backwards compatibility
+  limits?: {
+    aiRequests: number;
+    offlineBooks: number;
+    offlineNashids: number;
+  };
 }
 
 export interface UsageLimits {
@@ -36,6 +43,9 @@ export interface UsageLimits {
   nashidsFavorites: number;
   aiRequestsPerDay: number;
   resetDate: Date;
+
+  // Backwards compatibility
+  aiRequests?: number; // Same as aiRequestsPerDay
 }
 
 export interface PrayerSettings {
@@ -55,7 +65,7 @@ export interface PrayerSettings {
 
 export interface UserPreferences {
   language: Language;
-  theme: 'light' | 'dark';
+  theme: 'light' | 'dark' | 'system';
   fontSize: 'small' | 'medium' | 'large';
   notifications: boolean;
   showSimplifiedArabic: boolean;
@@ -144,6 +154,11 @@ export interface User {
   createdAt: Date;
   updatedAt: Date;
   lastActive: Date;
+
+  // Aliases for backwards compatibility
+  id?: string; // Same as _id
+  readingHistory?: any; // Legacy nested structure {books: [], quran: []}
+  progress?: any; // Legacy nested structure {completedLessons: [], lessonProgress: {}, currentStreak: 0}
 }
 
 export interface UserCreateDto {

@@ -79,15 +79,19 @@ export default function AIChatPage() {
 
       setMessages([userMessage]);
 
+      // Parse ayahId like "1:1" to surahNumber:ayahNumber
+      const [surahNumber, ayahNumber] = ayahId.split(':').map(Number);
+
       const response = await aiService.explainVerse({
-        ayahId,
+        surahNumber,
+        ayahNumber,
         language: t('common.language', { defaultValue: 'en' }),
         detailLevel: 'medium',
       });
 
       const assistantMessage: AIMessage = {
         role: 'assistant',
-        content: response,
+        content: response.explanation,
         timestamp: new Date(),
       };
 
@@ -122,7 +126,7 @@ export default function AIChatPage() {
 
       const assistantMessage: AIMessage = {
         role: 'assistant',
-        content: response,
+        content: response.answer,
         timestamp: new Date(),
       };
 

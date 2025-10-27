@@ -12,7 +12,7 @@ export default function PrayerPage() {
 
   useEffect(() => {
     if (lessons.length === 0) {
-      loadLessons({ page: 1, limit: 6 });
+      loadLessons();
     }
   }, [lessons.length, loadLessons]);
 
