@@ -11,6 +11,36 @@ export default function SettingsPage() {
 
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Get subscription limits based on tier
+  const getSubscriptionLimits = (tier: 'free' | 'pro' | 'premium') => {
+    switch (tier) {
+      case 'free':
+        return {
+          aiRequests: 5,
+          offlineBooks: 3,
+          favoriteBooks: 10,
+        };
+      case 'pro':
+        return {
+          aiRequests: 50,
+          offlineBooks: 20,
+          favoriteBooks: 100,
+        };
+      case 'premium':
+        return {
+          aiRequests: -1, // unlimited
+          offlineBooks: -1,
+          favoriteBooks: -1,
+        };
+      default:
+        return {
+          aiRequests: 5,
+          offlineBooks: 3,
+          favoriteBooks: 10,
+        };
+    }
+  };
+
   const handleLanguageChange = async (language: string) => {
     setIsUpdating(true);
     try {
@@ -76,6 +106,7 @@ export default function SettingsPage() {
 
   const currentLanguage = user.preferences?.language || i18n.language;
   const currentTheme = user.preferences?.theme || 'system';
+  const limits = getSubscriptionLimits(user.subscription.tier);
 
   return (
     <div className="page-container p-4 pb-24">
@@ -219,19 +250,19 @@ export default function SettingsPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-600 dark:text-gray-400">
-                  {t('progress.aiRequests')}
+                  {t('progress.aiRequests', { defaultValue: 'AI Requests' })}
                 </span>
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {user.usage.aiRequests} / {user.subscription.limits.aiRequests === -1 ? '∞' : user.subscription.limits.aiRequests}
+                  {user.usage.aiRequestsPerDay} / {limits.aiRequests === -1 ? '∞' : limits.aiRequests}
                 </span>
               </div>
               <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-primary-600"
                   style={{
-                    width: user.subscription.limits.aiRequests === -1
+                    width: limits.aiRequests === -1
                       ? '100%'
-                      : `${Math.min((user.usage.aiRequests / user.subscription.limits.aiRequests) * 100, 100)}%`
+                      : `${Math.min((user.usage.aiRequestsPerDay / limits.aiRequests) * 100, 100)}%`
                   }}
                 />
               </div>
@@ -240,19 +271,19 @@ export default function SettingsPage() {
             <div>
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-600 dark:text-gray-400">
-                  {t('library.offline')} {t('library.books')}
+                  {t('library.offline', { defaultValue: 'Offline' })} {t('library.books', { defaultValue: 'Books' })}
                 </span>
                 <span className="font-semibold text-gray-900 dark:text-white">
-                  {user.offline.books.length} / {user.subscription.limits.offlineBooks === -1 ? '∞' : user.subscription.limits.offlineBooks}
+                  {user.offline.books.length} / {limits.offlineBooks === -1 ? '∞' : limits.offlineBooks}
                 </span>
               </div>
               <div className="h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-secondary-600"
                   style={{
-                    width: user.subscription.limits.offlineBooks === -1
+                    width: limits.offlineBooks === -1
                       ? '100%'
-                      : `${Math.min((user.offline.books.length / user.subscription.limits.offlineBooks) * 100, 100)}%`
+                      : `${Math.min((user.offline.books.length / limits.offlineBooks) * 100, 100)}%`
                   }}
                 />
               </div>

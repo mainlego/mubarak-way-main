@@ -37,11 +37,25 @@ export default function AIChatPage() {
   const canUseAI = () => {
     if (!user) return false;
 
-    const limits = user.subscription.limits;
-    const usage = user.usage;
+    const limits = getSubscriptionLimits(user.subscription.tier);
+    const usage = user.usage.aiRequestsPerDay;
 
     if (limits.aiRequests === -1) return true; // Unlimited
-    return usage.aiRequests < limits.aiRequests;
+    return usage < limits.aiRequests;
+  };
+
+  // Get subscription limits based on tier
+  const getSubscriptionLimits = (tier: 'free' | 'pro' | 'premium') => {
+    switch (tier) {
+      case 'free':
+        return { aiRequests: 5 };
+      case 'pro':
+        return { aiRequests: 50 };
+      case 'premium':
+        return { aiRequests: -1 }; // unlimited
+      default:
+        return { aiRequests: 5 };
+    }
   };
 
   const handleExplainAyah = async (ayahId: string) => {
