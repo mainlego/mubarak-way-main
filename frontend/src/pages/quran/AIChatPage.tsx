@@ -89,15 +89,24 @@ export default function AIChatPage() {
         detailLevel: 'medium',
       });
 
+      console.log('📝 AIChatPage: Processing explainVerse response', response);
+
+      // Extract explanation from AIResponse object
+      const explanationText = typeof response.explanation === 'string'
+        ? response.explanation
+        : response.explanation?.answer || 'No explanation received';
+
       const assistantMessage: AIMessage = {
         role: 'assistant',
-        content: response.explanation,
+        content: explanationText,
         timestamp: new Date(),
       };
 
+      console.log('✅ AIChatPage: Adding explanation message', assistantMessage);
       setMessages([userMessage, assistantMessage]);
     } catch (err: any) {
-      console.error('AI error:', err);
+      console.error('❌ AIChatPage: explainVerse error', err);
+      console.error('Error stack:', err.stack);
       setError(err.message || t('errors.serverError'));
     } finally {
       setIsLoading(false);
@@ -124,15 +133,24 @@ export default function AIChatPage() {
         language: t('common.language', { defaultValue: 'en' }),
       });
 
+      console.log('📝 AIChatPage: Processing AI response', response);
+
+      // Extract answer from AIResponse object
+      const answerText = typeof response.answer === 'string'
+        ? response.answer
+        : response.answer?.answer || 'No answer received';
+
       const assistantMessage: AIMessage = {
         role: 'assistant',
-        content: response.answer,
+        content: answerText,
         timestamp: new Date(),
       };
 
+      console.log('✅ AIChatPage: Adding assistant message', assistantMessage);
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err: any) {
-      console.error('AI error:', err);
+      console.error('❌ AIChatPage: AI error', err);
+      console.error('Error stack:', err.stack);
       setError(err.message || t('errors.serverError'));
     } finally {
       setIsLoading(false);
