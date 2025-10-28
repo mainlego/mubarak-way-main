@@ -90,11 +90,22 @@ export default function AIChatPage() {
       });
 
       console.log('📝 AIChatPage: Processing explainVerse response', response);
+      console.log('📝 AIChatPage: response.explanation type:', typeof response.explanation);
+      console.log('📝 AIChatPage: response.explanation value:', response.explanation);
 
       // Extract explanation from AIResponse object
+      // Backend returns: { surahNumber, ayahNumber, explanation: AIResponse }
+      // where AIResponse = { answer: string, sources: [], relatedVerses: [] }
       const explanationText = typeof response.explanation === 'string'
         ? response.explanation
         : response.explanation?.answer || 'No explanation received';
+
+      console.log('📝 AIChatPage: Extracted explanationText:', explanationText);
+
+      if (!explanationText || explanationText === 'No explanation received') {
+        console.error('❌ AIChatPage: Invalid explanation text', { explanationText, response });
+        throw new Error('Invalid AI response: explanation text is empty');
+      }
 
       const assistantMessage: AIMessage = {
         role: 'assistant',
@@ -134,11 +145,22 @@ export default function AIChatPage() {
       });
 
       console.log('📝 AIChatPage: Processing AI response', response);
+      console.log('📝 AIChatPage: response.answer type:', typeof response.answer);
+      console.log('📝 AIChatPage: response.answer value:', response.answer);
 
       // Extract answer from AIResponse object
+      // Backend returns: { question: string, answer: AIResponse }
+      // where AIResponse = { answer: string, sources: [], relatedVerses: [] }
       const answerText = typeof response.answer === 'string'
         ? response.answer
         : response.answer?.answer || 'No answer received';
+
+      console.log('📝 AIChatPage: Extracted answerText:', answerText);
+
+      if (!answerText || answerText === 'No answer received') {
+        console.error('❌ AIChatPage: Invalid answer text', { answerText, response });
+        throw new Error('Invalid AI response: answer text is empty');
+      }
 
       const assistantMessage: AIMessage = {
         role: 'assistant',
@@ -272,7 +294,7 @@ export default function AIChatPage() {
                         ? 'text-white'
                         : 'text-gray-900 dark:text-white'
                     }`}>
-                      {message.content}
+                      {message.content || '[Empty message]'}
                     </p>
                     <p className={`text-xs mt-2 ${
                       message.role === 'user'
