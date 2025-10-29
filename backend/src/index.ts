@@ -151,19 +151,7 @@ const startServer = async () => {
       console.log('⚠️  Using mock data - MongoDB connection skipped');
     }
 
-    // Initialize Telegram bot
-    if (config.telegramBotToken) {
-      try {
-        await startBot();
-      } catch (error) {
-        console.error('⚠️  Failed to start Telegram bot:', error);
-        console.log('⚠️  Continuing without Telegram bot...');
-      }
-    } else {
-      console.log('⚠️  TELEGRAM_BOT_TOKEN not set - bot disabled');
-    }
-
-    // Start Express server
+    // Start Express server first
     app.listen(config.port, () => {
       console.log(`
 🚀 Server is running!
@@ -176,6 +164,16 @@ ${process.env.USE_MOCK_DATA === 'true' ? '⚠️  Mode: MOCK DATA (no database)'
 🤖 Telegram Bot: ${config.telegramBotToken ? 'ENABLED' : 'DISABLED'}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
       `);
+
+      // Initialize Telegram bot AFTER Express server starts (non-blocking)
+      if (config.telegramBotToken) {
+        startBot().catch(error => {
+          console.error('⚠️  Failed to start Telegram bot:', error);
+          console.log('⚠️  Continuing without Telegram bot...');
+        });
+      } else {
+        console.log('⚠️  TELEGRAM_BOT_TOKEN not set - bot disabled');
+      }
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);

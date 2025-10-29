@@ -84,13 +84,14 @@ async function syncAyahs(surahNumber: number) {
   try {
     console.log(`🔄 Fetching ayahs for Surah ${surahNumber}...`);
 
-    // Fetch verses with translation
+    // Fetch verses with translation (get all verses - max 286 per surah)
     const response = await axios.get(`${QURAN_API_URL}/verses/by_chapter/${surahNumber}`, {
       params: {
         language: 'ru',
         translations: TRANSLATION_ID,
         words: false,
         audio: false,
+        per_page: 300, // Get all ayahs (longest surah has 286 ayahs)
       },
     });
 
