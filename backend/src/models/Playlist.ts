@@ -13,6 +13,10 @@ export interface IPlaylist extends Document {
   }>;
   createdAt: Date;
   updatedAt: Date;
+
+  // Instance methods
+  addNashid(nashid: any): this;
+  removeNashid(nashidId: string): this;
 }
 
 const PlaylistSchema = new Schema<IPlaylist>(

@@ -15,6 +15,10 @@ export interface Surah {
   revelationOrder: number;
   bismillahPre?: boolean;
 
+  // Timestamps from Mongoose
+  createdAt?: Date;
+  updatedAt?: Date;
+
   // Aliases for backwards compatibility
   nameTranslation?: string; // Same as nameTransliteration
   numberOfAyahs?: number; // Same as ayahCount
