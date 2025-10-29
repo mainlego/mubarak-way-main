@@ -11,6 +11,7 @@
     "start": "node dist/index.js",
     "seed": "tsx src/scripts/seed.ts",
     "sync:quran": "tsx src/scripts/syncQuran.ts",
+    "sync:quran:ereplika": "tsx src/scripts/syncQuranEreplika.ts",
     "type-check": "tsc --noEmit",
     "lint": "eslint src --ext .ts"
   },
