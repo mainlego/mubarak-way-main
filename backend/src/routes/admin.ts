@@ -330,4 +330,131 @@ router.get('/activity/timeline', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/v1/admin/sync-data
+ * Trigger data synchronization (seed + quran)
+ * This endpoint runs the sync in background and returns immediately
+ */
+router.post('/sync-data', async (req, res) => {
+  try {
+    console.log('🚀 Admin triggered complete data sync...');
+
+    const { exec } = await import('child_process');
+    const { Surah } = await import('../models/Surah.js');
+    const { Ayah } = await import('../models/Ayah.js');
+    const Book = (await import('../models/Book.js')).default;
+    const Nashid = (await import('../models/Nashid.js')).default;
+
+    // Return immediately - sync runs in background
+    res.json({
+      success: true,
+      message: 'Data synchronization started in background',
+      data: {
+        jobId: Date.now().toString(),
+        steps: ['Database seeding', 'Quran synchronization'],
+        estimatedTime: '15-20 minutes',
+        note: 'Check /api/v1/admin/db-status for progress',
+      },
+    });
+
+    // Run sync in background
+    (async () => {
+      try {
+        // Step 1: Seed database
+        console.log('📦 Step 1/2: Seeding database...');
+        const seedProcess = exec('npm run seed', {
+          cwd: process.cwd(),
+          env: process.env,
+        });
+
+        await new Promise((resolve, reject) => {
+          seedProcess.on('close', (code) => {
+            if (code === 0) {
+              console.log('✅ Step 1/2: Database seeding completed');
+              resolve(true);
+            } else {
+              reject(new Error(`Seeding failed with code ${code}`));
+            }
+          });
+        });
+
+        // Step 2: Sync Quran
+        console.log('📖 Step 2/2: Syncing Quran...');
+        const syncProcess = exec('npm run sync:quran:ereplika -- --all', {
+          cwd: process.cwd(),
+          env: process.env,
+          maxBuffer: 10 * 1024 * 1024,
+        });
+
+        await new Promise((resolve, reject) => {
+          syncProcess.on('close', (code) => {
+            if (code === 0) {
+              console.log('✅ Step 2/2: Quran sync completed');
+              resolve(true);
+            } else {
+              reject(new Error(`Quran sync failed with code ${code}`));
+            }
+          });
+        });
+
+        // Final stats
+        const stats = {
+          surahs: await Surah.countDocuments(),
+          ayahs: await Ayah.countDocuments(),
+          books: await Book.countDocuments(),
+          nashids: await Nashid.countDocuments(),
+        };
+
+        console.log('✅ Complete data sync finished:', stats);
+      } catch (error) {
+        console.error('❌ Complete data sync failed:', error);
+      }
+    })();
+  } catch (error) {
+    console.error('Error starting sync:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to start data synchronization',
+      },
+    });
+  }
+});
+
+/**
+ * GET /api/v1/admin/db-status
+ * Get database statistics (document counts)
+ */
+router.get('/db-status', async (req, res) => {
+  try {
+    const { Surah } = await import('../models/Surah.js');
+    const { Ayah } = await import('../models/Ayah.js');
+    const Book = (await import('../models/Book.js')).default;
+    const Nashid = (await import('../models/Nashid.js')).default;
+
+    const stats = {
+      surahs: await Surah.countDocuments(),
+      ayahs: await Ayah.countDocuments(),
+      books: await Book.countDocuments(),
+      nashids: await Nashid.countDocuments(),
+      timestamp: new Date().toISOString(),
+    };
+
+    res.json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    console.error('Error fetching db status:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'INTERNAL_ERROR',
+        message: 'Failed to fetch database status',
+      },
+    });
+  }
+});
+
 export default router;

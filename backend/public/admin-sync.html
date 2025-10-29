@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MubarakWay - Admin Data Sync</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .status-card h3 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .stat-label {
+            color: #666;
+        }
+
+        .stat-value {
+            color: #333;
+            font-weight: 600;
+        }
+
+        .button-group {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 16px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        button.secondary {
+            background: #6c757d;
+        }
+
+        button.secondary:hover:not(:disabled) {
+            background: #5a6268;
+        }
+
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 10px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+        }
+
+        .log-entry.success {
+            color: #4ade80;
+        }
+
+        .log-entry.error {
+            color: #ef4444;
+        }
+
+        .log-entry.info {
+            color: #60a5fa;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 MubarakWay Admin</h1>
+        <p class="subtitle">Data Synchronization Control Panel</p>
+
+        <div class="status-card">
+            <h3>📊 Database Status</h3>
+            <div class="stat-row">
+                <span class="stat-label">Surahs:</span>
+                <span class="stat-value" id="stat-surahs">-</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Ayahs:</span>
+                <span class="stat-value" id="stat-ayahs">-</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Books:</span>
+                <span class="stat-value" id="stat-books">-</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Nashids:</span>
+                <span class="stat-value" id="stat-nashids">-</span>
+            </div>
+            <div class="stat-row">
+                <span class="stat-label">Last Updated:</span>
+                <span class="stat-value" id="stat-time">-</span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button id="syncBtn" onclick="startSync()">
+                <span class="spinner hidden" id="syncSpinner"></span>
+                <span id="syncText">🔄 Start Full Sync</span>
+            </button>
+            <button class="secondary" onclick="refreshStatus()">
+                <span>📈 Refresh Status</span>
+            </button>
+        </div>
+
+        <div class="log" id="logContainer"></div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin + '/api/v1/admin';
+        let isAuthenticated = false;
+        let authToken = null;
+
+        // Log function
+        function log(message, type = 'info') {
+            const logContainer = document.getElementById('logContainer');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logContainer.appendChild(entry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+        }
+
+        // Authenticate
+        async function authenticate() {
+            // For Telegram WebApp authentication
+            if (window.Telegram?.WebApp) {
+                const initData = window.Telegram.WebApp.initData;
+                if (initData) {
+                    authToken = initData;
+                    isAuthenticated = true;
+                    log('✅ Authenticated via Telegram', 'success');
+                    return true;
+                }
+            }
+
+            log('⚠️  Running without authentication (local dev mode)', 'info');
+            return false;
+        }
+
+        // Fetch with auth
+        async function fetchWithAuth(url, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers,
+            };
+
+            if (authToken) {
+                headers['Authorization'] = `tma ${authToken}`;
+            }
+
+            return fetch(url, { ...options, headers });
+        }
+
+        // Refresh status
+        async function refreshStatus() {
+            try {
+                log('📊 Fetching database status...');
+                const response = await fetchWithAuth(`${API_URL}/db-status`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    const stats = data.data;
+                    document.getElementById('stat-surahs').textContent = stats.surahs;
+                    document.getElementById('stat-ayahs').textContent = stats.ayahs;
+                    document.getElementById('stat-books').textContent = stats.books;
+                    document.getElementById('stat-nashids').textContent = stats.nashids;
+                    document.getElementById('stat-time').textContent = new Date(stats.timestamp).toLocaleTimeString();
+
+                    log(`✅ Status updated - Surahs: ${stats.surahs}, Ayahs: ${stats.ayahs}, Books: ${stats.books}, Nashids: ${stats.nashids}`, 'success');
+                } else {
+                    throw new Error(data.error?.message || 'Failed to fetch status');
+                }
+            } catch (error) {
+                log(`❌ Failed to refresh status: ${error.message}`, 'error');
+            }
+        }
+
+        // Start sync
+        async function startSync() {
+            const btn = document.getElementById('syncBtn');
+            const spinner = document.getElementById('syncSpinner');
+            const text = document.getElementById('syncText');
+
+            btn.disabled = true;
+            spinner.classList.remove('hidden');
+            text.textContent = 'Syncing...';
+
+            try {
+                log('🚀 Starting full data synchronization...', 'info');
+
+                const response = await fetchWithAuth(`${API_URL}/sync-data`, {
+                    method: 'POST',
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.success) {
+                    log(`✅ Sync started! Job ID: ${data.data.jobId}`, 'success');
+                    log(`⏱️  Estimated time: ${data.data.estimatedTime}`, 'info');
+                    log(`📋 Steps: ${data.data.steps.join(', ')}`, 'info');
+                    log('💡 Refreshing status every 10 seconds...', 'info');
+
+                    // Auto-refresh status every 10 seconds
+                    const interval = setInterval(async () => {
+                        await refreshStatus();
+                    }, 10000);
+
+                    // Stop auto-refresh after 25 minutes
+                    setTimeout(() => {
+                        clearInterval(interval);
+                        log('⏹️  Auto-refresh stopped', 'info');
+                    }, 25 * 60 * 1000);
+
+                } else {
+                    throw new Error(data.error?.message || 'Failed to start sync');
+                }
+
+            } catch (error) {
+                log(`❌ Sync failed: ${error.message}`, 'error');
+            } finally {
+                btn.disabled = false;
+                spinner.classList.add('hidden');
+                text.textContent = '🔄 Start Full Sync';
+            }
+        }
+
+        // Initialize
+        (async () => {
+            log('🌟 MubarakWay Admin Panel initialized', 'success');
+            await authenticate();
+            await refreshStatus();
+        })();
+    </script>
+</body>
+</html>
