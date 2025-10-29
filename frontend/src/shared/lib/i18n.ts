@@ -65,11 +65,16 @@ const resources = {
       'progress.savedDuas': 'Сохранённые ду\'а',
 
       // Common
+      'common.appName': 'Mubarak Way',
       'common.loading': 'Загрузка...',
       'common.error': 'Ошибка',
       'common.retry': 'Повторить',
       'common.offline': 'Офлайн режим',
       'common.rakats': 'ракаатов',
+
+      // Greeting
+      'greeting.welcome': 'Добро пожаловать',
+      'greeting.assalamu': 'Ассаляму алейкум',
 
       // Update Notification
       'update.available': 'Доступно обновление',
@@ -155,11 +160,16 @@ const resources = {
       'progress.savedDuas': 'Saved Duas',
 
       // Common
+      'common.appName': 'Mubarak Way',
       'common.loading': 'Loading...',
       'common.error': 'Error',
       'common.retry': 'Retry',
       'common.offline': 'Offline Mode',
       'common.rakats': 'rakats',
+
+      // Greeting
+      'greeting.welcome': 'Welcome',
+      'greeting.assalamu': 'Assalamu Alaikum',
 
       // Update Notification
       'update.available': 'Update Available',
@@ -245,11 +255,16 @@ const resources = {
       'progress.savedDuas': 'الأدعية المحفوظة',
 
       // Common
+      'common.appName': 'طريق المبارك',
       'common.loading': 'جاري التحميل...',
       'common.error': 'خطأ',
       'common.retry': 'إعادة المحاولة',
       'common.offline': 'وضع عدم الاتصال',
       'common.rakats': 'ركعات',
+
+      // Greeting
+      'greeting.welcome': 'مرحبا',
+      'greeting.assalamu': 'السلام عليكم',
 
       // Update Notification
       'update.available': 'تحديث متاح',

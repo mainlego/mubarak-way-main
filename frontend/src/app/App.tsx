@@ -61,6 +61,8 @@ function App() {
 
   useEffect(() => {
     const initializeApp = async () => {
+      console.log('🚀 App initializing...');
+
       // Initialize Telegram WebApp SDK
       initTelegramSDK();
 
@@ -83,6 +85,8 @@ function App() {
 
     initializeApp();
   }, [login]);
+
+  console.log('🎨 App rendering...');
 
   return (
     <BrowserRouter>
