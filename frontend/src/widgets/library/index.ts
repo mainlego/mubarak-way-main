@@ -3,6 +3,8 @@
  */
 
 export { default as EnhancedBookReader } from './EnhancedBookReader';
+export { PlaylistManager } from './PlaylistManager';
+export { GlobalAudioPlayer } from './GlobalAudioPlayer';
 export type {
   Book,
   ReaderSettings,
