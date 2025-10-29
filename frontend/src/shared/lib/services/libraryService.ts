@@ -1,5 +1,48 @@
 import { apiGet } from '../api';
 import type { Book, Nashid, LibrarySearchQuery, LibrarySearchResult } from '@mubarak-way/shared';
+import { catalogService } from './catalogService';
+import type { CatalogItem } from '@/shared/types/eReplika';
+
+/**
+ * Helper to get current language from localStorage or default to 'ru'
+ */
+const getCurrentLanguage = (): string => {
+  try {
+    const settings = localStorage.getItem('settings');
+    if (settings) {
+      const parsed = JSON.parse(settings);
+      return parsed.language || 'ru';
+    }
+  } catch (e) {
+    // Ignore parsing errors
+  }
+  return 'ru';
+};
+
+/**
+ * Convert CatalogItem to Nashid format
+ */
+const catalogItemToNashid = (item: CatalogItem, lang: string = 'ru'): Nashid => {
+  return {
+    _id: item.id,
+    nashidId: parseInt(item.id, 10) || 0,
+    id: parseInt(item.id, 10) || 0,
+    title: item.title[lang] || item.title.ru || item.title.en || Object.values(item.title)[0] || 'Unknown',
+    titleArabic: item.title.ar,
+    artist: item.author || 'Unknown Artist',
+    duration: item.duration || 0,
+    audioUrl: item.audio_url || '',
+    cover: item.cover_url,
+    coverUrl: item.cover_url,
+    coverImage: item.cover_url,
+    category: 'nasheed' as const,
+    language: lang,
+    accessLevel: item.is_premium ? 'premium' as const : 'free' as const,
+    isExclusive: item.is_premium || false,
+    createdAt: new Date(item.created_at),
+    updatedAt: new Date(item.created_at),
+  };
+};
 
 export const libraryService = {
   /**
@@ -42,33 +85,34 @@ export const libraryService = {
   },
 
   /**
-   * Get nashids with filters
+   * Get nashids with filters - now using E-Replika catalogService
    */
   getNashids: async (query: LibrarySearchQuery = {}): Promise<LibrarySearchResult<Nashid>> => {
-    const response = await apiGet<Nashid[]>('/library/nashids', {
+    const lang = query.language || getCurrentLanguage();
+
+    const response = await catalogService.getNasheeds({
       q: query.query,
-      category: query.category,
-      language: query.language,
-      accessLevel: query.accessLevel,
-      sortBy: query.sortBy,
-      sortOrder: query.sortOrder,
-      page: query.page,
-      limit: query.limit,
+      limit: query.limit || 20,
+      offset: ((query.page || 1) - 1) * (query.limit || 20),
     });
 
+    const nashids = response.items.map(item => catalogItemToNashid(item, lang));
+
     return {
-      items: response,
-      total: 0,
+      items: nashids,
+      total: response.total,
       page: query.page || 1,
-      totalPages: 0,
-    } as any;
+      totalPages: Math.ceil(response.total / (query.limit || 20)),
+    };
   },
 
   /**
-   * Get nashid by ID
+   * Get nashid by ID - now using E-Replika catalogService
    */
   getNashid: async (nashidId: number): Promise<Nashid> => {
-    return await apiGet<Nashid>(`/library/nashids/${nashidId}`);
+    const lang = getCurrentLanguage();
+    const item = await catalogService.getItem(nashidId.toString(), lang);
+    return catalogItemToNashid(item, lang);
   },
 
   /**
