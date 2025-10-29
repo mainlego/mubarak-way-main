@@ -31,15 +31,30 @@ import {
   LessonDetailPage,
   PrayerTimesPage,
   QiblaPage,
+  PracticePage,
+  PracticeSessionPage,
+  WuduPage,
 } from '@pages/prayer';
 
 // Progress & Settings Pages
 import ProgressPage from '@pages/ProgressPage';
 import SettingsPage from '@pages/SettingsPage';
 
+// Admin Pages
+import AdminLoginPage from '../pages/admin/AdminLoginPage';
+import AdminDashboardPage from '../pages/admin/AdminDashboardPage';
+import AdminBooksPage from '../pages/admin/AdminBooksPage';
+import AdminNashidsPage from '../pages/admin/AdminNashidsPage';
+import AdminUsersPage from '../pages/admin/AdminUsersPage';
+import AdminAdminsPage from '../pages/admin/AdminAdminsPage';
+import AdminSubscriptionsPage from '../pages/admin/AdminSubscriptionsPage';
+import AdminSettingsPage from '../pages/admin/AdminSettingsPage';
+import AdminLayout from '../widgets/admin/AdminLayout';
+
 // Widgets
 import BottomNav from '@widgets/BottomNav';
 import DebugPanel from '@widgets/DebugPanel';
+import { VersionChecker } from '@shared/ui';
 
 function App() {
   const { login } = useUserStore();
@@ -99,10 +114,26 @@ function App() {
           <Route path="/prayer/lessons/:lessonSlug" element={<LessonDetailPage />} />
           <Route path="/prayer/times" element={<PrayerTimesPage />} />
           <Route path="/prayer/qibla" element={<QiblaPage />} />
+          <Route path="/prayer/practice" element={<PracticePage />} />
+          <Route path="/prayer/practice/:lessonId" element={<PracticeSessionPage />} />
+          <Route path="/prayer/wudu" element={<WuduPage />} />
 
           {/* Progress & Settings */}
           <Route path="/progress" element={<ProgressPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+
+          {/* Admin Panel */}
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route path="dashboard" element={<AdminDashboardPage />} />
+            <Route path="books" element={<AdminBooksPage />} />
+            <Route path="nashids" element={<AdminNashidsPage />} />
+            <Route path="users" element={<AdminUsersPage />} />
+            <Route path="admins" element={<AdminAdminsPage />} />
+            <Route path="subscriptions" element={<AdminSubscriptionsPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+            <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          </Route>
 
           {/* 404 */}
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -113,6 +144,9 @@ function App() {
 
         {/* Debug Panel (only in development or when needed) */}
         <DebugPanel />
+
+        {/* Version Checker - Auto-update notification */}
+        <VersionChecker />
       </div>
     </BrowserRouter>
   );

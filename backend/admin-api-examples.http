@@ -1,0 +1,398 @@
+### Admin Authentication API Examples
+### Use with REST Client extension in VS Code or any HTTP client
+
+@baseUrl = http://localhost:3001
+@token = YOUR_TOKEN_HERE
+
+### ============================================
+### AUTHENTICATION
+### ============================================
+
+### Login as Admin
+POST {{baseUrl}}/api/admin/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "password123"
+}
+
+### Verify Token
+GET {{baseUrl}}/api/admin/verify
+Authorization: Bearer {{token}}
+
+### Update Profile
+PUT {{baseUrl}}/api/admin/profile
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "email": "admin@mubarakway.com"
+}
+
+### Change Password
+PUT {{baseUrl}}/api/admin/password
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "currentPassword": "oldpassword",
+  "newPassword": "newpassword123"
+}
+
+### ============================================
+### DASHBOARD STATS
+### ============================================
+
+### Get Dashboard Statistics
+GET {{baseUrl}}/api/admin/stats
+Authorization: Bearer {{token}}
+
+### ============================================
+### BOOKS MANAGEMENT
+### ============================================
+
+### Get All Books (with pagination)
+GET {{baseUrl}}/api/admin/books?page=1&limit=20
+Authorization: Bearer {{token}}
+
+### Get All Books (with search)
+GET {{baseUrl}}/api/admin/books?search=bukhari
+Authorization: Bearer {{token}}
+
+### Get All Books (with filters)
+GET {{baseUrl}}/api/admin/books?category=religious&language=ru
+Authorization: Bearer {{token}}
+
+### Get Single Book
+GET {{baseUrl}}/api/admin/books/60d5ec49f1b2c8b5f8e4c1a2
+Authorization: Bearer {{token}}
+
+### Create Book
+POST {{baseUrl}}/api/admin/books
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Sahih Bukhari",
+  "titleArabic": "صحيح البخاري",
+  "author": "Imam Bukhari",
+  "authorArabic": "الإمام البخاري",
+  "description": "The most authentic collection of hadith",
+  "cover": "https://example.com/covers/bukhari.jpg",
+  "content": "https://example.com/books/bukhari.pdf",
+  "category": "religious",
+  "genre": "hadith",
+  "language": "ru",
+  "accessLevel": "free",
+  "pageCount": 500,
+  "isPro": false,
+  "isExclusive": false,
+  "publishedDate": "2025-01-01T00:00:00.000Z"
+}
+
+### Update Book
+PUT {{baseUrl}}/api/admin/books/60d5ec49f1b2c8b5f8e4c1a2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Sahih Bukhari - Updated",
+  "description": "Updated description",
+  "isPro": true
+}
+
+### Delete Book
+DELETE {{baseUrl}}/api/admin/books/60d5ec49f1b2c8b5f8e4c1a2
+Authorization: Bearer {{token}}
+
+### ============================================
+### NASHIDS MANAGEMENT
+### ============================================
+
+### Get All Nashids (with pagination)
+GET {{baseUrl}}/api/admin/nashids?page=1&limit=20
+Authorization: Bearer {{token}}
+
+### Get All Nashids (with search)
+GET {{baseUrl}}/api/admin/nashids?search=maher zain
+Authorization: Bearer {{token}}
+
+### Get All Nashids (with category filter)
+GET {{baseUrl}}/api/admin/nashids?category=nasheed
+Authorization: Bearer {{token}}
+
+### Get Single Nashid
+GET {{baseUrl}}/api/admin/nashids/60d5ec49f1b2c8b5f8e4c1a2
+Authorization: Bearer {{token}}
+
+### Create Nashid
+POST {{baseUrl}}/api/admin/nashids
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Ya Taiba",
+  "titleArabic": "يا طيبة",
+  "titleTransliteration": "Ya Taiba",
+  "artist": "Maher Zain",
+  "artistArabic": "ماهر زين",
+  "duration": 240,
+  "cover": "https://example.com/covers/ya-taiba.jpg",
+  "coverImage": "https://example.com/covers/ya-taiba.jpg",
+  "audioUrl": "https://example.com/audio/ya-taiba.mp3",
+  "category": "nasheed",
+  "language": "ar",
+  "accessLevel": "free",
+  "isExclusive": false,
+  "releaseYear": 2015
+}
+
+### Update Nashid
+PUT {{baseUrl}}/api/admin/nashids/60d5ec49f1b2c8b5f8e4c1a2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "title": "Ya Taiba - Remastered",
+  "duration": 245,
+  "accessLevel": "pro"
+}
+
+### Delete Nashid
+DELETE {{baseUrl}}/api/admin/nashids/60d5ec49f1b2c8b5f8e4c1a2
+Authorization: Bearer {{token}}
+
+### ============================================
+### ADMINS MANAGEMENT
+### ============================================
+
+### Get All Admins
+GET {{baseUrl}}/api/admin/admins
+Authorization: Bearer {{token}}
+
+### Create Admin
+POST {{baseUrl}}/api/admin/admins
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "editor1",
+  "email": "editor1@example.com",
+  "password": "password123",
+  "role": "editor",
+  "permissions": {
+    "canManageBooks": true,
+    "canManageNashids": true,
+    "canManageUsers": false,
+    "canViewAnalytics": true,
+    "canManageAdmins": false
+  }
+}
+
+### Create Moderator
+POST {{baseUrl}}/api/admin/admins
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "moderator1",
+  "email": "moderator1@example.com",
+  "password": "password123",
+  "role": "moderator",
+  "permissions": {
+    "canManageBooks": true,
+    "canManageNashids": true,
+    "canManageUsers": true,
+    "canViewAnalytics": true,
+    "canManageAdmins": false
+  }
+}
+
+### Create Full Admin
+POST {{baseUrl}}/api/admin/admins
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "username": "admin2",
+  "email": "admin2@example.com",
+  "password": "password123",
+  "role": "admin",
+  "permissions": {
+    "canManageBooks": true,
+    "canManageNashids": true,
+    "canManageUsers": true,
+    "canViewAnalytics": true,
+    "canManageAdmins": true
+  }
+}
+
+### Update Admin
+PUT {{baseUrl}}/api/admin/admins/60d5ec49f1b2c8b5f8e4c1a2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "role": "moderator",
+  "permissions": {
+    "canManageBooks": true,
+    "canManageNashids": true,
+    "canManageUsers": true,
+    "canViewAnalytics": true,
+    "canManageAdmins": false
+  }
+}
+
+### Deactivate Admin
+PUT {{baseUrl}}/api/admin/admins/60d5ec49f1b2c8b5f8e4c1a2
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "isActive": false
+}
+
+### Delete Admin
+DELETE {{baseUrl}}/api/admin/admins/60d5ec49f1b2c8b5f8e4c1a2
+Authorization: Bearer {{token}}
+
+### ============================================
+### USERS MANAGEMENT
+### ============================================
+
+### Get All Users (with pagination)
+GET {{baseUrl}}/api/admin/users?page=1&limit=50
+Authorization: Bearer {{token}}
+
+### Get All Users (with search)
+GET {{baseUrl}}/api/admin/users?search=ahmed
+Authorization: Bearer {{token}}
+
+### Get All Users (with tier filter)
+GET {{baseUrl}}/api/admin/users?tier=pro
+Authorization: Bearer {{token}}
+
+### Update User Subscription to Pro
+PATCH {{baseUrl}}/api/admin/users/60d5ec49f1b2c8b5f8e4c1a2/subscription
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tier": "pro",
+  "expiresAt": "2025-02-15T00:00:00.000Z"
+}
+
+### Update User Subscription to Premium
+PATCH {{baseUrl}}/api/admin/users/60d5ec49f1b2c8b5f8e4c1a2/subscription
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tier": "premium",
+  "expiresAt": "2025-12-31T23:59:59.999Z"
+}
+
+### Update User Subscription to Free
+PATCH {{baseUrl}}/api/admin/users/60d5ec49f1b2c8b5f8e4c1a2/subscription
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tier": "free"
+}
+
+### ============================================
+### SUBSCRIPTIONS MANAGEMENT
+### ============================================
+
+### Get All Subscription Plans
+GET {{baseUrl}}/api/admin/subscriptions
+Authorization: Bearer {{token}}
+
+### Get Specific Subscription Plan
+GET {{baseUrl}}/api/admin/subscriptions/free
+Authorization: Bearer {{token}}
+
+### Get Pro Plan
+GET {{baseUrl}}/api/admin/subscriptions/pro
+Authorization: Bearer {{token}}
+
+### Get Premium Plan
+GET {{baseUrl}}/api/admin/subscriptions/premium
+Authorization: Bearer {{token}}
+
+### Create New Subscription Plan
+POST {{baseUrl}}/api/admin/subscriptions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "tier": "elite",
+  "name": "Elite",
+  "description": "Elite tier with exclusive features",
+  "price": {
+    "amount": 1999,
+    "currency": "RUB",
+    "period": "monthly"
+  },
+  "limits": {
+    "booksOffline": -1,
+    "booksFavorites": -1,
+    "nashidsOffline": -1,
+    "nashidsFavorites": -1,
+    "aiRequestsPerDay": 200
+  },
+  "access": {
+    "freeContent": true,
+    "proContent": true,
+    "premiumContent": true,
+    "exclusiveContent": true
+  },
+  "features": {
+    "notes": true,
+    "sync": true,
+    "backgroundAudio": true,
+    "advancedSearch": true,
+    "offlineMode": true,
+    "familyAccess": true,
+    "prioritySupport": true,
+    "earlyAccess": true
+  },
+  "isActive": true
+}
+
+### Update Subscription Plan
+PUT {{baseUrl}}/api/admin/subscriptions/pro
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "price": {
+    "amount": 499,
+    "currency": "RUB",
+    "period": "monthly"
+  },
+  "limits": {
+    "booksOffline": 20,
+    "booksFavorites": 50,
+    "nashidsOffline": 30,
+    "nashidsFavorites": 100,
+    "aiRequestsPerDay": 25
+  }
+}
+
+### Delete Subscription Plan
+DELETE {{baseUrl}}/api/admin/subscriptions/elite
+Authorization: Bearer {{token}}
+
+### ============================================
+### HEALTH CHECK
+### ============================================
+
+### Server Health Check
+GET {{baseUrl}}/health
+
+### API Status
+GET {{baseUrl}}/api/v1/status
