@@ -11,12 +11,11 @@
 import mongoose from 'mongoose';
 import QuranSyncService from '../services/QuranSyncService';
 import dotenv from 'dotenv';
-import path from 'path';
 
 // Load environment variables
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config();
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/mubarak-way';
+const MONGO_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mubarak-way';
 
 async function connectDatabase() {
   try {

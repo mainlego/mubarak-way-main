@@ -296,13 +296,51 @@ export default function AIChatPage() {
                     }`}>
                       {message.content || '[Empty message]'}
                     </p>
-                    <p className={`text-xs mt-2 ${
-                      message.role === 'user'
-                        ? 'text-primary-100'
-                        : 'text-gray-500 dark:text-gray-400'
-                    }`}>
-                      {new Date(message.timestamp).toLocaleTimeString()}
-                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                      <p className={`text-xs ${
+                        message.role === 'user'
+                          ? 'text-primary-100'
+                          : 'text-gray-500 dark:text-gray-400'
+                      }`}>
+                        {new Date(message.timestamp).toLocaleTimeString()}
+                      </p>
+
+                      {/* Action buttons for AI responses */}
+                      {message.role === 'assistant' && (
+                        <div className="flex items-center gap-2">
+                          {/* Copy button */}
+                          <button
+                            onClick={() => {
+                              navigator.clipboard.writeText(message.content);
+                              // TODO: Show toast notification
+                            }}
+                            className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            title={t('common.copy', { defaultValue: 'Copy' })}
+                          >
+                            📋
+                          </button>
+
+                          {/* Share button */}
+                          <button
+                            onClick={() => {
+                              if (navigator.share) {
+                                navigator.share({
+                                  title: t('ai.assistant'),
+                                  text: message.content,
+                                });
+                              } else {
+                                navigator.clipboard.writeText(message.content);
+                                // TODO: Show toast notification
+                              }
+                            }}
+                            className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            title={t('common.share', { defaultValue: 'Share' })}
+                          >
+                            🔗
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </Card>

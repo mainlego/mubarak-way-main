@@ -69,12 +69,18 @@ nashidSchema.index({ language: 1 });
 nashidSchema.index({ accessLevel: 1 });
 
 // Text search index
-nashidSchema.index({
-  title: 'text',
-  titleArabic: 'text',
-  titleTransliteration: 'text',
-  artist: 'text',
-});
+nashidSchema.index(
+  {
+    title: 'text',
+    titleArabic: 'text',
+    titleTransliteration: 'text',
+    artist: 'text',
+  },
+  {
+    default_language: 'none', // Disable language-specific features
+    language_override: 'search_language', // Use a different field for language
+  }
+);
 
 const NashidModel = mongoose.model<Nashid>('Nashid', nashidSchema);
 

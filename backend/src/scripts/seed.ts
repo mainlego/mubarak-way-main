@@ -40,6 +40,15 @@ async function clearDatabase() {
     SubscriptionPlan.deleteMany({}),
   ]);
 
+  // Drop indexes to ensure they're recreated with new settings
+  try {
+    await Book.collection.dropIndexes();
+    await Nashid.collection.dropIndexes();
+    console.log('✅ Indexes dropped');
+  } catch (error) {
+    // Ignore errors if indexes don't exist
+  }
+
   console.log('✅ Database cleared');
 }
 
@@ -135,9 +144,89 @@ async function seedQuran() {
 
 async function seedLibrary() {
   console.log('\n📚 Seeding library data...');
-  console.log('ℹ️  Books and Nashids will be added via Admin panel or API');
-  // Note: Mock data doesn't match current schemas
-  // Use the API or Admin panel to add books and nashids
+
+  // Seed Books
+  const booksToSeed = mockBooks.map((book: any, index: number) => ({
+    bookId: index + 1,
+    title: book.title,
+    titleArabic: book.titleArabic || book.title,
+    author: book.author,
+    authorArabic: book.authorArabic || book.author,
+    description: book.description || `Description for ${book.title}`,
+    cover: book.coverUrl || `/images/books/book-${index + 1}.jpg`,
+    content: book.fileUrl || `/books/book-${index + 1}.pdf`,
+    category: mapCategory(book.category),
+    genre: book.category || 'general',
+    language: book.language || 'ar',
+    pageCount: book.pages || 100,
+    isPro: book.isPremium || book.accessLevel === 'pro',
+    accessLevel: book.accessLevel || 'free',
+    isNew: index < 3, // Mark first 3 as new
+    rating: {
+      average: book.rating || 4.5,
+      count: book.downloadCount || 0,
+    },
+  }));
+
+  if (booksToSeed.length > 0) {
+    await Book.insertMany(booksToSeed);
+    console.log(`✅ Seeded ${booksToSeed.length} books`);
+  }
+
+  // Seed Nashids
+  const nashidsToSeed = mockNashids.map((nashid: any, index: number) => ({
+    nashidId: index + 1,
+    title: nashid.title,
+    titleArabic: nashid.titleArabic || nashid.title,
+    artist: nashid.artist || 'Unknown Artist',
+    artistArabic: nashid.artistArabic || nashid.artist,
+    description: nashid.description || `Description for ${nashid.title}`,
+    cover: nashid.coverUrl || nashid.cover || `/images/nashids/nashid-${index + 1}.jpg`,
+    audioUrl: nashid.audioUrl || `/audio/nashid-${index + 1}.mp3`,
+    duration: nashid.duration || 180,
+    category: mapNashidCategory(nashid.category) || 'general',
+    language: nashid.language || 'ar',
+    isPro: nashid.isPremium || nashid.accessLevel === 'pro',
+    accessLevel: nashid.accessLevel || 'free',
+    isNew: index < 3,
+    rating: {
+      average: nashid.rating || 4.5,
+      count: nashid.playCount || 0,
+    },
+  }));
+
+  if (nashidsToSeed.length > 0) {
+    await Nashid.insertMany(nashidsToSeed);
+    console.log(`✅ Seeded ${nashidsToSeed.length} nashids`);
+  }
+}
+
+// Helper function to map mock categories to schema enums
+function mapCategory(category: string): string {
+  const categoryMap: any = {
+    'hadith': 'religious',
+    'fiqh': 'religious',
+    'tafsir': 'religious',
+    'aqidah': 'religious',
+    'seerah': 'biography',
+    'history': 'history',
+    'education': 'education',
+    'spiritual': 'spiritual',
+  };
+  return categoryMap[category] || 'religious';
+}
+
+// Helper function to map nashid categories to schema enums
+function mapNashidCategory(category: string): string {
+  const categoryMap: any = {
+    'praise': 'nasheed',
+    'worship': 'nasheed',
+    'devotional': 'nasheed',
+    'spiritual': 'religious',
+    'quranic': 'quran-recitation',
+    'dua': 'dua',
+  };
+  return categoryMap[category] || 'general';
 }
 
 async function seedPrayer() {
@@ -167,11 +256,15 @@ async function seed() {
     const counts = {
       plans: await SubscriptionPlan.countDocuments(),
       surahs: await Surah.countDocuments(),
+      books: await Book.countDocuments(),
+      nashids: await Nashid.countDocuments(),
     };
 
     console.log('📊 Database Summary:');
     console.log(`   Subscription Plans: ${counts.plans}`);
     console.log(`   Surahs: ${counts.surahs}`);
+    console.log(`   Books: ${counts.books}`);
+    console.log(`   Nashids: ${counts.nashids}`);
     console.log('');
 
     process.exit(0);

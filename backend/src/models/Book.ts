@@ -112,13 +112,19 @@ bookSchema.index({ accessLevel: 1 });
 bookSchema.index({ isNew: -1 });
 
 // Text search index
-bookSchema.index({
-  title: 'text',
-  titleArabic: 'text',
-  author: 'text',
-  description: 'text',
-  extractedText: 'text',
-});
+bookSchema.index(
+  {
+    title: 'text',
+    titleArabic: 'text',
+    author: 'text',
+    description: 'text',
+    extractedText: 'text',
+  },
+  {
+    default_language: 'none', // Disable language-specific features
+    language_override: 'search_language', // Use a different field for language
+  }
+);
 
 const BookModel = mongoose.model<Book>('Book', bookSchema);
 
