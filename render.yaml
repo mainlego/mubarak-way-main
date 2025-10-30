@@ -1,97 +1,45 @@
-# Render Blueprint for MubarakWay Unified Project
-# Optimized for minimal build minutes usage
-# Documentation: https://render.com/docs/blueprint-spec
-
 services:
-  # ============================================
-  # Backend API Service (Node.js + Express)
-  # ============================================
+  # Backend API Service
   - type: web
     name: mubarak-way-backend
-    runtime: node
+    env: node
     region: frankfurt
     plan: free
-    # Root directory for monorepo
-    rootDir: ./
-    # Optimized build command - only rebuild what changed
-    buildCommand: |
-      echo "🔧 Installing root dependencies..."
-      npm install --legacy-peer-deps --prefer-offline
-      echo "📦 Building shared package..."
-      cd shared && npm install --prefer-offline && npm run build
-      echo "🚀 Building backend..."
-      cd ../backend && npm install --include=dev --legacy-peer-deps --prefer-offline && npm run build
-      echo "✅ Backend build complete!"
+    buildCommand: npm install --legacy-peer-deps && cd shared && npm install && npm run build && cd ../backend && npm install --include=dev --legacy-peer-deps && npm run build
     startCommand: cd backend && npm start
-    # Auto-deploy settings
-    autoDeploy: true
-    # Branch to deploy from
-    branch: main
-    # Health check
     healthCheckPath: /health
-    # Environment variables
     envVars:
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 10000
-      # Database
       - key: MONGODB_URI
-        sync: false  # Set in Render Dashboard
-      # Authentication
+        sync: false
       - key: JWT_SECRET
-        sync: false  # Set in Render Dashboard
-        generateValue: true  # Auto-generate secure value
-      # Telegram Bot
+        sync: false
+        generateValue: true
       - key: TELEGRAM_BOT_TOKEN
-        sync: false  # Set in Render Dashboard
-      # AI Service
+        sync: false
       - key: ANTHROPIC_API_KEY
-        sync: false  # Set in Render Dashboard
-      # CORS
+        sync: false
       - key: ALLOWED_ORIGINS
         value: https://mubarak-way-frontend.onrender.com,https://web.telegram.org,https://t.me
-      # Rate limiting
       - key: RATE_LIMIT_WINDOW_MS
         value: 60000
       - key: RATE_LIMIT_MAX_REQUESTS
         value: 100
-      # Data source
       - key: USE_MOCK_DATA
         value: false
-      # Admin access
-      - key: ADMIN_TELEGRAM_IDS
-        sync: false  # Comma-separated Telegram user IDs
 
-  # ============================================
-  # Frontend Static Site (Vite + React)
-  # ============================================
+  # Frontend Static Site
   - type: web
     name: mubarak-way-frontend
-    runtime: static
+    env: static
     region: frankfurt
     plan: free
-    # Root directory for monorepo
-    rootDir: ./
-    # Optimized build command
-    buildCommand: |
-      echo "🔧 Installing root dependencies..."
-      npm install --legacy-peer-deps --prefer-offline
-      echo "📦 Building shared package..."
-      cd shared && npm install --prefer-offline && npm run build
-      echo "🎨 Building frontend..."
-      cd ../frontend && npm install --legacy-peer-deps --prefer-offline && npm run build:prod
-      echo "✅ Frontend build complete!"
-      echo "📊 Build size:"
-      du -sh dist
-    # Output directory
+    buildCommand: npm install --legacy-peer-deps && cd shared && npm run build && cd ../frontend && npm install --legacy-peer-deps && npm run build:prod
     staticPublishPath: ./frontend/dist
-    # Auto-deploy settings
-    autoDeploy: true
-    branch: main
-    # Pull request previews
     pullRequestPreviewsEnabled: true
-    # Environment variables
     envVars:
       - key: VITE_API_URL
         value: https://mubarak-way-backend.onrender.com/api/v1
@@ -100,66 +48,25 @@ services:
       - key: VITE_QURAN_API_URL
         value: https://bot.e-replika.ru/api/v1
       - key: VITE_QURAN_API_TOKEN
-        sync: false  # Set in Render Dashboard
+        sync: false
       - key: VITE_ENV
         value: production
       - key: NODE_ENV
         value: production
-    # Security headers
     headers:
-      # Prevent clickjacking
       - path: /*
         name: X-Frame-Options
         value: SAMEORIGIN
-      # Prevent MIME sniffing
       - path: /*
         name: X-Content-Type-Options
         value: nosniff
-      # XSS protection
       - path: /*
         name: X-XSS-Protection
         value: 1; mode=block
-      # Content Security Policy
-      - path: /*
-        name: Content-Security-Policy
-        value: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://telegram.org; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' https://mubarak-way-backend.onrender.com https://bot.e-replika.ru https://api.quran.com wss://telegram.org;
-      # Cache control for static assets
       - path: /assets/*
         name: Cache-Control
         value: public, max-age=31536000, immutable
-      # Cache control for index.html
-      - path: /index.html
-        name: Cache-Control
-        value: no-cache, no-store, must-revalidate
-    # SPA routing
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
-
-# ============================================
-# Database (Optional - if using Render Postgres)
-# ============================================
-# Uncomment if you want to use Render's managed PostgreSQL instead of MongoDB
-# databases:
-#   - name: mubarak-way-db
-#     databaseName: mubarakway
-#     user: mubarakway
-#     plan: free
-#     region: frankfurt
-
-# ============================================
-# Cron Jobs (Optional)
-# ============================================
-# Uncomment to add scheduled tasks
-# - type: cron
-#   name: daily-quran-sync
-#   runtime: node
-#   schedule: "0 2 * * *"  # Run at 2 AM UTC daily
-#   buildCommand: cd backend && npm install
-#   startCommand: cd backend && npm run sync:quran:ereplika -- --all
-#   envVars:
-#     - fromService:
-#         type: web
-#         name: mubarak-way-backend
-#         envVarKey: MONGODB_URI
