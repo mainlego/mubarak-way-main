@@ -11,7 +11,17 @@
     "next": "التالي",
     "search": "بحث",
     "filter": "تصفية",
-    "all": "الكل"
+    "all": "الكل",
+    "copy": "نسخ",
+    "share": "مشاركة",
+    "create": "إنشاء",
+    "updated": "محدث",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "play": "تشغيل",
+    "pause": "إيقاف مؤقت",
+    "stop": "توقف",
+    "language": "ar"
   },
   "navigation": {
     "quran": "القرآن",
@@ -40,7 +50,10 @@
     "audio": "الصوت",
     "play": "تشغيل",
     "pause": "إيقاف مؤقت",
-    "searchPlaceholder": "البحث في القرآن..."
+    "searchPlaceholder": "البحث في القرآن...",
+    "bismillah": "بسم الله الرحمن الرحيم",
+    "noBookmarks": "لا توجد إشارات مرجعية بعد",
+    "noHistory": "سجل القراءة فارغ"
   },
   "library": {
     "title": "المكتبة",
@@ -56,7 +69,30 @@
     "downloaded": "تم التحميل",
     "religious": "دينية",
     "education": "تعليمية",
-    "spiritual": "روحانية"
+    "spiritual": "روحانية",
+    "favorite": "المفضلة",
+    "noFavorites": "لا توجد أناشيد مفضلة",
+    "artist": "الفنان",
+    "duration": "المدة",
+    "description": "مجموعة من الكتب والأناشيد الإسلامية",
+    "pages": "صفحات",
+    "page": "صفحة",
+    "author": "المؤلف",
+    "searchBooksPlaceholder": "البحث عن الكتب...",
+    "searchNashidsPlaceholder": "البحث عن الأناشيد...",
+    "categoryQuran": "علوم القرآن",
+    "categoryHadith": "الحديث",
+    "categoryFiqh": "الفقه",
+    "categoryAqeedah": "العقيدة",
+    "categorySeerah": "السيرة",
+    "categoryDua": "الدعاء",
+    "noBooksFound": "لم يتم العثور على كتب",
+    "noNashidsFound": "لم يتم العثور على أناشيد",
+    "loadMore": "تحميل المزيد",
+    "goToPage": "الانتقال إلى الصفحة",
+    "viewFullPdf": "عرض نسخة PDF كاملة",
+    "openPdf": "فتح PDF",
+    "bookContentPlaceholder": "محتوى الكتاب يُعرض هنا. في الإصدار الإنتاجي، سيتم تحميل محتوى الصفحة الفعلي من الخادم."
   },
   "prayer": {
     "title": "الصلاة",
@@ -77,7 +113,38 @@
     "advanced": "متقدم",
     "startLesson": "ابدأ الدرس",
     "continueLesson": "تابع",
-    "completeLesson": "أكمل"
+    "completeLesson": "أكمل",
+    "description": "تعلم وأتقن صلاتك",
+    "categories": "الفئات",
+    "obligatoryDesc": "الصلوات الخمس المفروضة",
+    "optionalDesc": "صلوات السنة والنافلة",
+    "specialDesc": "صلاة العيد والجنازة والتراويح",
+    "ablutionDesc": "كيفية الوضوء",
+    "continueLearning": "تابع التعلم",
+    "searchLessonsPlaceholder": "البحث عن الدروس...",
+    "noLessonsFound": "لم يتم العثور على دروس",
+    "totalLessons": "إجمالي الدروس",
+    "min": "دقيقة",
+    "viewAllLessons": "جميع الدروس",
+    "lessonCompleted": "تم إكمال الدرس! أحسنت!",
+    "tips": "نصائح",
+    "videoPlaceholder": "محتوى الفيديو",
+    "imagePlaceholder": "التوضيح",
+    "audioPlaceholder": "تلاوة صوتية",
+    "nextPrayer": "الصلاة القادمة",
+    "in": "في",
+    "todaysPrayers": "صلوات اليوم",
+    "upcoming": "قريباً",
+    "detectingLocation": "تحديد الموقع...",
+    "prayerSettings": "إعدادات الصلاة",
+    "calculationMethod": "طريقة الحساب",
+    "prayerReminders": "تذكيرات الصلاة",
+    "qiblaDirection": "اتجاه القبلة",
+    "compassDisabled": "البوصلة غير مفعلة",
+    "enableCompass": "تفعيل البوصلة",
+    "distanceToKaaba": "المسافة إلى الكعبة",
+    "yourLocation": "موقعك",
+    "qiblaTip": "احمل الجهاز بشكل أفقي واستدر حتى تشير السهم الأخضر لأعلى"
   },
   "progress": {
     "title": "التقدم",
@@ -90,7 +157,31 @@
     "daysInRow": "أيام متتالية",
     "completedLessons": "الدروس المكتملة",
     "readPages": "الصفحات المقروءة",
-    "aiRequests": "طلبات الذكاء الاصطناعي"
+    "aiRequests": "طلبات الذكاء الاصطناعي",
+    "learningProgress": "تقدم التعلم",
+    "progress": "التقدم",
+    "description": "تتبع رحلة التعلم الخاصة بك",
+    "surahs": "سور مقروءة",
+    "booksReading": "كتب قيد القراءة",
+    "totalFavorites": "المفضلة",
+    "firstLesson": "الدرس الأول",
+    "firstLessonDesc": "أكمل درسك الأول في الصلاة",
+    "weekStreak": "سلسلة 7 أيام",
+    "weekStreakDesc": "ادرس لمدة 7 أيام متتالية",
+    "tenLessons": "10 دروس",
+    "tenLessonsDesc": "أكمل 10 دروس في الصلاة",
+    "quranReader": "قارئ القرآن",
+    "quranReaderDesc": "اقرأ 5 سور مختلفة",
+    "bookLover": "محب الكتب",
+    "bookLoverDesc": "اقرأ 100 صفحة",
+    "aiExplorer": "مستكشف الذكاء الاصطناعي",
+    "aiExplorerDesc": "اطرح 10 أسئلة على الذكاء الاصطناعي",
+    "amazingStreak": "سلسلة مذهلة!",
+    "amazingStreakDesc": "أنت تقوم بعمل رائع! استمر في العمل الجيد.",
+    "keepGoing": "استمر!",
+    "keepGoingDesc": "أنت في طريقك! لا تكسر السلسلة.",
+    "startStreak": "ابدأ سلسلة التعلم الخاصة بك!",
+    "startStreakDesc": "ادرس كل يوم لبناء سلسلة!"
   },
   "settings": {
     "title": "الإعدادات",
@@ -114,7 +205,10 @@
     "currentPlan": "الخطة الحالية",
     "upgrade": "ترقية",
     "about": "حول",
-    "version": "الإصدار"
+    "version": "الإصدار",
+    "system": "النظام",
+    "description": "إدارة تفضيلاتك",
+    "support": "الدعم"
   },
   "subscription": {
     "free": "مجاني",
@@ -141,7 +235,12 @@
     "recommendBooks": "اقتراح كتب",
     "searching": "جاري البحث...",
     "thinking": "جاري التفكير...",
-    "placeholder": "اسأل أي شيء عن الإسلام..."
+    "placeholder": "اسأل أي شيء عن الإسلام...",
+    "requestsRemaining": "طلبات متبقية",
+    "welcomeTitle": "اسألني أي شيء عن الإسلام",
+    "welcomeDescription": "يمكنني مساعدتك في فهم القرآن وشرح الآيات والإجابة على الأسئلة حول الإسلام.",
+    "suggestedQuestions": "أسئلة مقترحة:",
+    "explainAyahRequest": "يرجى شرح الآية {{ayahId}}"
   },
   "errors": {
     "networkError": "خطأ في الشبكة. تحقق من اتصالك.",
@@ -158,5 +257,75 @@
     "selectLevel": "اختر المستوى",
     "getStarted": "ابدأ",
     "skip": "تخطي"
+  },
+  "category": {
+    "all": "الكل",
+    "spiritual": "روحانية",
+    "family": "عائلية",
+    "gratitude": "شكر",
+    "prophetic": "عن النبي ﷺ",
+    "tawhid": "توحيد",
+    "general": "عامة",
+    "nasheed": "نشيد",
+    "anasheed": "أناشيد",
+    "quranRecitation": "تلاوة القرآن",
+    "dua": "دعاء",
+    "favorite": "المفضلة",
+    "prophet": "عن النبي ﷺ",
+    "quran": "القرآن"
+  },
+  "playlist": {
+    "myPlaylists": "قوائم التشغيل الخاصة بي",
+    "createNew": "إنشاء قائمة تشغيل جديدة",
+    "create": "إنشاء",
+    "addTo": "إضافة إلى قائمة التشغيل",
+    "namePlaceholder": "اسم قائمة التشغيل",
+    "noPlaylists": "ليس لديك أي قوائم تشغيل بعد",
+    "noPlaylistsYet": "ليس لديك أي قوائم تشغيل بعد",
+    "createFirst": "إنشاء قائمة التشغيل الأولى",
+    "confirmDelete": "حذف قائمة التشغيل؟",
+    "confirmRemoveTrack": "إزالة المقطع من قائمة التشغيل؟",
+    "empty": "قائمة التشغيل فارغة",
+    "nowPlaying": "قيد التشغيل الآن"
+  },
+  "nasheed": {
+    "tracks": "مقاطع"
+  },
+  "usage": {
+    "favorites": "المفضلة",
+    "offline": "دون اتصال",
+    "remaining": "متبقي",
+    "unlimited": "غير محدود",
+    "of": "من",
+    "upgradePrompt": "قم بترقية اشتراكك لتوسيع الحدود"
+  },
+  "upgrade": {
+    "title": "ترقية الاشتراك",
+    "favoritesLimit": {
+      "title": "تم الوصول إلى حد المفضلة",
+      "description": "لقد وصلت إلى حد الأناشيد المفضلة ({{limit}}). قم بترقية اشتراكك للوصول غير المحدود."
+    },
+    "offlineLimit": {
+      "title": "تم الوصول إلى حد عدم الاتصال",
+      "description": "لقد وصلت إلى حد التنزيلات دون اتصال ({{limit}}). قم بترقية اشتراكك للوصول غير المحدود."
+    },
+    "categoryLimit": {
+      "title": "تم الوصول إلى حد الفئة",
+      "description": "لقد وصلت إلى حدك لفئة \"{{category}}\" ({{limit}} نشيد). قم بالترقية لإزالة القيود."
+    },
+    "general": {
+      "title": "وسّع قدراتك",
+      "description": "احصل على الوصول إلى جميع الميزات والمحتوى بدون قيود."
+    },
+    "currentTier": "المستوى الحالي",
+    "month": "شهرياً",
+    "choose": "اختر",
+    "current": "الخطة الحالية",
+    "note": "جميع المدفوعات آمنة وتتم معالجتها عبر Telegram Payments"
+  },
+  "network": {
+    "online": "تم استعادة الاتصال",
+    "offline": "لا يوجد اتصال",
+    "workingOffline": "العمل دون اتصال"
   }
 }

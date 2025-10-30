@@ -16,7 +16,16 @@
     "minutesAgo": "{{count}} minutes ago",
     "hoursAgo": "{{count}} hours ago",
     "daysAgo": "{{count}} days ago",
-    "language": "en"
+    "language": "en",
+    "copy": "Copy",
+    "share": "Share",
+    "create": "Create",
+    "updated": "Updated",
+    "delete": "Delete",
+    "edit": "Edit",
+    "play": "Play",
+    "pause": "Pause",
+    "stop": "Stop"
   },
   "navigation": {
     "quran": "Quran",
@@ -83,7 +92,11 @@
     "goToPage": "Go to page",
     "viewFullPdf": "View full PDF version",
     "openPdf": "Open PDF",
-    "bookContentPlaceholder": "Book content would be displayed here. In the production version, this would fetch the actual page content from the backend based on the current page number."
+    "bookContentPlaceholder": "Book content would be displayed here. In the production version, this would fetch the actual page content from the backend based on the current page number.",
+    "favorite": "Favorite",
+    "noFavorites": "No favorite nashids",
+    "artist": "Artist",
+    "duration": "Duration"
   },
   "prayer": {
     "title": "Prayer",
@@ -248,5 +261,75 @@
     "selectLevel": "Select Level",
     "getStarted": "Get Started",
     "skip": "Skip"
+  },
+  "category": {
+    "all": "All",
+    "spiritual": "Spiritual",
+    "family": "Family",
+    "gratitude": "Gratitude",
+    "prophetic": "About the Prophet ﷺ",
+    "tawhid": "Tawhid",
+    "general": "General",
+    "nasheed": "Nasheed",
+    "anasheed": "Anasheed",
+    "quranRecitation": "Quran Recitation",
+    "dua": "Dua",
+    "favorite": "Favorites",
+    "prophet": "About Prophet ﷺ",
+    "quran": "Quran"
+  },
+  "playlist": {
+    "myPlaylists": "My Playlists",
+    "createNew": "Create New Playlist",
+    "create": "Create",
+    "addTo": "Add to Playlist",
+    "namePlaceholder": "Playlist name",
+    "noPlaylists": "You don't have any playlists yet",
+    "noPlaylistsYet": "You don't have any playlists yet",
+    "createFirst": "Create your first playlist",
+    "confirmDelete": "Delete playlist?",
+    "confirmRemoveTrack": "Remove track from playlist?",
+    "empty": "Playlist is empty",
+    "nowPlaying": "Now Playing"
+  },
+  "nasheed": {
+    "tracks": "tracks"
+  },
+  "usage": {
+    "favorites": "Favorites",
+    "offline": "Offline",
+    "remaining": "remaining",
+    "unlimited": "Unlimited",
+    "of": "of",
+    "upgradePrompt": "Upgrade your subscription to expand limits"
+  },
+  "upgrade": {
+    "title": "Upgrade Subscription",
+    "favoritesLimit": {
+      "title": "Favorites Limit Reached",
+      "description": "You've reached your favorites limit ({{limit}}). Upgrade your subscription for unlimited access."
+    },
+    "offlineLimit": {
+      "title": "Offline Limit Reached",
+      "description": "You've reached your offline downloads limit ({{limit}}). Upgrade your subscription for unlimited access."
+    },
+    "categoryLimit": {
+      "title": "Category Limit Reached",
+      "description": "You've reached your limit for \"{{category}}\" category ({{limit}} nashids). Upgrade to remove restrictions."
+    },
+    "general": {
+      "title": "Expand Your Capabilities",
+      "description": "Get access to all features and content without restrictions."
+    },
+    "currentTier": "Current Tier",
+    "month": "per month",
+    "choose": "Choose",
+    "current": "Current Plan",
+    "note": "All payments are secure and processed through Telegram Payments"
+  },
+  "network": {
+    "online": "Connection Restored",
+    "offline": "No Connection",
+    "workingOffline": "Working Offline"
   }
 }
