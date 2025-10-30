@@ -216,8 +216,11 @@
   },
   "subscription": {
     "free": "Бесплатный",
+    "freeDesc": "Базовые возможности",
     "pro": "Pro",
+    "proDesc": "Все возможности открыты",
     "premium": "Premium",
+    "premiumDesc": "Премиум опыт",
     "muslim": "Муслим",
     "mutahsin": "Мутахсин",
     "sahibWaqf": "Сахиб Вакф",
@@ -252,7 +255,9 @@
     "notFound": "Не найдено",
     "unauthorized": "Требуется авторизация",
     "limitReached": "Лимит достигнут",
-    "tryAgain": "Попробуйте снова"
+    "tryAgain": "Попробуйте снова",
+    "locationPermission": "Доступ к местоположению запрещён",
+    "geolocationNotSupported": "Геолокация не поддерживается"
   },
   "onboarding": {
     "welcome": "Добро пожаловать",

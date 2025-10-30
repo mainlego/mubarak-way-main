@@ -216,8 +216,11 @@
   },
   "subscription": {
     "free": "Free",
+    "freeDesc": "Basic features",
     "pro": "Pro",
+    "proDesc": "All features unlocked",
     "premium": "Premium",
+    "premiumDesc": "Premium experience",
     "muslim": "Muslim",
     "mutahsin": "Mutahsin",
     "sahibWaqf": "Sahib Waqf",
@@ -252,7 +255,9 @@
     "notFound": "Not Found",
     "unauthorized": "Authorization Required",
     "limitReached": "Limit Reached",
-    "tryAgain": "Try Again"
+    "tryAgain": "Try Again",
+    "locationPermission": "Location permission denied",
+    "geolocationNotSupported": "Geolocation not supported"
   },
   "onboarding": {
     "welcome": "Welcome",

@@ -212,8 +212,11 @@
   },
   "subscription": {
     "free": "مجاني",
+    "freeDesc": "المميزات الأساسية",
     "pro": "برو",
+    "proDesc": "جميع المميزات مفتوحة",
     "premium": "بريميوم",
+    "premiumDesc": "تجربة مميزة",
     "muslim": "مسلم",
     "mutahsin": "محتسن",
     "sahibWaqf": "صاحب وقف",
@@ -248,7 +251,9 @@
     "notFound": "غير موجود",
     "unauthorized": "التفويض مطلوب",
     "limitReached": "تم الوصول إلى الحد",
-    "tryAgain": "حاول مرة أخرى"
+    "tryAgain": "حاول مرة أخرى",
+    "locationPermission": "تم رفض إذن الموقع",
+    "geolocationNotSupported": "تحديد الموقع الجغرافي غير مدعوم"
   },
   "onboarding": {
     "welcome": "مرحباً",
