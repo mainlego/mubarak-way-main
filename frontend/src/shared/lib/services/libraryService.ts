@@ -85,34 +85,64 @@ export const libraryService = {
   },
 
   /**
-   * Get nashids with filters - now using E-Replika catalogService
+   * Get nashids with filters - using our backend API
    */
   getNashids: async (query: LibrarySearchQuery = {}): Promise<LibrarySearchResult<Nashid>> => {
-    const lang = query.language || getCurrentLanguage();
+    try {
+      // Try to use our backend API first
+      const response = await apiGet<Nashid[]>('/library/nashids', {
+        q: query.query,
+        category: query.category,
+        language: query.language,
+        accessLevel: query.accessLevel,
+        sortBy: query.sortBy,
+        sortOrder: query.sortOrder,
+        page: query.page,
+        limit: query.limit,
+      });
 
-    const response = await catalogService.getNasheeds({
-      q: query.query,
-      limit: query.limit || 20,
-      offset: ((query.page || 1) - 1) * (query.limit || 20),
-    });
+      return {
+        items: response,
+        total: response.length,
+        page: query.page || 1,
+        totalPages: Math.ceil(response.length / (query.limit || 20)),
+      };
+    } catch (error) {
+      // Fallback to e-replika if backend fails
+      console.warn('Backend nashids API failed, trying e-replika...', error);
+      const lang = query.language || getCurrentLanguage();
 
-    const nashids = response.items.map(item => catalogItemToNashid(item, lang));
+      const response = await catalogService.getNasheeds({
+        q: query.query,
+        limit: query.limit || 20,
+        offset: ((query.page || 1) - 1) * (query.limit || 20),
+      });
 
-    return {
-      items: nashids,
-      total: response.total,
-      page: query.page || 1,
-      totalPages: Math.ceil(response.total / (query.limit || 20)),
-    };
+      const nashids = response.items.map(item => catalogItemToNashid(item, lang));
+
+      return {
+        items: nashids,
+        total: response.total,
+        page: query.page || 1,
+        totalPages: Math.ceil(response.total / (query.limit || 20)),
+      };
+    }
   },
 
   /**
-   * Get nashid by ID - now using E-Replika catalogService
+   * Get nashid by ID - using our backend API with fallback to E-Replika
    */
   getNashid: async (nashidId: number): Promise<Nashid> => {
-    const lang = getCurrentLanguage();
-    const item = await catalogService.getItem(nashidId.toString(), lang);
-    return catalogItemToNashid(item, lang);
+    try {
+      // Try backend API first
+      return await apiGet<Nashid>(`/library/nashids/${nashidId}`);
+    } catch (error) {
+      // Fallback to e-replika
+      console.warn('Backend nashid API failed, trying e-replika...', error);
+      const lang = getCurrentLanguage();
+      const item = await catalogService.getItem(nashidId.toString(), lang);
+      return catalogItemToNashid(item, lang);
+    }
   },
 
   /**
