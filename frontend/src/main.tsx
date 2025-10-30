@@ -19,3 +19,4 @@ createRoot(document.getElementById('root')!).render(
     </ErrorBoundary>
   </StrictMode>
 );
+// Trigger rebuild 30 окт 2025 г. 18:04:49
