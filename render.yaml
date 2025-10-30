@@ -34,7 +34,6 @@ services:
   - type: web
     name: mubarak-way-frontend
     env: static
-    plan: free
     buildCommand: npm install --legacy-peer-deps && cd shared && npm run build && cd ../frontend && npm install --legacy-peer-deps && npm run build:prod
     staticPublishPath: ./frontend/dist
     pullRequestPreviewsEnabled: true
