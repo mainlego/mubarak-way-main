@@ -340,8 +340,8 @@ router.post('/sync-data', async (req, res) => {
     console.log('🚀 Admin triggered complete data sync...');
 
     const { exec } = await import('child_process');
-    const { Surah } = await import('../models/Surah.js');
-    const { Ayah } = await import('../models/Ayah.js');
+    const Surah = (await import('../models/Surah.js')).default;
+    const Ayah = (await import('../models/Ayah.js')).default;
     const Book = (await import('../models/Book.js')).default;
     const Nashid = (await import('../models/Nashid.js')).default;
 
@@ -428,8 +428,8 @@ router.post('/sync-data', async (req, res) => {
  */
 router.get('/db-status', async (req, res) => {
   try {
-    const { Surah } = await import('../models/Surah.js');
-    const { Ayah } = await import('../models/Ayah.js');
+    const Surah = (await import('../models/Surah.js')).default;
+    const Ayah = (await import('../models/Ayah.js')).default;
     const Book = (await import('../models/Book.js')).default;
     const Nashid = (await import('../models/Nashid.js')).default;
 

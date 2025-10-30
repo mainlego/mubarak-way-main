@@ -1,7 +1,12 @@
 import mongoose, { Schema, type Model } from 'mongoose';
-import type { User, SubscriptionTier, UserRole, Language, Madhab } from '@mubarak-way/shared';
+import type { User } from '@mubarak-way/shared';
 
-const userSchema = new Schema<User>(
+// Simplified - use any for methods to avoid complex TypeScript issues
+interface UserModel extends Model<User> {
+  findByTelegramId(telegramId: string): Promise<any>;
+}
+
+const userSchema = new Schema<User, UserModel>(
   {
     telegramId: {
       type: String,
@@ -421,6 +426,6 @@ userSchema.statics.findByTelegramId = function(telegramId: string) {
   return this.findOne({ telegramId });
 };
 
-const UserModel = mongoose.model<User>('User', userSchema);
+const UserModelInstance = mongoose.model<User, UserModel>('User', userSchema);
 
-export default UserModel;
+export default UserModelInstance;

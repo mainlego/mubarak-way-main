@@ -34,7 +34,7 @@ services:
   - type: web
     name: mubarak-way-frontend
     env: static
-    buildCommand: npm install --legacy-peer-deps && cd shared && npm run build && cd ../frontend && npm install --legacy-peer-deps && npm run build:prod
+    buildCommand: npm install --legacy-peer-deps && cd shared && npm run build && cd ../frontend && npm install --include=dev --legacy-peer-deps && npm run build:prod
     staticPublishPath: ./frontend/dist
     pullRequestPreviewsEnabled: true
     envVars:
