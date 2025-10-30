@@ -33,12 +33,14 @@ export default function BookmarksPage() {
         setIsLoading(true);
         setError(null);
 
-        // Load all bookmarked ayahs
+        // Load all bookmarked ayahs by their ObjectId
         const ayahPromises = user.favorites.ayahs.map(async (ayahId) => {
-          // Extract surah number from ayah ID (format: surahNumber:ayahNumber)
-          const [surahNum] = ayahId.split(':').map(Number);
-          const ayahs = await quranService.getAyahs(surahNum);
-          return ayahs.find(a => a._id === ayahId);
+          try {
+            return await quranService.getAyahById(ayahId);
+          } catch (err) {
+            console.error(`Failed to load ayah ${ayahId}:`, err);
+            return null;
+          }
         });
 
         const ayahs = await Promise.all(ayahPromises);
@@ -59,9 +61,8 @@ export default function BookmarksPage() {
     setBookmarkedAyahs(prev => prev.filter(a => a._id !== ayahId));
   };
 
-  const getSurahInfo = (ayahId: string) => {
-    const [surahNum] = ayahId.split(':').map(Number);
-    return surahs.find(s => s.number === surahNum);
+  const getSurahInfo = (ayah: Ayah) => {
+    return surahs.find(s => s.number === ayah.surahNumber);
   };
 
   if (!user) {
@@ -128,7 +129,7 @@ export default function BookmarksPage() {
       ) : (
         <div className="space-y-4">
           {bookmarkedAyahs.map((ayah) => {
-            const surah = getSurahInfo(ayah._id);
+            const surah = getSurahInfo(ayah);
 
             return (
               <Card key={ayah._id}>

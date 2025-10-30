@@ -95,6 +95,43 @@ router.get('/surahs/:number/ayahs', async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/v1/quran/ayahs/id/:id
+ * Get ayah by ObjectId
+ */
+router.get('/ayahs/id/:id', async (req: Request, res: Response) => {
+  try {
+    const ayahId = req.params.id;
+    const language = req.query.language as string;
+
+    const ayah = await QuranService.getAyahById(ayahId, language);
+
+    if (!ayah) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'AYAH_NOT_FOUND',
+          message: 'Ayah not found',
+        },
+      } as ApiResponse);
+    }
+
+    res.json({
+      success: true,
+      data: ayah,
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Get ayah by ID error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'GET_AYAH_ERROR',
+        message: error.message || 'Failed to get ayah',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
  * GET /api/v1/quran/ayahs/:surahNumber/:ayahNumber
  * Get single ayah
  */

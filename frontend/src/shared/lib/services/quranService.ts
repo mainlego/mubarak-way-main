@@ -26,7 +26,7 @@ export const quranService = {
   },
 
   /**
-   * Get single ayah
+   * Get single ayah by surah and ayah number
    */
   getAyah: async (
     surahNumber: number,
@@ -34,6 +34,15 @@ export const quranService = {
     language?: string
   ): Promise<Ayah> => {
     return await apiGet<Ayah>(`/quran/ayahs/${surahNumber}/${ayahNumber}`, {
+      language,
+    });
+  },
+
+  /**
+   * Get ayah by ObjectId
+   */
+  getAyahById: async (ayahId: string, language?: string): Promise<Ayah> => {
+    return await apiGet<Ayah>(`/quran/ayahs/id/${ayahId}`, {
       language,
     });
   },

@@ -83,6 +83,28 @@ export class QuranService {
   }
 
   /**
+   * Get ayah by ObjectId
+   */
+  static async getAyahById(
+    ayahId: string,
+    language?: string
+  ): Promise<AyahType | null> {
+    const ayah = await Ayah.findById(ayahId).lean();
+
+    if (!ayah) return null;
+
+    // Filter translations by language if specified
+    if (language) {
+      return addAyahAliases({
+        ...ayah,
+        translations: ayah.translations.filter((t: any) => t.language === language),
+      });
+    }
+
+    return addAyahAliases(ayah);
+  }
+
+  /**
    * Get ayahs by Juz number
    */
   static async getAyahsByJuz(juzNumber: number): Promise<AyahType[]> {
