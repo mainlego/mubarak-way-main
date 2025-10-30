@@ -121,4 +121,45 @@ export const libraryService = {
   getStats: async (): Promise<any> => {
     return await apiGet('/library/stats');
   },
+
+  /**
+   * Toggle nashid favorite with limit checking
+   */
+  toggleNashidFavorite: async (telegramId: string, nashidId: number): Promise<any> => {
+    return await apiGet('/user/nashids/favorite', {
+      method: 'POST',
+      body: JSON.stringify({ telegramId, nashidId }),
+    });
+  },
+
+  /**
+   * Toggle nashid offline with limit checking
+   */
+  toggleNashidOffline: async (telegramId: string, nashidId: number): Promise<any> => {
+    return await apiGet('/user/nashids/offline', {
+      method: 'POST',
+      body: JSON.stringify({ telegramId, nashidId }),
+    });
+  },
+
+  /**
+   * Get user's favorite nashids
+   */
+  getUserFavoriteNashids: async (telegramId: string): Promise<any> => {
+    return await apiGet(`/user/${telegramId}/nashids/favorites`);
+  },
+
+  /**
+   * Get user's offline nashids
+   */
+  getUserOfflineNashids: async (telegramId: string): Promise<any> => {
+    return await apiGet(`/user/${telegramId}/nashids/offline`);
+  },
+
+  /**
+   * Get user's usage statistics
+   */
+  getUserUsage: async (telegramId: string): Promise<any> => {
+    return await apiGet(`/user/${telegramId}/usage`);
+  },
 };

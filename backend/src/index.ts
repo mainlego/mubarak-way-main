@@ -96,6 +96,7 @@ import debugRoutes from './routes/debug.js';
 import elasticsearchRoutes from './routes/elasticsearch.js';
 import versionRoutes from './routes/version.js';
 import playlistRoutes from './routes/playlists.js';
+import userRoutes from './routes/user.js';
 // import subscriptionRoutes from './routes/subscription.js';
 
 // Use routes
@@ -107,6 +108,7 @@ app.use('/api/v1/ai', aiRoutes);
 app.use('/api/v1/bookmarks', bookmarkRoutes);
 app.use('/api/v1/search-history', searchHistoryRoutes);
 app.use('/api/v1/playlists', playlistRoutes); // Playlist management
+app.use('/api/v1/user', userRoutes); // User favorites/offline management
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/admin', adminAuthRoutes); // JWT-based admin authentication
 app.use('/api/v1/lessons', lessonRoutes);

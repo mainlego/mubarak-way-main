@@ -2,19 +2,40 @@ import { useEffect, useState, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLibraryStore, useUserStore, useAudioStore } from '@shared/store';
-import { Card, Spinner, Button } from '@shared/ui';
+import { Card, Spinner, Button, UsageLimitsIndicator, UpgradePromptModal, NetworkStatusIndicator } from '@shared/ui';
 import { PlaylistManager } from '@widgets/library/PlaylistManager';
+import { NASHID_CATEGORIES, getCategoryConfig, getCategoryLabel } from '@shared/config/nashidCategories';
+import { haptic, shareNashidToBot, isTelegramWebApp } from '@shared/lib/telegram';
 import type { Nashid } from '@mubarak-way/shared';
+import type { Nashid as StoreNashid } from '@shared/store/audioStore';
 
 type NashidCategory = 'all' | 'spiritual' | 'family' | 'gratitude' | 'prophet' | 'quran' | 'dua' | 'favorite';
 
+// Helper to convert Nashid to StoreNashid
+const toStoreNashid = (nashid: Nashid): StoreNashid => ({
+  ...nashid,
+  id: String(nashid.id || nashid.nashidId || ''),
+  nashidId: String(nashid.nashidId || nashid.id || ''),
+});
+
 export default function NashidListPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, toggleFavorite, toggleOffline } = useUserStore();
+  const { user } = useUserStore();
   const { nashids, isLoading, error, loadNashids, searchNashids } = useLibraryStore();
-  const { favorites, addToPlaylist, playlists, createPlaylist } = useAudioStore();
+  const {
+    favorites,
+    offlineNashids,
+    addToPlaylist,
+    playlists,
+    createPlaylist,
+    toggleFavorite,
+    toggleOffline,
+    usageLimits,
+    limitError,
+    clearLimitError
+  } = useAudioStore();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<NashidCategory>('all');
@@ -24,16 +45,23 @@ export default function NashidListPage() {
   const [duration, setDuration] = useState(0);
   const [showPlaylistManager, setShowPlaylistManager] = useState(false);
   const [showAddToPlaylist, setShowAddToPlaylist] = useState<Nashid | null>(null);
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  const categories: { key: NashidCategory; label: string; icon: string }[] = [
+  // Generate categories from config
+  const categories: { key: NashidCategory; label: string; icon: string; color?: string }[] = [
     { key: 'all', label: t('category.all', { defaultValue: 'Все' }), icon: '🎵' },
-    { key: 'spiritual', label: t('category.spiritual', { defaultValue: 'Духовные' }), icon: '🕌' },
-    { key: 'family', label: t('category.family', { defaultValue: 'Семейные' }), icon: '👨‍👩‍👧‍👦' },
-    { key: 'gratitude', label: t('category.gratitude', { defaultValue: 'Благодарность' }), icon: '🤲' },
-    { key: 'prophet', label: t('category.prophet', { defaultValue: 'О Пророке ﷺ' }), icon: '☪️' },
-    { key: 'quran', label: t('category.quran', { defaultValue: 'Коран' }), icon: '📖' },
-    { key: 'dua', label: t('category.dua', { defaultValue: 'Дуа' }), icon: '🤲' },
+    ...Object.keys(NASHID_CATEGORIES)
+      .filter(key => key !== 'all')
+      .map(key => {
+        const config = getCategoryConfig(key);
+        return {
+          key: key as NashidCategory,
+          label: getCategoryLabel(key, i18n.language as 'ru' | 'en' | 'ar'),
+          icon: config.emoji,
+          color: config.color
+        };
+      }),
     { key: 'favorite', label: t('category.favorite', { defaultValue: 'Избранное' }), icon: '⭐' },
   ];
 
@@ -41,7 +69,7 @@ export default function NashidListPage() {
   const filteredNashids = nashids.filter((nashid) => {
     // Filter by category
     if (selectedCategory === 'favorite') {
-      return favorites.includes(nashid.id);
+      return favorites.includes(String(nashid.id || nashid.nashidId || ''));
     }
     if (selectedCategory !== 'all' && nashid.category !== selectedCategory) {
       return false;
@@ -56,6 +84,13 @@ export default function NashidListPage() {
       loadNashids({ page: 1, limit: 20 });
     }
   }, [searchQuery, loadNashids, searchNashids]);
+
+  // Show upgrade modal when limit error occurs
+  useEffect(() => {
+    if (limitError) {
+      setShowUpgradeModal(true);
+    }
+  }, [limitError]);
 
   // Auto-play from URL parameter
   useEffect(() => {
@@ -102,6 +137,8 @@ export default function NashidListPage() {
   }, [currentNashid]);
 
   const handlePlay = (nashid: Nashid) => {
+    haptic.impact('light');
+
     if (currentNashid?.id === nashid.id) {
       // Toggle play/pause
       if (audioRef.current) {
@@ -147,25 +184,45 @@ export default function NashidListPage() {
 
   const handleToggleFavorite = async (e: React.MouseEvent, nashidId: number) => {
     e.stopPropagation();
-    if (!user) return;
-    await toggleFavorite('nashids', nashidId);
+    if (!user?.telegramId) return;
+
+    haptic.impact('light');
+
+    const success = await toggleFavorite(String(nashidId), user.telegramId);
+
+    if (success) {
+      haptic.notification('success');
+    } else if (limitError) {
+      haptic.notification('error');
+      console.log('[NashidListPage] Favorite toggle failed:', limitError.message);
+    }
   };
 
   const handleToggleOffline = async (e: React.MouseEvent, nashidId: number) => {
     e.stopPropagation();
-    if (!user) return;
+    if (!user?.telegramId) return;
 
-    const limits = user.subscription.limits;
-    const currentOffline = user.offline.nashids.length;
+    haptic.impact('light');
 
-    if (!user.offline.nashids.includes(nashidId)) {
-      if (limits.offlineNashids !== -1 && currentOffline >= limits.offlineNashids) {
-        alert(t('subscription.limitReached'));
-        return;
-      }
+    const success = await toggleOffline(String(nashidId), user.telegramId);
+
+    if (success) {
+      haptic.notification('success');
+    } else if (limitError) {
+      haptic.notification('error');
+      console.log('[NashidListPage] Offline toggle failed:', limitError.message);
     }
+  };
 
-    await toggleOffline('nashids', nashidId);
+  const handleShareNashid = (e: React.MouseEvent, nashid: Nashid) => {
+    e.stopPropagation();
+    haptic.impact('medium');
+    shareNashidToBot({
+      id: nashid.id,
+      title: nashid.title,
+      artist: nashid.artist,
+      audioUrl: nashid.audioUrl
+    });
   };
 
   const formatTime = (seconds: number) => {
@@ -197,6 +254,9 @@ export default function NashidListPage() {
 
   return (
     <div className="page-container flex flex-col h-screen">
+      {/* Network Status Indicator */}
+      <NetworkStatusIndicator position="top" />
+
       {/* Header */}
       <header className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 flex-shrink-0">
         <div className="flex items-center gap-3 mb-4">
@@ -206,10 +266,30 @@ export default function NashidListPage() {
           >
             ← {t('common.back')}
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white flex-1">
             🎵 {t('library.nashids')}
           </h1>
         </div>
+
+        {/* Usage Limits Indicators */}
+        {user && usageLimits && (
+          <div className="grid grid-cols-2 gap-3 mb-4">
+            <UsageLimitsIndicator
+              current={usageLimits.favorites?.current || 0}
+              limit={usageLimits.favorites?.limit || 10}
+              type="favorites"
+              compact={true}
+              showUpgradePrompt={() => setShowUpgradeModal(true)}
+            />
+            <UsageLimitsIndicator
+              current={usageLimits.offline?.current || 0}
+              limit={usageLimits.offline?.limit || 5}
+              type="offline"
+              compact={true}
+              showUpgradePrompt={() => setShowUpgradeModal(true)}
+            />
+          </div>
+        )}
 
         {/* Search */}
         <input
@@ -233,19 +313,29 @@ export default function NashidListPage() {
 
         {/* Category Filters */}
         <div className="flex gap-2 mt-3 overflow-x-auto pb-2 hide-scrollbar">
-          {categories.map((category) => (
-            <button
-              key={category.key}
-              onClick={() => setSelectedCategory(category.key)}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                selectedCategory === category.key
-                  ? 'bg-primary-500 text-white'
-                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
-              }`}
-            >
-              {category.icon} {category.label}
-            </button>
-          ))}
+          {categories.map((category) => {
+            const isSelected = selectedCategory === category.key;
+            const colorClasses = category.color
+              ? isSelected
+                ? `bg-${category.color}-500 text-white`
+                : `bg-${category.color}-100 dark:bg-${category.color}-900 text-${category.color}-700 dark:text-${category.color}-300 hover:bg-${category.color}-200 dark:hover:bg-${category.color}-800`
+              : isSelected
+              ? 'bg-primary-500 text-white'
+              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600';
+
+            return (
+              <button
+                key={category.key}
+                onClick={() => {
+                  haptic.selection();
+                  setSelectedCategory(category.key);
+                }}
+                className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${colorClasses}`}
+              >
+                {category.icon} {category.label}
+              </button>
+            );
+          })}
         </div>
       </header>
 
@@ -262,11 +352,11 @@ export default function NashidListPage() {
           nashid={showAddToPlaylist}
           playlists={playlists}
           onAddToPlaylist={(playlistId) => {
-            addToPlaylist(playlistId, showAddToPlaylist);
+            addToPlaylist(playlistId, toStoreNashid(showAddToPlaylist));
             setShowAddToPlaylist(null);
           }}
           onCreatePlaylist={(name) => {
-            const newPlaylist = createPlaylist(name, [showAddToPlaylist]);
+            const newPlaylist = createPlaylist(name, [toStoreNashid(showAddToPlaylist)]);
             setShowAddToPlaylist(null);
           }}
           onClose={() => setShowAddToPlaylist(null)}
@@ -287,8 +377,9 @@ export default function NashidListPage() {
         ) : (
           <div className="space-y-2">
             {filteredNashids.map((nashid) => {
-              const isFavorite = user?.favorites.nashids.includes(nashid.id) || false;
-              const isOffline = user?.offline.nashids.includes(nashid.id) || false;
+              const nashidIdStr = String(nashid.id || nashid.nashidId || '');
+              const isFavorite = favorites.includes(nashidIdStr);
+              const isOffline = offlineNashids.includes(nashidIdStr);
               const isCurrentlyPlaying = currentNashid?.id === nashid.id && isPlaying;
 
               return (
@@ -327,9 +418,19 @@ export default function NashidListPage() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-2 flex-shrink-0">
+                      {isTelegramWebApp() && (
+                        <button
+                          onClick={(e) => handleShareNashid(e, nashid)}
+                          className="text-xl hover:scale-110 transition-transform"
+                          title={t('common.share', { defaultValue: 'Share' })}
+                        >
+                          📤
+                        </button>
+                      )}
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
+                          haptic.impact('light');
                           setShowAddToPlaylist(nashid);
                         }}
                         className="text-xl hover:scale-110 transition-transform"
@@ -340,12 +441,14 @@ export default function NashidListPage() {
                       <button
                         onClick={(e) => handleToggleFavorite(e, nashid.id)}
                         className="text-xl hover:scale-110 transition-transform"
+                        title={t('library.favorite', { defaultValue: 'Favorite' })}
                       >
                         {isFavorite ? '⭐' : '☆'}
                       </button>
                       <button
                         onClick={(e) => handleToggleOffline(e, nashid.id)}
                         className="text-xl hover:scale-110 transition-transform"
+                        title={t('library.offline', { defaultValue: 'Offline' })}
                       >
                         {isOffline ? '📥' : '📄'}
                       </button>
@@ -433,6 +536,21 @@ export default function NashidListPage() {
 
       {/* Hidden Audio Element */}
       <audio ref={audioRef} />
+
+      {/* Upgrade Prompt Modal */}
+      {showUpgradeModal && limitError && (
+        <UpgradePromptModal
+          isOpen={showUpgradeModal}
+          onClose={() => {
+            setShowUpgradeModal(false);
+            clearLimitError();
+          }}
+          type={limitError.type || 'general'}
+          currentTier={user?.subscription?.tier || 'free'}
+          limit={limitError.details?.limit}
+          category={limitError.details?.category}
+        />
+      )}
     </div>
   );
 }

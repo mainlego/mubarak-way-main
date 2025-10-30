@@ -13,6 +13,7 @@ import SubscriptionPlan from '../models/SubscriptionPlan.js';
 import { mockSurahs } from '../data/mockQuran.js';
 import { mockBooks, mockNashids } from '../data/mockLibrary.js';
 import { mockLessons } from '../data/mockPrayer.js';
+import { prayerLessons } from '../data/prayerLessonsData.js';
 
 // Load environment variables
 dotenv.config();
@@ -230,10 +231,23 @@ function mapNashidCategory(category: string): string {
 }
 
 async function seedPrayer() {
-  console.log('\n🕌 Seeding prayer data...');
-  console.log('ℹ️  Prayer lessons will be added via Admin panel or API');
-  // Note: Mock data doesn't match current schemas
-  // Use the API or Admin panel to add prayer lessons
+  console.log('\n🕌 Seeding prayer lessons...');
+
+  if (prayerLessons.length > 0) {
+    await Lesson.insertMany(prayerLessons);
+    console.log(`✅ Seeded ${prayerLessons.length} prayer lessons`);
+
+    // Count by category
+    const obligatory = prayerLessons.filter(l => l.category === 'obligatory-prayers').length;
+    const optional = prayerLessons.filter(l => l.category === 'optional-prayers').length;
+    const special = prayerLessons.filter(l => l.category === 'special-prayers').length;
+
+    console.log(`   ├─ Obligatory prayers: ${obligatory}`);
+    console.log(`   ├─ Optional prayers: ${optional}`);
+    console.log(`   └─ Special prayers: ${special}`);
+  } else {
+    console.log('⚠️  No prayer lessons found to seed');
+  }
 }
 
 async function seed() {
@@ -258,6 +272,7 @@ async function seed() {
       surahs: await Surah.countDocuments(),
       books: await Book.countDocuments(),
       nashids: await Nashid.countDocuments(),
+      lessons: await Lesson.countDocuments(),
     };
 
     console.log('📊 Database Summary:');
@@ -265,6 +280,7 @@ async function seed() {
     console.log(`   Surahs: ${counts.surahs}`);
     console.log(`   Books: ${counts.books}`);
     console.log(`   Nashids: ${counts.nashids}`);
+    console.log(`   Prayer Lessons: ${counts.lessons}`);
     console.log('');
 
     process.exit(0);

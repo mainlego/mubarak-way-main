@@ -63,6 +63,11 @@ const userSchema = new Schema<User>(
         type: Number,
         default: 0,
       },
+      nashidsByCategory: {
+        type: Map,
+        of: Number,
+        default: new Map(),
+      },
       aiRequestsPerDay: {
         type: Number,
         default: 0,
@@ -304,6 +309,111 @@ userSchema.methods.toggleSearchFavorite = function(searchId: string) {
 userSchema.methods.clearSearchHistory = function() {
   this.searchHistory = this.searchHistory.filter((item: any) => item.favorite);
   return this.save();
+};
+
+// Get subscription limits based on tier
+userSchema.methods.getSubscriptionLimits = function() {
+  const tier = this.subscription?.tier || 'free';
+
+  const limits = {
+    free: {
+      booksOffline: 2,
+      booksFavorites: 10,
+      nashidsOffline: 5,
+      nashidsFavorites: 10,
+      nashidsPerCategory: 5,
+      aiRequestsPerDay: 10,
+    },
+    pro: {
+      booksOffline: 50,
+      booksFavorites: 100,
+      nashidsOffline: 100,
+      nashidsFavorites: 100,
+      nashidsPerCategory: -1, // Unlimited
+      aiRequestsPerDay: 100,
+    },
+    premium: {
+      booksOffline: -1, // Unlimited
+      booksFavorites: -1,
+      nashidsOffline: -1,
+      nashidsFavorites: -1,
+      nashidsPerCategory: -1,
+      aiRequestsPerDay: -1,
+    },
+  };
+
+  return limits[tier] || limits.free;
+};
+
+// Check if user can add nashid to offline
+userSchema.methods.canAddNashidOffline = function() {
+  const limits = this.getSubscriptionLimits();
+  if (limits.nashidsOffline === -1) return { canAdd: true };
+
+  const currentCount = this.usage?.nashidsOffline || 0;
+  const remaining = limits.nashidsOffline - currentCount;
+
+  return {
+    canAdd: remaining > 0,
+    current: currentCount,
+    limit: limits.nashidsOffline,
+    remaining: Math.max(0, remaining),
+  };
+};
+
+// Check if user can add nashid to favorites
+userSchema.methods.canAddNashidFavorite = function() {
+  const limits = this.getSubscriptionLimits();
+  if (limits.nashidsFavorites === -1) return { canAdd: true };
+
+  const currentCount = this.usage?.nashidsFavorites || 0;
+  const remaining = limits.nashidsFavorites - currentCount;
+
+  return {
+    canAdd: remaining > 0,
+    current: currentCount,
+    limit: limits.nashidsFavorites,
+    remaining: Math.max(0, remaining),
+  };
+};
+
+// Check if user can add nashid from specific category
+userSchema.methods.canAddNashidFromCategory = function(category: string) {
+  const limits = this.getSubscriptionLimits();
+  if (limits.nashidsPerCategory === -1) return { canAdd: true };
+
+  const categoryMap = this.usage?.nashidsByCategory || new Map();
+  const currentCount = categoryMap.get(category) || 0;
+  const remaining = limits.nashidsPerCategory - currentCount;
+
+  return {
+    canAdd: remaining > 0,
+    current: currentCount,
+    limit: limits.nashidsPerCategory,
+    remaining: Math.max(0, remaining),
+    category,
+  };
+};
+
+// Increment category counter when adding nashid to favorites/offline
+userSchema.methods.incrementCategoryUsage = function(category: string) {
+  if (!this.usage.nashidsByCategory) {
+    this.usage.nashidsByCategory = new Map();
+  }
+  const current = this.usage.nashidsByCategory.get(category) || 0;
+  this.usage.nashidsByCategory.set(category, current + 1);
+  return this.save();
+};
+
+// Decrement category counter when removing nashid
+userSchema.methods.decrementCategoryUsage = function(category: string) {
+  if (!this.usage.nashidsByCategory) return this;
+  const current = this.usage.nashidsByCategory.get(category) || 0;
+  if (current > 0) {
+    this.usage.nashidsByCategory.set(category, current - 1);
+    return this.save();
+  }
+  return this;
 };
 
 // Static methods

@@ -70,7 +70,12 @@ export type NashidCategory =
   | 'religious'
   | 'quran-recitation'
   | 'dua'
-  | 'general';
+  | 'general'
+  | 'spiritual'    // Духовные
+  | 'family'       // Семейные
+  | 'gratitude'    // Благодарность
+  | 'prophetic'    // О Пророке ﷺ
+  | 'tawhid';      // Единобожие
 
 export interface Nashid {
   _id: string;

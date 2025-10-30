@@ -41,11 +41,29 @@ export interface UsageLimits {
   booksFavorites: number;
   nashidsOffline: number;
   nashidsFavorites: number;
+  nashidsByCategory?: Map<string, number> | Record<string, number>; // Category usage tracking
   aiRequestsPerDay: number;
   resetDate: Date;
 
   // Backwards compatibility
   aiRequests?: number; // Same as aiRequestsPerDay
+}
+
+export interface SubscriptionLimits {
+  booksOffline: number; // -1 for unlimited
+  booksFavorites: number;
+  nashidsOffline: number;
+  nashidsFavorites: number;
+  nashidsPerCategory: number; // Per-category limit for free users
+  aiRequestsPerDay: number;
+}
+
+export interface UsageStatus {
+  canAdd: boolean;
+  current?: number;
+  limit?: number;
+  remaining?: number;
+  category?: string;
 }
 
 export interface PrayerSettings {

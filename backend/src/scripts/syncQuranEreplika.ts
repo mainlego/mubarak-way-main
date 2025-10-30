@@ -18,9 +18,11 @@ import AyahModel from '../models/Ayah.js';
 dotenv.config();
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/mubarak-way';
-// Use public Quran.com API (no auth required)
+// Use public Quran.com API for Arabic text and metadata
 const QURAN_API_URL = 'https://api.quran.com/api/v4';
-const TRANSLATION_ID = 131; // Russian - Kuliev
+// Use alquran.cloud for Russian translations (Kuliev)
+const ALQURAN_API_URL = 'https://api.alquran.cloud/v1';
+const RUSSIAN_EDITION = 'ru.kuliev';
 
 async function connectDatabase() {
   try {
@@ -84,33 +86,54 @@ async function syncAyahs(surahNumber: number) {
   try {
     console.log(`🔄 Fetching ayahs for Surah ${surahNumber}...`);
 
-    // Fetch verses with translation (get all verses - max 286 per surah)
-    const response = await axios.get(`${QURAN_API_URL}/verses/by_chapter/${surahNumber}`, {
+    // Fetch Arabic text from Quran.com API
+    const textResponse = await axios.get(`${QURAN_API_URL}/quran/verses/uthmani`, {
       params: {
-        language: 'ru',
-        translations: TRANSLATION_ID,
-        words: false,
-        audio: false,
-        per_page: 300, // Get all ayahs (longest surah has 286 ayahs)
+        chapter_number: surahNumber,
       },
     });
 
-    const verses = response.data.verses;
-    console.log(`📖 Found ${verses.length} ayahs`);
+    // Fetch metadata from Quran.com API (for juz, page, sajdah info)
+    const metadataResponse = await axios.get(`${QURAN_API_URL}/verses/by_chapter/${surahNumber}`, {
+      params: {
+        language: 'ru',
+        words: false,
+        audio: false,
+        per_page: 300,
+      },
+    });
+
+    // Fetch Russian translations from alquran.cloud API
+    const translationResponse = await axios.get(`${ALQURAN_API_URL}/surah/${surahNumber}/${RUSSIAN_EDITION}`);
+
+    const verses = metadataResponse.data.verses;
+    const textVerses = textResponse.data.verses;
+    const translationAyahs = translationResponse.data.data?.ayahs || [];
+
+    console.log(`📖 Found ${verses.length} ayahs (${translationAyahs.length} translations from alquran.cloud)`);
 
     let synced = 0;
     for (const verse of verses) {
       // Parse verse key (e.g., "1:1" -> surah 1, ayah 1)
       const [versSurahNum, versAyahNum] = verse.verse_key.split(':').map(Number);
 
+      // Find corresponding Arabic text
+      const textVerse = textVerses.find((tv: any) => tv.verse_key === verse.verse_key);
+
+      // Find corresponding Russian translation from alquran.cloud
+      // alquran.cloud uses 1-based numberInSurah
+      const translationAyah = translationAyahs.find(
+        (ta: any) => ta.numberInSurah === versAyahNum
+      );
+
       // Extract translation
       const translations = [];
-      if (verse.translations && verse.translations.length > 0) {
+      if (translationAyah?.text) {
         translations.push({
           language: 'ru',
-          text: verse.translations[0].text,
-          translator: verse.translations[0].resource_name,
-          translatorId: verse.translations[0].resource_id,
+          text: translationAyah.text,
+          translator: 'Кулиев Э.',
+          translatorId: 79,
         });
       }
 
@@ -123,8 +146,8 @@ async function syncAyahs(surahNumber: number) {
           surahNumber: versSurahNum,
           ayahNumber: versAyahNum,
           globalNumber: verse.id,
-          textArabic: verse.text_uthmani,
-          textSimple: verse.text_imlaei || verse.text_uthmani,
+          textArabic: textVerse?.text_uthmani || '',
+          textSimple: textVerse?.text_uthmani || '',
           translations,
           tafsirs: [],
           juzNumber: verse.juz_number,
@@ -140,7 +163,7 @@ async function syncAyahs(surahNumber: number) {
       synced++;
     }
 
-    console.log(`✅ Synced ${synced} ayahs for Surah ${surahNumber}`);
+    console.log(`✅ Synced ${synced} ayahs for Surah ${surahNumber}${translationAyahs.length > 0 ? ' (with translations)' : ' (no translations)'}`);
   } catch (error: any) {
     console.error(`❌ Ayah sync failed for Surah ${surahNumber}:`, error.message);
     if (error.response) {

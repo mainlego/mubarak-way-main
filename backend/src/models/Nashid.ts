@@ -35,7 +35,19 @@ const nashidSchema = new Schema<Nashid>(
 
     category: {
       type: String,
-      enum: ['nasheed', 'anasheed', 'religious', 'quran-recitation', 'dua', 'general'],
+      enum: [
+        'nasheed',
+        'anasheed',
+        'religious',
+        'quran-recitation',
+        'dua',
+        'general',
+        'spiritual',
+        'family',
+        'gratitude',
+        'prophetic',
+        'tawhid',
+      ],
       required: true,
       index: true,
     },

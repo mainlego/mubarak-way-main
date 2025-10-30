@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { libraryService } from '../lib/services/libraryService';
 
 // Types
 export interface Nashid {
@@ -39,6 +40,7 @@ interface AudioState {
   isPlaying: boolean;
   playlist: Nashid[];
   favorites: string[];
+  offlineNashids: string[];
   isShuffled: boolean;
   repeatMode: 'none' | 'all' | 'one';
 
@@ -46,17 +48,34 @@ interface AudioState {
   playlists: Playlist[];
   currentPlaylistId: string | null;
 
+  // Usage tracking
+  usageLimits: {
+    favorites: { current: number; limit: number };
+    offline: { current: number; limit: number };
+  } | null;
+
+  // Error/limit state
+  limitError: {
+    type: 'favorites' | 'offline' | 'category' | null;
+    message: string;
+    details?: any;
+  } | null;
+
   // Actions - Playback
   playNashid: (nashid: Nashid) => void;
   pauseNashid: () => void;
   stopNashid: () => void;
   setPlaylist: (playlist: Nashid[], playlistId?: string) => void;
-  toggleFavorite: (nashidId: string) => void;
+  toggleFavorite: (nashidId: string, telegramId: string) => Promise<boolean>;
+  toggleOffline: (nashidId: string, telegramId: string) => Promise<boolean>;
   toggleShuffle: () => void;
   cycleRepeatMode: () => void;
   playNext: () => void;
   playPrevious: () => void;
   setFavorites: (favorites: string[]) => void;
+  setOfflineNashids: (offline: string[]) => void;
+  setUsageLimits: (limits: any) => void;
+  clearLimitError: () => void;
 
   // Actions - Playlists
   createPlaylist: (name: string, nashids?: Nashid[]) => Playlist;
@@ -68,7 +87,7 @@ interface AudioState {
   setPlaylists: (playlists: Playlist[]) => void;
 }
 
-export const useAudioStore = create<AudioState>(
+export const useAudioStore = create<AudioState>()(
   persist(
     (set, get) => ({
       // Initial state
@@ -76,10 +95,13 @@ export const useAudioStore = create<AudioState>(
       isPlaying: false,
       playlist: [],
       favorites: [],
+      offlineNashids: [],
       isShuffled: false,
       repeatMode: 'none',
       playlists: [],
       currentPlaylistId: null,
+      usageLimits: null,
+      limitError: null,
 
       // Actions - Playback
       playNashid: (nashid) => {
@@ -102,21 +124,135 @@ export const useAudioStore = create<AudioState>(
         set({ playlist, currentPlaylistId: playlistId || null });
       },
 
-  toggleFavorite: (nashidId) => {
+  toggleFavorite: async (nashidId, telegramId) => {
     const state = get();
     const isFavorite = state.favorites.includes(nashidId);
     console.log('[AudioStore] Toggle favorite:', nashidId, isFavorite ? 'remove' : 'add');
 
-    set({
-      favorites: isFavorite
-        ? state.favorites.filter(id => id !== nashidId)
-        : [...state.favorites, nashidId]
-    });
+    try {
+      // Call API with limit checking
+      const response = await libraryService.toggleNashidFavorite(telegramId, parseInt(nashidId));
+
+      if (response.success) {
+        // Update local state
+        set({
+          favorites: response.data.favorites || [],
+          usageLimits: {
+            ...state.usageLimits,
+            favorites: response.data.usage || state.usageLimits?.favorites || { current: 0, limit: 10 }
+          },
+          limitError: null
+        });
+        return true;
+      } else {
+        // Handle error (limit reached)
+        set({
+          limitError: {
+            type: 'favorites',
+            message: response.error?.message || 'Failed to toggle favorite',
+            details: response.error?.details
+          }
+        });
+        return false;
+      }
+    } catch (error: any) {
+      console.error('[AudioStore] Toggle favorite error:', error);
+
+      // Check if it's a limit error
+      if (error.response?.status === 403) {
+        const errorData = error.response?.data?.error;
+        set({
+          limitError: {
+            type: errorData?.code === 'CATEGORY_LIMIT_REACHED' ? 'category' : 'favorites',
+            message: errorData?.message || 'Limit reached',
+            details: errorData?.details
+          }
+        });
+      } else {
+        // Fallback to local-only toggle on network error
+        set({
+          favorites: isFavorite
+            ? state.favorites.filter(id => id !== nashidId)
+            : [...state.favorites, nashidId]
+        });
+      }
+      return false;
+    }
+  },
+
+  toggleOffline: async (nashidId, telegramId) => {
+    const state = get();
+    const isOffline = state.offlineNashids.includes(nashidId);
+    console.log('[AudioStore] Toggle offline:', nashidId, isOffline ? 'remove' : 'add');
+
+    try {
+      // Call API with limit checking
+      const response = await libraryService.toggleNashidOffline(telegramId, parseInt(nashidId));
+
+      if (response.success) {
+        // Update local state
+        set({
+          offlineNashids: response.data.offline || [],
+          usageLimits: {
+            ...state.usageLimits,
+            offline: response.data.usage || state.usageLimits?.offline || { current: 0, limit: 5 }
+          },
+          limitError: null
+        });
+        return true;
+      } else {
+        // Handle error (limit reached)
+        set({
+          limitError: {
+            type: 'offline',
+            message: response.error?.message || 'Failed to toggle offline',
+            details: response.error?.details
+          }
+        });
+        return false;
+      }
+    } catch (error: any) {
+      console.error('[AudioStore] Toggle offline error:', error);
+
+      // Check if it's a limit error
+      if (error.response?.status === 403) {
+        const errorData = error.response?.data?.error;
+        set({
+          limitError: {
+            type: errorData?.code === 'CATEGORY_LIMIT_REACHED' ? 'category' : 'offline',
+            message: errorData?.message || 'Limit reached',
+            details: errorData?.details
+          }
+        });
+      } else {
+        // Fallback to local-only toggle on network error
+        set({
+          offlineNashids: isOffline
+            ? state.offlineNashids.filter(id => id !== nashidId)
+            : [...state.offlineNashids, nashidId]
+        });
+      }
+      return false;
+    }
   },
 
   setFavorites: (favorites) => {
     console.log('[AudioStore] Setting favorites:', favorites.length, 'items');
     set({ favorites });
+  },
+
+  setOfflineNashids: (offline) => {
+    console.log('[AudioStore] Setting offline nashids:', offline.length, 'items');
+    set({ offlineNashids: offline });
+  },
+
+  setUsageLimits: (limits) => {
+    console.log('[AudioStore] Setting usage limits:', limits);
+    set({ usageLimits: limits });
+  },
+
+  clearLimitError: () => {
+    set({ limitError: null });
   },
 
   toggleShuffle: () => {

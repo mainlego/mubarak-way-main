@@ -1,0 +1,20 @@
+export * from './telegramWebApp';
+export {
+  getTelegramWebApp,
+  isTelegramWebApp,
+  initTelegramWebApp,
+  sendToBot,
+  shareNashidToBot,
+  haptic,
+  showConfirm,
+  showAlert,
+  getTelegramUser,
+  getTelegramTheme,
+  closeTelegramWebApp,
+  enableClosingConfirmation,
+  disableClosingConfirmation,
+  showMainButton,
+  hideMainButton,
+  showBackButton,
+  hideBackButton,
+} from './telegramWebApp';

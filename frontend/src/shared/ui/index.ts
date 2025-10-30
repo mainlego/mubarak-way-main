@@ -9,3 +9,6 @@ export { VersionChecker } from './VersionChecker';
 export { Tabs } from './Tabs';
 export type { Tab } from './Tabs';
 export { Accordion, AccordionItem } from './Accordion';
+export { UsageLimitsIndicator } from './UsageLimitsIndicator';
+export { UpgradePromptModal } from './UpgradePromptModal';
+export { NetworkStatusIndicator, useNetworkStatus } from './NetworkStatusIndicator';
