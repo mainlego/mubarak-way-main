@@ -1,0 +1,62 @@
+{
+  "name": "MubarakWay - Islamic Learning Platform",
+  "description": "Full-stack Islamic learning platform with Quran, Prayer, Library, and AI Assistant. Built with React, Node.js, Express, MongoDB, and Telegram WebApp integration.",
+  "website": "https://github.com/mainlego/mubarak-way-main",
+  "repository": "https://github.com/mainlego/mubarak-way-main",
+  "logo": "https://raw.githubusercontent.com/mainlego/mubarak-way-main/main/mubarak-way-unified/frontend/public/icon-512.png",
+  "success_url": "/",
+  "keywords": [
+    "islam",
+    "quran",
+    "prayer",
+    "nashid",
+    "telegram",
+    "ai",
+    "claude",
+    "react",
+    "nodejs",
+    "mongodb"
+  ],
+  "env": {
+    "MONGODB_URI": {
+      "description": "MongoDB connection string from MongoDB Atlas",
+      "required": true,
+      "value": "mongodb+srv://username:password@cluster.mongodb.net/mubarakway?retryWrites=true&w=majority"
+    },
+    "JWT_SECRET": {
+      "description": "Secret key for JWT token generation (min 32 characters)",
+      "required": true,
+      "generator": "secret"
+    },
+    "TELEGRAM_BOT_TOKEN": {
+      "description": "Telegram Bot Token from @BotFather",
+      "required": true,
+      "value": "1234567890:ABCdefGHIjklMNOpqrsTUVwxyz"
+    },
+    "ANTHROPIC_API_KEY": {
+      "description": "Anthropic API key for Claude AI features",
+      "required": true,
+      "value": "sk-ant-api03-xxxxxxxxxx"
+    },
+    "VITE_QURAN_API_TOKEN": {
+      "description": "E-Replika Quran API token (optional - for fallback)",
+      "required": false
+    },
+    "ADMIN_TELEGRAM_IDS": {
+      "description": "Comma-separated list of Telegram User IDs with admin access",
+      "required": false,
+      "value": "123456789"
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "free"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/nodejs"
+    }
+  ]
+}

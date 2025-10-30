@@ -7,6 +7,14 @@
 [![Backend](https://img.shields.io/badge/backend-Express-green)](https://expressjs.com)
 [![License](https://img.shields.io/badge/license-Proprietary-orange)](LICENSE)
 
+## 🚀 Quick Deploy
+
+Deploy to Render.com with one click:
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/mainlego/mubarak-way-main)
+
+Or follow the [Complete Deployment Guide](./RENDER_DEPLOYMENT_GUIDE.md) for detailed instructions.
+
 ---
 
 ## 📖 Overview
