@@ -78,3 +78,4 @@ debug.log
 # Misc
 .turbo
 .vercel
+/backend/data/notified-prayers.json

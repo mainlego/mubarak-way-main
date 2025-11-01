@@ -72,6 +72,7 @@ export interface PrayerSettings {
     longitude: number;
     city?: string;
     country?: string;
+    timezone?: string;
   };
   calculationMethod: string;
   madhab: Madhab;

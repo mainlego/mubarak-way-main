@@ -122,6 +122,7 @@ const userSchema = new Schema<User, UserModel>(
         longitude: Number,
         city: String,
         country: String,
+        timezone: String,
       },
       calculationMethod: {
         type: String,

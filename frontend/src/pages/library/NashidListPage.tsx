@@ -5,7 +5,7 @@ import { useLibraryStore, useUserStore, useAudioStore } from '@shared/store';
 import { Card, Spinner, Button, UsageLimitsIndicator, UpgradePromptModal, NetworkStatusIndicator } from '@shared/ui';
 import { PlaylistManager } from '@widgets/library/PlaylistManager';
 import { NASHID_CATEGORIES, getCategoryConfig, getCategoryLabel } from '@shared/config/nashidCategories';
-import { haptic, shareNashidToBot, isTelegramWebApp } from '@shared/lib/telegram';
+import { haptic, deepLinks, isTelegram } from '@shared/lib/telegram';
 import type { Nashid } from '@mubarak-way/shared';
 import type { Nashid as StoreNashid } from '@shared/store/audioStore';
 
@@ -217,12 +217,7 @@ export default function NashidListPage() {
   const handleShareNashid = (e: React.MouseEvent, nashid: Nashid) => {
     e.stopPropagation();
     haptic.impact('medium');
-    shareNashidToBot({
-      id: nashid.id,
-      title: nashid.title,
-      artist: nashid.artist,
-      audioUrl: nashid.audioUrl
-    });
+    deepLinks.sendNashid(nashid.id, nashid.title);
   };
 
   const formatTime = (seconds: number) => {
@@ -418,7 +413,7 @@ export default function NashidListPage() {
 
                     {/* Actions */}
                     <div className="flex items-center gap-2 flex-shrink-0">
-                      {isTelegramWebApp() && (
+                      {isTelegram() && (
                         <button
                           onClick={(e) => handleShareNashid(e, nashid)}
                           className="text-xl hover:scale-110 transition-transform"

@@ -172,7 +172,7 @@ ${process.env.USE_MOCK_DATA === 'true' ? '⚠️  Mode: MOCK DATA (no database)'
 
       // Initialize Telegram bot AFTER Express server starts (non-blocking)
       if (config.telegramBotToken) {
-        startBot().catch(error => {
+        startBot(app).catch(error => {
           console.error('⚠️  Failed to start Telegram bot:', error);
           console.log('⚠️  Continuing without Telegram bot...');
         });

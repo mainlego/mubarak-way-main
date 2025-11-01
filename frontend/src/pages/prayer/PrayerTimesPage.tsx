@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUserStore, usePrayerStore } from '@shared/store';
 import { Card, Button, Spinner } from '@shared/ui';
 import type { PrayerCalculationParams } from '@mubarak-way/shared';
+import { MonthlyPrayerSchedule } from '@widgets/prayer';
 
 interface PrayerTime {
   name: string;
@@ -320,6 +321,21 @@ export default function PrayerTimesPage() {
           })}
         </div>
       </section>
+
+      {/* Monthly Schedule */}
+      {user?.prayerSettings?.location && (
+        <section>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
+            {t('prayer.monthlySchedule', { defaultValue: 'Monthly Schedule' })}
+          </h3>
+          <MonthlyPrayerSchedule
+            latitude={user.prayerSettings.location.latitude}
+            longitude={user.prayerSettings.location.longitude}
+            calculationMethod={user.prayerSettings.calculationMethod || 'MuslimWorldLeague'}
+            madhab={user.prayerSettings.madhab || 'shafi'}
+          />
+        </section>
+      )}
 
       {/* Settings */}
       <section>

@@ -298,22 +298,41 @@ export default function SettingsPage() {
           {t('prayer.prayerSettings')}
         </h2>
 
-        <Card hoverable onClick={() => navigate('/settings/prayer')}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">🕌</span>
-              <div>
-                <h4 className="font-semibold text-gray-900 dark:text-white">
-                  {t('settings.madhab')}
-                </h4>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {user.prayerSettings?.madhab || 'Hanafi'}
-                </p>
+        <div className="space-y-2">
+          <Card hoverable onClick={() => navigate('/settings/prayer')}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🕌</span>
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                    {t('settings.madhab')}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {user.prayerSettings?.madhab || 'Hanafi'}
+                  </p>
+                </div>
               </div>
+              <span className="text-gray-400">→</span>
             </div>
-            <span className="text-gray-400">→</span>
-          </div>
-        </Card>
+          </Card>
+
+          <Card hoverable onClick={() => navigate('/settings/notifications')}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🔔</span>
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                    {t('settings.notifications')}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t('prayer.prayerReminders', { defaultValue: 'Prayer reminders' })}
+                  </p>
+                </div>
+              </div>
+              <span className="text-gray-400">→</span>
+            </div>
+          </Card>
+        </div>
       </section>
 
       {/* About */}

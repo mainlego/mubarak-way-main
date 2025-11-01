@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useLibraryStore, useUserStore } from '@shared/store';
 import { Card, Spinner, Button } from '@shared/ui';
+import { deepLinks, isTelegram } from '@shared/lib/telegram';
 
 export default function BookListPage() {
   const { t } = useTranslation();
@@ -46,6 +47,11 @@ export default function BookListPage() {
     }
 
     await toggleOffline('books', bookId);
+  };
+
+  const handleSendToBot = (e: React.MouseEvent, bookId: number, bookTitle: string) => {
+    e.stopPropagation();
+    deepLinks.sendBook(bookId, bookTitle);
   };
 
   const categories = [
@@ -175,6 +181,15 @@ export default function BookListPage() {
                         className="w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
                       >
                         {isOffline ? '📥' : '📄'}
+                      </button>
+                    )}
+                    {hasAccess && isTelegram() && (
+                      <button
+                        onClick={(e) => handleSendToBot(e, book.id, book.title)}
+                        className="w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
+                        title={t('library.sendToBot', { defaultValue: 'Send to bot' })}
+                      >
+                        📤
                       </button>
                     )}
                   </div>

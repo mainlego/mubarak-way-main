@@ -79,6 +79,17 @@ declare global {
         openLink: (url: string, options?: { try_instant_view?: boolean }) => void;
         openTelegramLink: (url: string) => void;
         openInvoice: (url: string, callback?: (status: string) => void) => void;
+        showAlert: (message: string, callback?: () => void) => void;
+        showConfirm: (message: string, callback?: (confirmed: boolean) => void) => void;
+        showPopup: (params: {
+          title?: string;
+          message: string;
+          buttons?: Array<{
+            id?: string;
+            type?: 'default' | 'ok' | 'close' | 'cancel' | 'destructive';
+            text?: string;
+          }>;
+        }, callback?: (buttonId: string) => void) => void;
       };
     };
   }
@@ -208,4 +219,104 @@ export const openLink = (url: string, tryInstantView = false): void => {
  */
 export const closeApp = (): void => {
   window.Telegram?.WebApp?.close();
+};
+
+/**
+ * Show confirmation dialog
+ */
+export const showConfirm = (
+  message: string,
+  callback: (confirmed: boolean) => void
+): void => {
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.showConfirm(message, callback);
+  } else {
+    // Fallback for non-Telegram environment
+    const confirmed = window.confirm(message);
+    callback(confirmed);
+  }
+};
+
+/**
+ * Show alert dialog
+ */
+export const showAlert = (message: string): void => {
+  if (window.Telegram?.WebApp) {
+    window.Telegram.WebApp.showAlert(message);
+  } else {
+    // Fallback for non-Telegram environment
+    window.alert(message);
+  }
+};
+
+/**
+ * Get bot username from init data
+ */
+export const getBotUsername = (): string => {
+  // Try to get from initDataUnsafe
+  const botUsername =
+    (window.Telegram?.WebApp?.initDataUnsafe as any)?.bot?.username;
+  // Fallback to default bot username (should be configured in env)
+  return botUsername || import.meta.env.VITE_TELEGRAM_BOT_USERNAME || 'MubarakWayBot';
+};
+
+/**
+ * Send book to bot via Deep Link
+ */
+export const sendBookToBot = (bookId: number, bookTitle: string): void => {
+  const botUsername = getBotUsername();
+  const deepLink = `https://t.me/${botUsername}?start=download_book_${bookId}`;
+
+  showConfirm(`Отправить книгу "${bookTitle}" в чат с ботом?`, (confirmed) => {
+    if (confirmed) {
+      haptic.impact('light');
+      openLink(deepLink);
+    }
+  });
+};
+
+/**
+ * Send nashid to bot via Deep Link
+ */
+export const sendNashidToBot = (nashidId: number, nashidTitle: string): void => {
+  const botUsername = getBotUsername();
+  const deepLink = `https://t.me/${botUsername}?start=download_${nashidId}`;
+
+  showConfirm(`Отправить нашид "${nashidTitle}" в чат с ботом?`, (confirmed) => {
+    if (confirmed) {
+      haptic.impact('light');
+      openLink(deepLink);
+    }
+  });
+};
+
+/**
+ * Deep Links utilities
+ */
+export const deepLinks = {
+  /**
+   * Send book to bot chat
+   */
+  sendBook: sendBookToBot,
+
+  /**
+   * Send nashid to bot chat
+   */
+  sendNashid: sendNashidToBot,
+
+  /**
+   * Open bot chat
+   */
+  openBotChat: () => {
+    const botUsername = getBotUsername();
+    openLink(`https://t.me/${botUsername}`);
+  },
+
+  /**
+   * Create custom deep link
+   */
+  createLink: (startParam: string): string => {
+    const botUsername = getBotUsername();
+    return `https://t.me/${botUsername}?start=${startParam}`;
+  },
 };

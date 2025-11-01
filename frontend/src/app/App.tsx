@@ -34,6 +34,7 @@ import {
   PracticePage,
   PracticeSessionPage,
   WuduPage,
+  NotificationSettingsPage,
 } from '@pages/prayer';
 
 // Progress & Settings Pages
@@ -121,6 +122,7 @@ function App() {
           <Route path="/prayer/practice" element={<PracticePage />} />
           <Route path="/prayer/practice/:lessonId" element={<PracticeSessionPage />} />
           <Route path="/prayer/wudu" element={<WuduPage />} />
+          <Route path="/settings/notifications" element={<NotificationSettingsPage />} />
 
           {/* Progress & Settings */}
           <Route path="/progress" element={<ProgressPage />} />

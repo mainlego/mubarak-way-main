@@ -10,3 +10,4 @@ export { default as QiblaPage } from './QiblaPage';
 export { default as PracticePage } from './PracticePage';
 export { default as PracticeSessionPage } from './PracticeSessionPage';
 export { default as WuduPage } from './WuduPage';
+export { default as NotificationSettingsPage } from './NotificationSettingsPage';
