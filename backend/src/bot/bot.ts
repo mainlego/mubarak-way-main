@@ -561,7 +561,16 @@ bot.on('location', async (ctx) => {
       });
       console.log(`✅ Created new user ${userId} with location`);
     } else {
-      user.prayerSettings = user.prayerSettings || {};
+      if (!user.prayerSettings) {
+        user.prayerSettings = {
+          calculationMethod: 'MuslimWorldLeague',
+          madhab: 'hanafi',
+          notifications: {
+            enabled: true,
+            beforeMinutes: 10,
+          },
+        };
+      }
       user.prayerSettings.location = {
         latitude,
         longitude,

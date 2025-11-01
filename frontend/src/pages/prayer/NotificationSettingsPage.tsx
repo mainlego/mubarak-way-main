@@ -8,7 +8,6 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Bell, Clock, Save } from 'lucide-react';
 import { useUserStore } from '@shared/store';
 import { Button, Card, Spinner } from '@shared/ui';
-import { api } from '@shared/lib/services';
 
 interface NotificationSettings {
   enabled: boolean;
@@ -85,20 +84,9 @@ export default function NotificationSettingsPage() {
     setSaving(true);
     try {
       // Update user prayer settings
-      await api.put(`/auth/user/${user.telegramId}`, {
+      await updateUser({
         prayerSettings: {
           ...user.prayerSettings,
-          notifications: {
-            enabled: settings.enabled,
-            beforeMinutes: settings.reminderBefore,
-          },
-        },
-      });
-
-      // Update local store
-      updateUser({
-        prayerSettings: {
-          ...user.prayerSettings!,
           notifications: {
             enabled: settings.enabled,
             beforeMinutes: settings.reminderBefore,
