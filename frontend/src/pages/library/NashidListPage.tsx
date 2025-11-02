@@ -310,13 +310,41 @@ export default function NashidListPage() {
         <div className="flex gap-2 mt-3 overflow-x-auto pb-2 hide-scrollbar">
           {categories.map((category) => {
             const isSelected = selectedCategory === category.key;
-            const colorClasses = category.color
-              ? isSelected
-                ? `bg-${category.color}-500 text-white`
-                : `bg-${category.color}-100 dark:bg-${category.color}-900 text-${category.color}-700 dark:text-${category.color}-300 hover:bg-${category.color}-200 dark:hover:bg-${category.color}-800`
-              : isSelected
-              ? 'bg-primary-500 text-white'
-              : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600';
+
+            // Use static Tailwind classes to ensure they're included in production build
+            const getColorClasses = () => {
+              if (!category.color) {
+                return isSelected
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600';
+              }
+
+              if (isSelected) {
+                switch(category.color) {
+                  case 'blue': return 'bg-blue-500 text-white';
+                  case 'green': return 'bg-green-500 text-white';
+                  case 'purple': return 'bg-purple-500 text-white';
+                  case 'red': return 'bg-red-500 text-white';
+                  case 'yellow': return 'bg-yellow-500 text-white';
+                  case 'pink': return 'bg-pink-500 text-white';
+                  case 'indigo': return 'bg-indigo-500 text-white';
+                  default: return 'bg-primary-500 text-white';
+                }
+              } else {
+                switch(category.color) {
+                  case 'blue': return 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800';
+                  case 'green': return 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800';
+                  case 'purple': return 'bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 hover:bg-purple-200 dark:hover:bg-purple-800';
+                  case 'red': return 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-800';
+                  case 'yellow': return 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300 hover:bg-yellow-200 dark:hover:bg-yellow-800';
+                  case 'pink': return 'bg-pink-100 dark:bg-pink-900 text-pink-700 dark:text-pink-300 hover:bg-pink-200 dark:hover:bg-pink-800';
+                  case 'indigo': return 'bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 hover:bg-indigo-200 dark:hover:bg-indigo-800';
+                  default: return 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600';
+                }
+              }
+            };
+
+            const colorClasses = getColorClasses();
 
             return (
               <button

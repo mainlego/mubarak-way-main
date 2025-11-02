@@ -24,7 +24,7 @@ export default function BookReaderPage() {
   // Load saved progress
   useEffect(() => {
     if (currentBook && user) {
-      const progress = user.readingHistory?.books.find(b => b.bookId === currentBook.id);
+      const progress = user.readingProgress?.find(b => b.bookId === currentBook.id);
       if (progress) {
         setCurrentPage(progress.currentPage);
       }
@@ -36,18 +36,18 @@ export default function BookReaderPage() {
     if (currentBook && user && currentPage > 1) {
       const saveProgress = async () => {
         try {
+          const percentage = Math.round((currentPage / currentBook.pages) * 100);
           await updateUser({
-            readingHistory: {
-              books: [
-                ...(user.readingHistory?.books.filter(b => b.bookId !== currentBook.id) || []),
-                {
-                  bookId: currentBook.id,
-                  currentPage,
-                  totalPages: currentBook.pages,
-                  lastRead: new Date().toISOString(),
-                },
-              ],
-            },
+            readingProgress: [
+              ...(user.readingProgress?.filter(b => b.bookId !== currentBook.id) || []),
+              {
+                bookId: currentBook.id,
+                currentPage,
+                totalPages: currentBook.pages,
+                lastRead: new Date(),
+                percentage,
+              },
+            ],
           });
         } catch (err) {
           console.error('Error saving progress:', err);

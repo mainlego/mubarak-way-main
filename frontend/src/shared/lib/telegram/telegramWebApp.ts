@@ -346,3 +346,63 @@ export function hideBackButton() {
     tg.BackButton.hide();
   }
 }
+
+/**
+ * Alias for isTelegramWebApp for backwards compatibility
+ */
+export const isTelegram = isTelegramWebApp;
+
+/**
+ * Deep Links API for sending content to Telegram bot
+ */
+export const deepLinks = {
+  /**
+   * Send book to Telegram bot via deep link
+   */
+  sendBookToBot: async (book: { id: string | number; title: string; author?: string }) => {
+    const tg = getTelegramWebApp();
+    if (!tg) {
+      console.warn('[DeepLinks] Not in Telegram WebApp');
+      return;
+    }
+
+    const confirmed = await new Promise<boolean>((resolve) => {
+      showConfirm(
+        `Отправить книгу "${book.title}" в бот для скачивания?`,
+        (result) => resolve(result)
+      );
+    });
+
+    if (confirmed) {
+      haptic.notification('success');
+      const deepLinkUrl = `https://t.me/${import.meta.env.VITE_TELEGRAM_BOT_USERNAME}?start=book_${book.id}`;
+      tg.openTelegramLink(deepLinkUrl);
+      showAlert('Книга отправлена в бот! Откройте бот для скачивания.');
+    }
+  },
+
+  /**
+   * Send nashid to Telegram bot via deep link
+   */
+  sendNashidToBot: async (nashid: { id: string | number; title: string; artist: string }) => {
+    const tg = getTelegramWebApp();
+    if (!tg) {
+      console.warn('[DeepLinks] Not in Telegram WebApp');
+      return;
+    }
+
+    const confirmed = await new Promise<boolean>((resolve) => {
+      showConfirm(
+        `Отправить нашид "${nashid.title}" в бот для скачивания?`,
+        (result) => resolve(result)
+      );
+    });
+
+    if (confirmed) {
+      haptic.notification('success');
+      const deepLinkUrl = `https://t.me/${import.meta.env.VITE_TELEGRAM_BOT_USERNAME}?start=nashid_${nashid.id}`;
+      tg.openTelegramLink(deepLinkUrl);
+      showAlert('Нашид отправлен в бот! Откройте бот для скачивания.');
+    }
+  },
+};

@@ -17,4 +17,6 @@ export {
   hideMainButton,
   showBackButton,
   hideBackButton,
+  isTelegram,
+  deepLinks,
 } from './telegramWebApp';

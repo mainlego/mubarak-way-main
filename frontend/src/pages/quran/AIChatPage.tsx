@@ -203,7 +203,7 @@ export default function AIChatPage() {
 
   const remainingRequests = user.subscription.limits.aiRequests === -1
     ? '∞'
-    : user.subscription.limits.aiRequests - user.usage.aiRequests;
+    : user.subscription.limits.aiRequests - user.usage.aiRequestsPerDay;
 
   return (
     <div className="page-container flex flex-col h-screen">

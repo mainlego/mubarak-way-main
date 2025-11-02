@@ -90,6 +90,14 @@ export default function NotificationSettingsPage() {
           notifications: {
             enabled: settings.enabled,
             beforeMinutes: settings.reminderBefore,
+            prayers: {
+              fajr: settings.prayers.fajr,
+              dhuhr: settings.prayers.dhuhr,
+              asr: settings.prayers.asr,
+              maghrib: settings.prayers.maghrib,
+              isha: settings.prayers.isha,
+            },
+            telegramOnly: settings.telegramOnly,
           },
         },
       });
