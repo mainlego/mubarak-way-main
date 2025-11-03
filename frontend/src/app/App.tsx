@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { initTelegramSDK, isTelegram } from '@shared/lib/telegram';
 import { useUserStore } from '@shared/store';
 
@@ -57,6 +57,30 @@ import BottomNav from '@widgets/BottomNav';
 import DebugPanel from '@widgets/DebugPanel';
 import { VersionChecker } from '@shared/ui';
 
+// Onboarding redirect wrapper
+function OnboardingGuard({ children }: { children: React.ReactNode }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isChecking, setIsChecking] = useState(true);
+
+  useEffect(() => {
+    const onboardingCompleted = localStorage.getItem('onboarding_completed');
+
+    // If not completed and not already on onboarding page, redirect
+    if (!onboardingCompleted && location.pathname !== '/onboarding') {
+      navigate('/onboarding', { replace: true });
+    }
+
+    setIsChecking(false);
+  }, [navigate, location.pathname]);
+
+  if (isChecking) {
+    return null; // Or a loading spinner
+  }
+
+  return <>{children}</>;
+}
+
 function App() {
   const { login } = useUserStore();
 
@@ -91,13 +115,14 @@ function App() {
 
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-        <Routes>
-          {/* Onboarding */}
-          <Route path="/onboarding" element={<OnboardingPage />} />
+      <OnboardingGuard>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+          <Routes>
+            {/* Onboarding */}
+            <Route path="/onboarding" element={<OnboardingPage />} />
 
-          {/* Main App */}
-          <Route path="/" element={<HomePage />} />
+            {/* Main App */}
+            <Route path="/" element={<HomePage />} />
 
           {/* Quran Module */}
           <Route path="/quran" element={<SurahListPage />} />
@@ -153,7 +178,8 @@ function App() {
 
         {/* Version Checker - Auto-update notification */}
         <VersionChecker />
-      </div>
+        </div>
+      </OnboardingGuard>
     </BrowserRouter>
   );
 }
