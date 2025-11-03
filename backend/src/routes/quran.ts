@@ -360,6 +360,7 @@ router.post('/import-all', async (req: Request, res: Response) => {
     console.log('✅ Existing data cleared');
 
     let totalAyahs = 0;
+    let globalAyahNumber = 1; // Track global ayah number across all surahs
     const importedSurahs: any[] = [];
 
     // Import all 114 surahs
@@ -388,19 +389,30 @@ router.post('/import-all', async (req: Request, res: Response) => {
         console.log(`  ✅ Created Surah: ${surahData.englishName}`);
 
         // Create ayah documents for this surah
-        const ayahsToCreate = surahData.ayahs.map((ayah: any) => ({
-          surahId: surah._id,
-          surahNumber: surahData.number,
-          ayahNumber: ayah.numberInSurah,
-          text: ayah.text,
-          textArabic: ayah.text,
-          translation: '', // Will be filled later with Russian translation
-          transliteration: '',
-          juzNumber: Math.ceil(ayah.number / 20), // Approximate juz calculation
-        }));
+        const ayahsToCreate = surahData.ayahs.map((ayah: any, index: number) => {
+          const currentGlobalNumber = globalAyahNumber + index;
+
+          return {
+            surahNumber: surahData.number,
+            ayahNumber: ayah.numberInSurah,
+            globalNumber: currentGlobalNumber,
+            textArabic: ayah.text,
+            textSimple: ayah.text.replace(/[^\u0600-\u06FF\s]/g, ''), // Remove diacritics (simplified)
+            translations: [], // Will be filled later with Russian translation
+            tafsirs: [],
+            juzNumber: Math.ceil(currentGlobalNumber / 20), // Approximate juz calculation
+            hizbNumber: Math.ceil(currentGlobalNumber / 10), // Approximate hizb calculation (2 per juz)
+            pageNumber: Math.ceil(currentGlobalNumber / 15), // Approximate page calculation
+            sajdah: ayah.sajda && typeof ayah.sajda === 'object' ? {
+              required: ayah.sajda.obligatory || false,
+              type: ayah.sajda.obligatory ? 'obligatory' : 'recommended',
+            } : undefined,
+          };
+        });
 
         await Ayah.insertMany(ayahsToCreate);
         totalAyahs += ayahsToCreate.length;
+        globalAyahNumber += ayahsToCreate.length; // Increment global counter
 
         importedSurahs.push({
           number: surahData.number,
