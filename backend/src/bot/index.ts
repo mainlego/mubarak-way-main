@@ -34,9 +34,9 @@ export async function startBot(expressApp?: Express): Promise<typeof bot> {
 
       // Set new webhook
       const webhookPath = '/webhook/telegram';
-      const backendUrl = WEB_APP_URL.includes('mubarakway-frontend')
-        ? 'https://mubarakway-backend.onrender.com'
-        : process.env.BACKEND_URL || 'https://mubarakway-backend.onrender.com';
+      const backendUrl = WEB_APP_URL.includes('mubarak-way-frontend')
+        ? 'https://mubarak-way-backend.onrender.com'
+        : process.env.BACKEND_URL || 'https://mubarak-way-backend.onrender.com';
       const webhookUrl = `${backendUrl}${webhookPath}`;
 
       // Create webhook handler
