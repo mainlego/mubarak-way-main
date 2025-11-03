@@ -326,4 +326,116 @@ router.get('/stats', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /api/v1/quran/import-all?secret=YOUR_SECRET
+ * Import all 114 surahs from Al-Quran Cloud API
+ * Temporary endpoint for initial data population
+ */
+router.post('/import-all', async (req: Request, res: Response) => {
+  try {
+    // Simple secret key protection
+    const secret = req.query.secret as string;
+    const expectedSecret = process.env.IMPORT_SECRET || 'mubarak-way-import-2025';
+
+    if (secret !== expectedSecret) {
+      return res.status(401).json({
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Invalid secret key',
+        },
+      } as ApiResponse);
+    }
+
+    console.log('📥 Starting Quran import via API...');
+
+    const axios = (await import('axios')).default;
+    const Surah = (await import('../models/Surah.js')).default;
+    const Ayah = (await import('../models/Ayah.js')).default;
+
+    // Clear existing data
+    console.log('🗑️  Clearing existing Quran data...');
+    await Surah.deleteMany({});
+    await Ayah.deleteMany({});
+    console.log('✅ Existing data cleared');
+
+    let totalAyahs = 0;
+    const importedSurahs: any[] = [];
+
+    // Import all 114 surahs
+    for (let i = 1; i <= 114; i++) {
+      console.log(`📖 Importing Surah ${i}/114...`);
+
+      try {
+        // Fetch surah data from Al-Quran Cloud API
+        const response = await axios.get<{ data: any }>(
+          `https://api.alquran.cloud/v1/surah/${i}`
+        );
+        const surahData = response.data.data;
+
+        // Create surah document
+        const surah = await Surah.create({
+          number: surahData.number,
+          name: surahData.englishName,
+          nameArabic: surahData.name,
+          nameTransliteration: surahData.englishNameTranslation,
+          numberOfAyahs: surahData.numberOfAyahs,
+          revelationType: surahData.revelationType.toLowerCase(),
+        });
+
+        console.log(`  ✅ Created Surah: ${surahData.englishName}`);
+
+        // Create ayah documents for this surah
+        const ayahsToCreate = surahData.ayahs.map((ayah: any) => ({
+          surahId: surah._id,
+          surahNumber: surahData.number,
+          ayahNumber: ayah.numberInSurah,
+          text: ayah.text,
+          textArabic: ayah.text,
+          translation: '', // Will be filled later with Russian translation
+          transliteration: '',
+          juzNumber: Math.ceil(ayah.number / 20), // Approximate juz calculation
+        }));
+
+        await Ayah.insertMany(ayahsToCreate);
+        totalAyahs += ayahsToCreate.length;
+
+        importedSurahs.push({
+          number: surahData.number,
+          name: surahData.englishName,
+          nameArabic: surahData.name,
+          ayahs: ayahsToCreate.length,
+        });
+
+        // Rate limiting: wait 100ms between requests
+        await new Promise(resolve => setTimeout(resolve, 100));
+      } catch (error: any) {
+        console.error(`  ❌ Error importing Surah ${i}:`, error.message);
+        throw error;
+      }
+    }
+
+    console.log('✅ Quran import completed successfully!');
+
+    res.json({
+      success: true,
+      message: 'All 114 surahs imported successfully',
+      data: {
+        totalSurahs: importedSurahs.length,
+        totalAyahs,
+        surahs: importedSurahs,
+      },
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('❌ Import failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'IMPORT_ERROR',
+        message: 'Failed to import Quran: ' + error.message,
+      },
+    } as ApiResponse);
+  }
+});
+
 export default router;
