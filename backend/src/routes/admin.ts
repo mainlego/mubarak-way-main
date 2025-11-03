@@ -495,8 +495,10 @@ router.post('/import-quran', async (req, res) => {
           name: surahData.englishName,
           nameArabic: surahData.name,
           nameTransliteration: surahData.englishNameTranslation,
-          numberOfAyahs: surahData.numberOfAyahs,
-          revelationType: surahData.revelationType.toLowerCase(),
+          ayahCount: surahData.numberOfAyahs,
+          revelation: surahData.revelationType.toLowerCase(),
+          revelationOrder: surahData.number, // Use surah number as approximation
+          bismillahPre: surahData.number !== 1 && surahData.number !== 9, // All except Al-Fatihah and At-Tawbah
         });
 
         console.log(`  ✅ Created Surah: ${surahData.englishName}`);
