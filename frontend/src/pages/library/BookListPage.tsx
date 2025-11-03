@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useLibraryStore, useUserStore } from '@shared/store';
 import { Card, Spinner, Button } from '@shared/ui';
 import { deepLinks, isTelegram } from '@shared/lib/telegram';
+import { BookCard } from '@widgets/library';
+import { BookOpen, Search, ArrowLeft } from 'lucide-react';
 
 export default function BookListPage() {
   const { t } = useTranslation();
@@ -86,23 +88,29 @@ export default function BookListPage() {
   }
 
   return (
-    <div className="page-container p-4">
+    <div className="page-container bg-gradient-primary min-h-screen">
       {/* Header */}
-      <header className="mb-6">
-        <div className="flex items-center gap-3 mb-4">
+      <header className="container-app pt-6 pb-4 safe-top">
+        <div className="flex items-center gap-3 mb-6">
           <button
             onClick={() => navigate('/library')}
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            className="icon-container bg-card hover:bg-card-hover"
           >
-            ← {t('common.back')}
+            <ArrowLeft className="w-5 h-5 text-text-primary" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            📖 {t('library.books')}
-          </h1>
+          <div className="flex items-center gap-2">
+            <div className="icon-container bg-gradient-accent">
+              <BookOpen className="w-6 h-6" />
+            </div>
+            <h1 className="text-2xl font-bold text-text-primary">
+              {t('library.books')}
+            </h1>
+          </div>
         </div>
 
         {/* Search */}
-        <div className="mb-4">
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary" />
           <input
             type="text"
             value={searchQuery}
@@ -111,12 +119,12 @@ export default function BookListPage() {
               setPage(1);
             }}
             placeholder={t('library.searchBooksPlaceholder', { defaultValue: 'Search books...' })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="input w-full pl-10"
           />
         </div>
 
         {/* Category Filter */}
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
           {categories.map((category) => (
             <button
               key={category.id}
@@ -124,10 +132,10 @@ export default function BookListPage() {
                 setSelectedCategory(category.id);
                 setPage(1);
               }}
-              className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors ${
+              className={`px-4 py-2 rounded-lg whitespace-nowrap transition-colors font-medium ${
                 selectedCategory === category.id
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                  ? 'bg-gradient-accent text-white shadow-md'
+                  : 'glass text-text-secondary hover:text-text-primary'
               }`}
             >
               {category.name}
@@ -136,131 +144,55 @@ export default function BookListPage() {
         </div>
       </header>
 
-      {/* Books Grid */}
-      {books.length === 0 ? (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">📚</div>
-          <p className="text-gray-600 dark:text-gray-400">
-            {t('library.noBooksFound', { defaultValue: 'No books found' })}
-          </p>
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 gap-3 mb-6">
-            {books.map((book) => {
-              const isFavorite = user?.favorites.books.includes(book.id) || false;
-              const isOffline = user?.offline.books.includes(book.id) || false;
-              const isPremium = book.isPremium;
-              const hasAccess = !isPremium || user?.subscription.tier !== 'free';
+      <main className="container-app pb-24">
 
-              return (
-                <Card
-                  key={book.id}
-                  hoverable={hasAccess}
-                  onClick={() => hasAccess && navigate(`/library/books/${book.id}`)}
-                  className="relative"
-                >
-                  {/* Premium Badge */}
-                  {isPremium && (
-                    <div className="absolute top-2 left-2 bg-gradient-to-r from-yellow-400 to-yellow-600 text-white text-xs px-2 py-1 rounded-full font-semibold z-10">
-                      ⭐ Pro
-                    </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="absolute top-2 right-2 flex gap-1 z-10">
-                    <button
-                      onClick={(e) => handleToggleFavorite(e, book.id)}
-                      className="w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                    >
-                      {isFavorite ? '⭐' : '☆'}
-                    </button>
-                    {hasAccess && (
-                      <button
-                        onClick={(e) => handleToggleOffline(e, book.id)}
-                        className="w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                      >
-                        {isOffline ? '📥' : '📄'}
-                      </button>
-                    )}
-                    {hasAccess && isTelegram() && (
-                      <button
-                        onClick={(e) => handleSendToBot(e, book.id, book.title)}
-                        className="w-8 h-8 bg-white/90 dark:bg-gray-800/90 rounded-full flex items-center justify-center hover:scale-110 transition-transform"
-                        title={t('library.sendToBot', { defaultValue: 'Send to bot' })}
-                      >
-                        📤
-                      </button>
-                    )}
-                  </div>
-
-                  {/* Cover Image */}
-                  {book.coverUrl ? (
-                    <img
-                      src={book.coverUrl}
-                      alt={book.title}
-                      className={`w-full h-40 object-cover rounded-lg mb-2 ${
-                        !hasAccess ? 'opacity-60 grayscale' : ''
-                      }`}
-                    />
-                  ) : (
-                    <div className={`w-full h-40 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg mb-2 flex items-center justify-center ${
-                      !hasAccess ? 'opacity-60 grayscale' : ''
-                    }`}>
-                      <span className="text-5xl text-white">📖</span>
-                    </div>
-                  )}
-
-                  {/* Info */}
-                  <h3 className="font-semibold text-sm text-gray-900 dark:text-white line-clamp-2 mb-1">
-                    {book.title}
-                  </h3>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-1 mb-2">
-                    {book.author}
-                  </p>
-
-                  {/* Meta */}
-                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-500">
-                    <span>{book.pages} {t('library.pages', { defaultValue: 'pages' })}</span>
-                    {book.language && (
-                      <span className="uppercase">{book.language}</span>
-                    )}
-                  </div>
-
-                  {/* Lock Overlay */}
-                  {!hasAccess && (
-                    <div className="absolute inset-0 bg-black/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="text-4xl mb-2">🔒</div>
-                        <Button
-                          size="sm"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate('/settings/subscription');
-                          }}
-                        >
-                          {t('settings.upgrade')}
-                        </Button>
-                      </div>
-                    </div>
-                  )}
-                </Card>
-              );
-            })}
+        {/* Books Grid */}
+        {books.length === 0 ? (
+          <div className="text-center py-12">
+            <BookOpen className="w-16 h-16 text-text-tertiary mx-auto mb-4" />
+            <p className="text-text-secondary">
+              {t('library.noBooksFound', { defaultValue: 'No books found' })}
+            </p>
           </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              {books.map((book) => {
+                const isFavorite = user?.favorites.books.includes(book.id) || false;
+                const isOffline = user?.offline.books.includes(book.id) || false;
 
-          {/* Load More */}
-          <div className="text-center">
-            <Button
-              variant="secondary"
-              onClick={() => setPage(p => p + 1)}
-              disabled={isLoading}
-            >
-              {isLoading ? t('common.loading') : t('library.loadMore', { defaultValue: 'Load More' })}
-            </Button>
-          </div>
-        </>
-      )}
+                return (
+                  <BookCard
+                    key={book.id}
+                    id={book.id}
+                    title={book.title}
+                    author={book.author}
+                    category={book.category || ''}
+                    pages={book.pages}
+                    coverImage={book.coverUrl}
+                    isDownloaded={isOffline}
+                    isFavorite={isFavorite}
+                    onToggleFavorite={() => toggleFavorite('books', book.id)}
+                    onDownload={() => toggleOffline('books', book.id)}
+                  />
+                );
+              })}
+            </div>
+
+            {/* Load More */}
+            <div className="text-center">
+              <Button
+                variant="secondary"
+                onClick={() => setPage(p => p + 1)}
+                disabled={isLoading}
+                className="w-full"
+              >
+                {isLoading ? t('common.loading') : t('library.loadMore', { defaultValue: 'Load More' })}
+              </Button>
+            </div>
+          </>
+        )}
+      </main>
     </div>
   );
 }

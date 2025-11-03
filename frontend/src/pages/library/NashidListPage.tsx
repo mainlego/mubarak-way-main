@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useLibraryStore, useUserStore, useAudioStore } from '@shared/store';
 import { Card, Spinner, Button, UsageLimitsIndicator, UpgradePromptModal, NetworkStatusIndicator } from '@shared/ui';
-import { PlaylistManager } from '@widgets/library/PlaylistManager';
+import { PlaylistManager, NashidCard } from '@widgets/library';
 import { NASHID_CATEGORIES, getCategoryConfig, getCategoryLabel } from '@shared/config/nashidCategories';
 import { haptic, deepLinks, isTelegram } from '@shared/lib/telegram';
 import type { Nashid } from '@mubarak-way/shared';
@@ -398,7 +398,7 @@ export default function NashidListPage() {
             </p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {filteredNashids.map((nashid) => {
               const nashidIdStr = String(nashid.id || nashid.nashidId || '');
               const isFavorite = favorites.includes(nashidIdStr);
@@ -406,81 +406,27 @@ export default function NashidListPage() {
               const isCurrentlyPlaying = currentNashid?.id === nashid.id && isPlaying;
 
               return (
-                <Card
+                <NashidCard
                   key={nashid.id}
-                  hoverable
-                  onClick={() => handlePlay(nashid)}
-                  className={currentNashid?.id === nashid.id ? 'ring-2 ring-primary-500' : ''}
-                >
-                  <div className="flex items-center gap-3">
-                    {/* Cover */}
-                    {nashid.coverUrl ? (
-                      <img
-                        src={nashid.coverUrl}
-                        alt={nashid.title}
-                        className="w-16 h-16 object-cover rounded-lg flex-shrink-0"
-                      />
-                    ) : (
-                      <div className="w-16 h-16 bg-gradient-to-br from-accent-500 to-accent-700 rounded-lg flex-shrink-0 flex items-center justify-center">
-                        <span className="text-3xl text-white">🎵</span>
-                      </div>
-                    )}
-
-                    {/* Info */}
-                    <div className="flex-1 min-w-0">
-                      <h3 className="font-semibold text-sm text-gray-900 dark:text-white truncate">
-                        {nashid.title}
-                      </h3>
-                      <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                        {nashid.artist}
-                      </p>
-                      <p className="text-xs text-gray-500 dark:text-gray-500">
-                        {formatTime(nashid.duration)}
-                      </p>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex items-center gap-2 flex-shrink-0">
-                      {isTelegram() && (
-                        <button
-                          onClick={(e) => handleShareNashid(e, nashid)}
-                          className="text-xl hover:scale-110 transition-transform"
-                          title={t('common.share', { defaultValue: 'Share' })}
-                        >
-                          📤
-                        </button>
-                      )}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          haptic.impact('light');
-                          setShowAddToPlaylist(nashid);
-                        }}
-                        className="text-xl hover:scale-110 transition-transform"
-                        title={t('playlist.addTo', { defaultValue: 'Add to playlist' })}
-                      >
-                        📋
-                      </button>
-                      <button
-                        onClick={(e) => handleToggleFavorite(e, nashid.id)}
-                        className="text-xl hover:scale-110 transition-transform"
-                        title={t('library.favorite', { defaultValue: 'Favorite' })}
-                      >
-                        {isFavorite ? '⭐' : '☆'}
-                      </button>
-                      <button
-                        onClick={(e) => handleToggleOffline(e, nashid.id)}
-                        className="text-xl hover:scale-110 transition-transform"
-                        title={t('library.offline', { defaultValue: 'Offline' })}
-                      >
-                        {isOffline ? '📥' : '📄'}
-                      </button>
-                      <button className="text-2xl hover:scale-110 transition-transform">
-                        {isCurrentlyPlaying ? '⏸️' : '▶️'}
-                      </button>
-                    </div>
-                  </div>
-                </Card>
+                  id={nashid.id}
+                  title={nashid.title}
+                  artist={nashid.artist}
+                  duration={formatTime(nashid.duration)}
+                  category={nashid.category}
+                  coverImage={nashid.coverUrl}
+                  isPlaying={isCurrentlyPlaying}
+                  isDownloaded={isOffline}
+                  isFavorite={isFavorite}
+                  onPlay={() => handlePlay(nashid)}
+                  onPause={() => {
+                    if (audioRef.current) {
+                      audioRef.current.pause();
+                      setIsPlaying(false);
+                    }
+                  }}
+                  onToggleFavorite={() => handleToggleFavorite(new MouseEvent('click') as any, nashid.id)}
+                  onDownload={() => handleToggleOffline(new MouseEvent('click') as any, nashid.id)}
+                />
               );
             })}
           </div>

@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useUserStore, usePrayerStore } from '@shared/store';
 import { Card, Button, Spinner } from '@shared/ui';
 import type { PrayerCalculationParams } from '@mubarak-way/shared';
-import { MonthlyPrayerSchedule } from '@widgets/prayer';
+import { MonthlyPrayerSchedule, PrayerCard } from '@widgets/prayer';
+import { MapPin, Calendar, Settings as SettingsIcon, Bell, ArrowLeft, Clock } from 'lucide-react';
 
 interface PrayerTime {
   name: string;
@@ -213,172 +214,166 @@ export default function PrayerTimesPage() {
   }
 
   return (
-    <div className="page-container p-4">
+    <div className="page-container bg-gradient-primary min-h-screen">
       {/* Header */}
-      <header className="mb-6">
-        <div className="flex items-center gap-3 mb-2">
+      <header className="container-app pt-6 pb-4 safe-top">
+        <div className="flex items-center gap-3 mb-4">
           <button
             onClick={() => navigate('/prayer')}
-            className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+            className="icon-container bg-card hover:bg-card-hover"
           >
-            ← {t('common.back')}
+            <ArrowLeft className="w-5 h-5 text-text-primary" />
           </button>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            ⏰ {t('prayer.times')}
-          </h1>
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
+              <Clock className="w-6 h-6 text-accent" />
+              <h1 className="text-2xl font-bold text-text-primary">
+                {t('prayer.times')}
+              </h1>
+            </div>
+          </div>
         </div>
 
         {/* Location */}
-        <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <span>📍</span>
+        <div className="flex items-center gap-2 text-sm text-text-secondary mb-1">
+          <MapPin className="w-4 h-4 text-accent" />
           <span>{locationName || t('prayer.detectingLocation', { defaultValue: 'Detecting location...' })}</span>
         </div>
 
         {/* Date */}
-        <p className="text-sm text-gray-500 dark:text-gray-500 mt-1">
-          {new Date().toLocaleDateString(undefined, {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric',
-          })}
-        </p>
+        <div className="flex items-center gap-2 text-sm text-text-tertiary">
+          <Calendar className="w-4 h-4" />
+          <span>
+            {new Date().toLocaleDateString(undefined, {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric',
+            })}
+          </span>
+        </div>
       </header>
 
-      {/* Next Prayer */}
-      {nextPrayer && (
-        <Card className="mb-6 bg-gradient-to-br from-primary-500 to-primary-700 text-white">
-          <div className="text-center">
-            <p className="text-sm opacity-90 mb-1">
-              {t('prayer.nextPrayer', { defaultValue: 'Next Prayer' })}
-            </p>
-            <h2 className="text-3xl font-bold mb-2">{nextPrayer.name}</h2>
-            <p className="text-4xl font-bold mb-2">{nextPrayer.time}</p>
-            <p className="text-sm opacity-90">
-              {t('prayer.in', { defaultValue: 'in' })} {timeUntilNext || getTimeUntilPrayer(nextPrayer.time)}
-            </p>
-          </div>
-        </Card>
-      )}
+      <main className="container-app space-y-6 pb-24">
 
-      {/* All Prayer Times */}
-      <section className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-          {t('prayer.todaysPrayers', { defaultValue: "Today's Prayers" })}
-        </h3>
+        {/* Next Prayer */}
+        {nextPrayer && (
+          <Card variant="gradient">
+            <div className="text-center">
+              <p className="text-sm text-white/80 mb-2">
+                {t('prayer.nextPrayer', { defaultValue: 'Next Prayer' })}
+              </p>
+              <h2 className="text-3xl font-bold text-white mb-2">{nextPrayer.name}</h2>
+              <p className="text-5xl font-bold text-white mb-3">{nextPrayer.time}</p>
+              <p className="text-sm text-white/90">
+                {t('prayer.in', { defaultValue: 'in' })} {timeUntilNext || getTimeUntilPrayer(nextPrayer.time)}
+              </p>
+            </div>
+          </Card>
+        )}
 
-        <div className="space-y-2">
-          {prayerTimes.map((prayer, index) => {
-            const isNext = nextPrayer?.name === prayer.name;
+        {/* All Prayer Times */}
+        <section>
+          <h3 className="text-lg font-bold text-text-primary mb-3">
+            {t('prayer.todaysPrayers', { defaultValue: "Today's Prayers" })}
+          </h3>
 
-            return (
-              <Card
-                key={index}
-                className={`${
-                  isNext
-                    ? 'ring-2 ring-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                    : prayer.isPassed
-                    ? 'opacity-60'
-                    : ''
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                      prayer.isPassed
-                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
-                        : isNext
-                        ? 'bg-primary-600 text-white'
-                        : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                    }`}>
-                      {prayer.isPassed ? '✓' : '🕌'}
+          <div className="space-y-2">
+            {prayerTimes.map((prayer, index) => {
+              const isNext = nextPrayer?.name === prayer.name;
+
+              return (
+                <Card
+                  key={index}
+                  variant={isNext ? 'gradient' : 'glass'}
+                  className={`${
+                    prayer.isPassed && !isNext ? 'opacity-60' : ''
+                  } ${isNext ? 'ring-2 ring-accent' : ''}`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                        prayer.isPassed
+                          ? 'bg-success/20 text-success'
+                          : isNext
+                          ? 'bg-white/30 text-white'
+                          : 'bg-card text-text-primary'
+                      }`}>
+                        {prayer.isPassed ? '✓' : <Clock className="w-5 h-5" />}
+                      </div>
+                      <div>
+                        <h4 className={`font-semibold ${
+                          isNext ? 'text-white' : 'text-text-primary'
+                        }`}>
+                          {prayer.name}
+                        </h4>
+                        {isNext && (
+                          <p className="text-xs text-white/80">
+                            {t('prayer.upcoming', { defaultValue: 'Upcoming' })}
+                          </p>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold text-gray-900 dark:text-white">
-                        {prayer.name}
-                      </h4>
-                      {isNext && (
-                        <p className="text-xs text-primary-600 dark:text-primary-400">
-                          {t('prayer.upcoming', { defaultValue: 'Upcoming' })}
+
+                    <div className="text-right">
+                      <p className={`text-xl font-bold ${
+                        isNext ? 'text-white' : 'text-text-primary'
+                      }`}>
+                        {prayer.time}
+                      </p>
+                      {!prayer.isPassed && !isNext && (
+                        <p className="text-xs text-text-tertiary">
+                          {getTimeUntilPrayer(prayer.time)}
                         </p>
                       )}
                     </div>
                   </div>
-
-                  <div className="text-right">
-                    <p className="text-xl font-bold text-gray-900 dark:text-white">
-                      {prayer.time}
-                    </p>
-                    {!prayer.isPassed && !isNext && (
-                      <p className="text-xs text-gray-500 dark:text-gray-500">
-                        {getTimeUntilPrayer(prayer.time)}
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Monthly Schedule */}
-      {user?.prayerSettings?.location && (
-        <section>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-            {t('prayer.monthlySchedule', { defaultValue: 'Monthly Schedule' })}
-          </h3>
-          <MonthlyPrayerSchedule
-            latitude={user.prayerSettings.location.latitude}
-            longitude={user.prayerSettings.location.longitude}
-            calculationMethod={user.prayerSettings.calculationMethod || 'MuslimWorldLeague'}
-            madhab={user.prayerSettings.madhab || 'shafi'}
-          />
+                </Card>
+              );
+            })}
+          </div>
         </section>
-      )}
 
-      {/* Settings */}
-      <section>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-          {t('prayer.prayerSettings')}
-        </h3>
+        {/* Monthly Schedule */}
+        {user?.prayerSettings?.location && (
+          <section>
+            <h3 className="text-lg font-bold text-text-primary mb-3">
+              {t('prayer.monthlySchedule', { defaultValue: 'Monthly Schedule' })}
+            </h3>
+            <MonthlyPrayerSchedule
+              latitude={user.prayerSettings.location.latitude}
+              longitude={user.prayerSettings.location.longitude}
+              calculationMethod={user.prayerSettings.calculationMethod || 'MuslimWorldLeague'}
+              madhab={user.prayerSettings.madhab || 'shafi'}
+            />
+          </section>
+        )}
 
-        <div className="space-y-2">
-          <Card hoverable onClick={() => navigate('/settings/prayer')}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">⚙️</span>
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">
-                    {t('prayer.calculationMethod', { defaultValue: 'Calculation Method' })}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {user?.prayerSettings?.madhab || 'Hanafi'}
-                  </p>
-                </div>
-              </div>
-              <span className="text-gray-400">→</span>
-            </div>
-          </Card>
+        {/* Settings */}
+        <section>
+          <h3 className="text-lg font-bold text-text-primary mb-3">
+            {t('prayer.prayerSettings')}
+          </h3>
 
-          <Card hoverable onClick={() => navigate('/settings/notifications')}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">🔔</span>
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">
-                    {t('settings.notifications')}
-                  </h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {t('prayer.prayerReminders', { defaultValue: 'Prayer reminders' })}
-                  </p>
-                </div>
-              </div>
-              <span className="text-gray-400">→</span>
-            </div>
-          </Card>
-        </div>
-      </section>
+          <div className="space-y-2">
+            <PrayerCard
+              icon={SettingsIcon}
+              title={t('prayer.calculationMethod', { defaultValue: 'Calculation Method' })}
+              subtitle={user?.prayerSettings?.madhab || 'Hanafi'}
+              iconBgColor="bg-card"
+              onClick={() => navigate('/settings/prayer')}
+            />
+
+            <PrayerCard
+              icon={Bell}
+              title={t('settings.notifications')}
+              subtitle={t('prayer.prayerReminders', { defaultValue: 'Prayer reminders' })}
+              iconBgColor="bg-card"
+              onClick={() => navigate('/settings/notifications')}
+            />
+          </div>
+        </section>
+      </main>
     </div>
   );
 }

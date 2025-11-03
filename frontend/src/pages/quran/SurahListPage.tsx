@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useQuranStore } from '@shared/store';
 import { Card, Spinner } from '@shared/ui';
 import type { Surah } from '@mubarak-way/shared';
+import { SurahCard } from '@widgets/quran';
+import { BookOpen, Search, Bookmark, Clock } from 'lucide-react';
 
 export default function SurahListPage() {
   const { t } = useTranslation();
@@ -59,21 +61,27 @@ export default function SurahListPage() {
   }
 
   return (
-    <div className="page-container p-4">
+    <div className="page-container bg-gradient-primary min-h-screen">
       {/* Header */}
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-          {t('quran.title')}
-        </h1>
+      <header className="container-app pt-6 pb-4 safe-top">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="icon-container bg-gradient-accent">
+            <BookOpen className="w-6 h-6" />
+          </div>
+          <h1 className="text-2xl font-bold text-text-primary">
+            {t('quran.title')}
+          </h1>
+        </div>
 
         {/* Search */}
-        <div className="mb-4">
+        <div className="relative mb-4">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-text-tertiary" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder={t('quran.searchPlaceholder')}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+            className="input w-full pl-10"
           />
         </div>
 
@@ -81,30 +89,30 @@ export default function SurahListPage() {
         <div className="flex gap-2">
           <button
             onClick={() => setFilterType('all')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors font-medium ${
               filterType === 'all'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                ? 'bg-gradient-accent text-white shadow-md'
+                : 'glass text-text-secondary hover:text-text-primary'
             }`}
           >
             {t('common.all')} ({surahs.length})
           </button>
           <button
             onClick={() => setFilterType('meccan')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors font-medium ${
               filterType === 'meccan'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                ? 'bg-gradient-accent text-white shadow-md'
+                : 'glass text-text-secondary hover:text-text-primary'
             }`}
           >
             Meccan ({surahs.filter(s => s.revelationType === 'meccan').length})
           </button>
           <button
             onClick={() => setFilterType('medinan')}
-            className={`px-4 py-2 rounded-lg transition-colors ${
+            className={`px-4 py-2 rounded-lg transition-colors font-medium ${
               filterType === 'medinan'
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                ? 'bg-gradient-accent text-white shadow-md'
+                : 'glass text-text-secondary hover:text-text-primary'
             }`}
           >
             Medinan ({surahs.filter(s => s.revelationType === 'medinan').length})
@@ -112,69 +120,51 @@ export default function SurahListPage() {
         </div>
       </header>
 
-      {/* Surah List */}
-      <div className="space-y-2">
-        {filteredSurahs.length === 0 ? (
-          <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-            {t('errors.notFound')}
-          </div>
-        ) : (
-          filteredSurahs.map((surah) => (
-            <Card
-              key={surah._id}
-              hoverable
-              onClick={() => navigate(`/quran/surah/${surah.number}`)}
-            >
-              <div className="flex items-center gap-4">
-                {/* Number */}
-                <div className="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
-                  <span className="text-lg font-semibold text-primary-700 dark:text-primary-300">
-                    {surah.number}
-                  </span>
-                </div>
+      <main className="container-app pb-24">
 
-                {/* Info */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
-                    {surah.nameTransliteration}
-                  </h3>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 truncate">
-                    {surah.nameTranslation}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-500">
-                    {surah.numberOfAyahs} {t('quran.ayah')} • {surah.revelationType === 'meccan' ? 'Meccan' : 'Medinan'}
-                  </p>
-                </div>
+        {/* Surah List */}
+        <div className="space-y-3">
+          {filteredSurahs.length === 0 ? (
+            <div className="text-center py-12">
+              <BookOpen className="w-16 h-16 text-text-tertiary mx-auto mb-4" />
+              <p className="text-text-secondary">
+                {t('errors.notFound')}
+              </p>
+            </div>
+          ) : (
+            filteredSurahs.map((surah) => (
+              <SurahCard
+                key={surah._id}
+                number={surah.number}
+                nameArabic={surah.nameArabic}
+                nameTransliteration={surah.nameTransliteration}
+                nameTranslation={surah.nameTranslation}
+                revelationType={surah.revelationType}
+                versesCount={surah.numberOfAyahs}
+                onClick={() => navigate(`/quran/surah/${surah.number}`)}
+              />
+            ))
+          )}
+        </div>
 
-                {/* Arabic Name */}
-                <div className="flex-shrink-0 text-right">
-                  <p className="text-2xl font-arabic text-gray-900 dark:text-white">
-                    {surah.nameArabic}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ))
-        )}
-      </div>
-
-      {/* Quick Navigation */}
-      <div className="fixed bottom-20 right-4 flex flex-col gap-2">
-        <button
-          onClick={() => navigate('/quran/bookmarks')}
-          className="w-12 h-12 bg-primary-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary-700 transition-colors"
-          aria-label={t('quran.bookmarks')}
-        >
-          📑
-        </button>
-        <button
-          onClick={() => navigate('/quran/history')}
-          className="w-12 h-12 bg-primary-600 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-primary-700 transition-colors"
-          aria-label={t('quran.history')}
-        >
-          🕐
-        </button>
-      </div>
+        {/* Quick Navigation */}
+        <div className="fixed bottom-24 right-4 flex flex-col gap-2 z-40">
+          <button
+            onClick={() => navigate('/quran/bookmarks')}
+            className="w-12 h-12 bg-gradient-accent rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform"
+            aria-label={t('quran.bookmarks')}
+          >
+            <Bookmark className="w-6 h-6 text-white" />
+          </button>
+          <button
+            onClick={() => navigate('/quran/history')}
+            className="w-12 h-12 bg-gradient-accent rounded-full shadow-xl flex items-center justify-center hover:scale-110 transition-transform"
+            aria-label={t('quran.history')}
+          >
+            <Clock className="w-6 h-6 text-white" />
+          </button>
+        </div>
+      </main>
     </div>
   );
 }
