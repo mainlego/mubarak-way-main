@@ -568,4 +568,60 @@ router.post('/import-quran', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/v1/admin/seed-lessons
+ * Seed database with prayer lessons
+ */
+router.post('/seed-lessons', async (req, res) => {
+  try {
+    console.log('📥 Starting lessons seeding...');
+
+    const Lesson = (await import('../models/Lesson.js')).default;
+    const { prayerLessons } = await import('../data/prayerLessonsData.js');
+
+    // Clear existing lessons
+    console.log('🗑️  Clearing existing lessons...');
+    await Lesson.deleteMany({});
+    console.log('✅ Existing lessons cleared');
+
+    // Insert all lessons
+    console.log('📚 Inserting prayer lessons...');
+    await Lesson.insertMany(prayerLessons);
+    console.log(`✅ Inserted ${prayerLessons.length} lessons`);
+
+    // Get stats by category
+    const stats = {
+      total: prayerLessons.length,
+      byCategory: {
+        obligatoryPrayers: prayerLessons.filter(l => l.category === 'obligatory-prayers').length,
+        optionalPrayers: prayerLessons.filter(l => l.category === 'optional-prayers').length,
+        specialPrayers: prayerLessons.filter(l => l.category === 'special-prayers').length,
+        ablution: prayerLessons.filter(l => l.category === 'ablution').length,
+      },
+      byDifficulty: {
+        beginner: prayerLessons.filter(l => l.difficulty === 'beginner').length,
+        intermediate: prayerLessons.filter(l => l.difficulty === 'intermediate').length,
+        advanced: prayerLessons.filter(l => l.difficulty === 'advanced').length,
+      },
+    };
+
+    console.log('✅ Lessons seeding completed successfully!');
+
+    res.json({
+      success: true,
+      message: 'Prayer lessons seeded successfully',
+      data: stats,
+    });
+  } catch (error: any) {
+    console.error('❌ Seeding failed:', error.message);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'SEED_ERROR',
+        message: 'Failed to seed lessons: ' + error.message,
+      },
+    });
+  }
+});
+
 export default router;
