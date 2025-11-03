@@ -1,14 +1,20 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { useUserStore } from '@shared/store';
 import { getTelegramUser } from '@shared/lib/telegram';
-import { Card, Button } from '@shared/ui';
+import { usePrayerTimes } from '@shared/hooks/usePrayerTimes';
+import { BookOpen, School, Library } from 'lucide-react';
+import {
+  NextPrayerCard,
+  DailyGoalsList,
+  ModuleCard,
+  SearchBar,
+} from '@widgets/home';
 
 export default function HomePage() {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { user, login, isLoading } = useUserStore();
+  const { prayerTimes, nextPrayer } = usePrayerTimes();
 
   useEffect(() => {
     const telegramUser = getTelegramUser();
@@ -19,131 +25,186 @@ export default function HomePage() {
     }
   }, [user, login, isLoading]);
 
+  // Calculate next prayer progress
+  const nextPrayerData = useMemo(() => {
+    if (!nextPrayer || !prayerTimes) {
+      return {
+        prayerName: 'Загрузка...',
+        prayerNameAr: '...',
+        prayerTime: '--:--',
+        timeRemaining: '--',
+        progress: 0,
+      };
+    }
+
+    const now = new Date();
+    const nextTime = new Date(nextPrayer.time);
+
+    // Find previous prayer
+    const prayers = ['fajr', 'dhuhr', 'asr', 'maghrib', 'isha'];
+    const nextIndex = prayers.findIndex(p => p === nextPrayer.name);
+    const prevIndex = nextIndex > 0 ? nextIndex - 1 : prayers.length - 1;
+
+    const prevPrayerTime = prayerTimes[prevIndex]
+      ? new Date(prayerTimes[prevIndex].time)
+      : new Date(now.getTime() - 6 * 60 * 60 * 1000); // 6 hours ago as fallback
+
+    const totalDuration = nextTime.getTime() - prevPrayerTime.getTime();
+    const elapsed = now.getTime() - prevPrayerTime.getTime();
+    const progress = Math.min(Math.max((elapsed / totalDuration) * 100, 0), 100);
+
+    const minutesRemaining = Math.floor((nextTime.getTime() - now.getTime()) / 60000);
+    const hoursRemaining = Math.floor(minutesRemaining / 60);
+    const mins = minutesRemaining % 60;
+
+    const prayerNames: Record<string, { ru: string; ar: string }> = {
+      fajr: { ru: 'Фаджр', ar: 'الفجر' },
+      dhuhr: { ru: 'Зухр', ar: 'الظهر' },
+      asr: { ru: 'Аср', ar: 'العصر' },
+      maghrib: { ru: 'Магриб', ar: 'المغرب' },
+      isha: { ru: 'Иша', ar: 'العشاء' },
+    };
+
+    return {
+      prayerName: prayerNames[nextPrayer.name]?.ru || nextPrayer.name,
+      prayerNameAr: prayerNames[nextPrayer.name]?.ar || '',
+      prayerTime: nextTime.toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit',
+      }),
+      timeRemaining: `через ${hoursRemaining > 0 ? `${hoursRemaining}ч ` : ''}${mins}м`,
+      progress,
+    };
+  }, [nextPrayer, prayerTimes]);
+
+  // Mock daily goals (будем интегрировать с реальными данными позже)
+  const dailyGoals = useMemo(
+    () => [
+      {
+        id: 'quran-reading',
+        title: 'Чтение Корана',
+        titleAr: 'قراءة القرآن',
+        progress: 3,
+        total: 10,
+        isCompleted: false,
+        icon: '📖',
+      },
+      {
+        id: 'prayers',
+        title: 'Молитвы',
+        titleAr: 'الصلاة',
+        progress: 5,
+        total: 5,
+        isCompleted: true,
+        icon: '🕌',
+      },
+      {
+        id: 'dhikr',
+        title: 'Зикр',
+        titleAr: 'الذكر',
+        progress: 50,
+        total: 100,
+        isCompleted: false,
+        icon: '📿',
+      },
+    ],
+    []
+  );
+
+  // Get greeting based on time of day
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Доброе утро';
+    if (hour < 18) return 'Добрый день';
+    return 'Добрый вечер';
+  }, []);
+
   return (
-    <div className="page-container p-4">
-      {/* Header */}
-      <header className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-          🕌 {t('common.appName')}
-        </h1>
-        {user && (
-          <p className="text-gray-600 dark:text-gray-400">
-            {t('greeting.assalamu')}, {user.firstName}!
+    <div className="page-container bg-gradient-primary min-h-screen">
+      {/* Header with Greeting */}
+      <header className="container-app pt-6 pb-4 safe-top">
+        <div className="text-center space-y-2 mb-6">
+          <h1 className="text-4xl font-arabic text-accent animate-fade-in">
+            السلام عليكم
+          </h1>
+          <p className="text-lg text-text-secondary">
+            {greeting}
+            {user && `, ${user.firstName}`}!
           </p>
-        )}
+        </div>
+
+        {/* Search Bar */}
+        <div className="animate-fade-in" style={{ animationDelay: '100ms' }}>
+          <SearchBar />
+        </div>
       </header>
 
-      {/* Welcome Card */}
-      <Card className="mb-6">
-        <h2 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
-          {t('greeting.welcome')}
-        </h2>
-        <p className="text-gray-600 dark:text-gray-300 mb-4">
-          Единая исламская платформа для чтения Корана, изучения намаза и доступа к исламской библиотеке.
-        </p>
-        <div className="grid grid-cols-3 gap-3">
-          <button
-            onClick={() => navigate('/quran')}
-            className="text-center p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-          >
-            <div className="text-2xl mb-1">📖</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              {t('navigation.quran')}
-            </div>
-          </button>
-          <button
-            onClick={() => navigate('/library')}
-            className="text-center p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-          >
-            <div className="text-2xl mb-1">📚</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              {t('navigation.library')}
-            </div>
-          </button>
-          <button
-            onClick={() => navigate('/prayer')}
-            className="text-center p-3 bg-primary-50 dark:bg-primary-900/20 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors"
-          >
-            <div className="text-2xl mb-1">🕌</div>
-            <div className="text-xs text-gray-600 dark:text-gray-400">
-              {t('navigation.prayer')}
-            </div>
-          </button>
+      {/* Main Content */}
+      <main className="container-app space-y-6 pb-24">
+        {/* Next Prayer Card */}
+        <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
+          <NextPrayerCard {...nextPrayerData} />
         </div>
-      </Card>
 
-      {/* Features */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
-          {t('subscription.features')}
-        </h3>
+        {/* Module Cards Grid */}
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in"
+          style={{ animationDelay: '300ms' }}
+        >
+          <ModuleCard
+            title="Священный Коран"
+            titleAr="القرآن الكريم"
+            description="Читайте и изучайте Священный Коран"
+            icon={BookOpen}
+            route="/quran"
+            gradient="accent"
+          />
+          <ModuleCard
+            title="Обучение Намазу"
+            titleAr="تعليم الصلاة"
+            description="Пошаговые уроки намаза"
+            icon={School}
+            route="/prayer"
+            gradient="primary"
+          />
+        </div>
 
-        <Card hoverable onClick={() => navigate('/ai')}>
-          <div className="flex items-center gap-3">
-            <div className="text-3xl">🤖</div>
-            <div className="flex-1">
-              <h4 className="font-medium text-gray-900 dark:text-white">
-                {t('ai.assistant')}
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Задавайте вопросы о Коране и исламе
-              </p>
-            </div>
-          </div>
-        </Card>
+        {/* Library Card */}
+        <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
+          <ModuleCard
+            title="Исламская библиотека"
+            titleAr="المكتبة الإسلامية"
+            description="Книги и нашиды для духовного роста"
+            icon={Library}
+            route="/library"
+            gradient="custom"
+            customGradient="linear-gradient(135deg, #6B4E8C 0%, #8B6EAC 100%)"
+          />
+        </div>
 
-        <Card>
-          <div className="flex items-center gap-3">
-            <div className="text-3xl">📱</div>
-            <div className="flex-1">
-              <h4 className="font-medium text-gray-900 dark:text-white">
-                {t('library.offline')}
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Скачивайте контент для чтения без интернета
-              </p>
-            </div>
-          </div>
-        </Card>
+        {/* Daily Goals */}
+        <div className="animate-fade-in" style={{ animationDelay: '500ms' }}>
+          <DailyGoalsList goals={dailyGoals} />
+        </div>
 
-        <Card>
-          <div className="flex items-center gap-3">
-            <div className="text-3xl">🌙</div>
-            <div className="flex-1">
-              <h4 className="font-medium text-gray-900 dark:text-white">
-                {t('settings.theme')}
-              </h4>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                Комфортное чтение в любое время суток
-              </p>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* Subscription Banner (for free users) */}
-      {user && user.subscription.tier === 'free' && (
-        <Card className="mt-6 bg-gradient-to-r from-primary-500 to-primary-600 text-white">
-          <h4 className="font-semibold mb-2">{t('subscription.upgradeToPro')}</h4>
-          <p className="text-sm mb-3 opacity-90">
-            Получите неограниченный доступ ко всем функциям
-          </p>
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => navigate('/settings/subscription')}
-          >
-            {t('settings.upgrade')}
-          </Button>
-        </Card>
-      )}
-
-      {/* Status Info */}
-      <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-        <p className="text-sm text-blue-900 dark:text-blue-200 text-center">
-          ⚙️ {t('settings.version')} 1.0.0
-        </p>
-      </div>
+        {/* Verse of the Day (Future Feature) */}
+        {/* <div className="animate-fade-in" style={{ animationDelay: '600ms' }}>
+          <Card variant="glass">
+            <h3 className="text-lg font-semibold text-text-primary mb-3">
+              Аят дня
+            </h3>
+            <p className="text-xl font-arabic text-accent text-center mb-2">
+              وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا
+            </p>
+            <p className="text-sm text-text-secondary text-center">
+              "И кто боится Аллаха, тому Он создаёт выход"
+            </p>
+            <p className="text-xs text-text-tertiary text-center mt-2">
+              Сура 65, Аят 2
+            </p>
+          </Card>
+        </div> */}
+      </main>
     </div>
   );
 }
