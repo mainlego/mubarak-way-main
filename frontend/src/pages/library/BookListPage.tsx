@@ -144,7 +144,7 @@ export default function BookListPage() {
         </div>
       </header>
 
-      <main className="container-app pb-24">
+      <main className="container-app pb-32">
 
         {/* Books Grid */}
         {books.length === 0 ? (

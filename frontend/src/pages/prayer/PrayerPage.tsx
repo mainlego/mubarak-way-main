@@ -45,7 +45,7 @@ export default function PrayerPage() {
         </div>
       </header>
 
-      <main className="container-app space-y-6 pb-24">
+      <main className="container-app space-y-6 pb-32">
         {/* Progress Card with Circular Progress */}
         <Card variant="gradient" className="relative overflow-hidden">
           <div className="flex items-center justify-between mb-4">

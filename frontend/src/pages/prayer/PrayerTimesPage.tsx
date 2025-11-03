@@ -254,7 +254,7 @@ export default function PrayerTimesPage() {
         </div>
       </header>
 
-      <main className="container-app space-y-6 pb-24">
+      <main className="container-app space-y-6 pb-32">
 
         {/* Next Prayer */}
         {nextPrayer && (

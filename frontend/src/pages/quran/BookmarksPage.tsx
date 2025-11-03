@@ -89,7 +89,7 @@ export default function BookmarksPage() {
   }
 
   return (
-    <div className="page-container p-4 pb-24">
+    <div className="page-container p-4 pb-32">
       {/* Header */}
       <header className="mb-6">
         <div className="flex items-center gap-3 mb-2">

@@ -149,7 +149,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="container-app space-y-6 pb-24">
+      <main className="container-app space-y-6 pb-32">
         {/* Next Prayer Card */}
         <div className="animate-fade-in" style={{ animationDelay: '200ms' }}>
           <NextPrayerCard {...nextPrayerData} />

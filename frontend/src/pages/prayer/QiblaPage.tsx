@@ -8,7 +8,7 @@ import { QiblaCompass } from '@widgets/QiblaCompass';
 
 export default function QiblaPage() {
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-24">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pb-32">
       {/* Header */}
       <div className="bg-gradient-to-r from-emerald-600 to-teal-600 text-white py-8 px-4">
         <div className="max-w-4xl mx-auto">

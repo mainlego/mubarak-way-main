@@ -120,7 +120,7 @@ export default function SurahListPage() {
         </div>
       </header>
 
-      <main className="container-app pb-24">
+      <main className="container-app pb-32">
 
         {/* Surah List */}
         <div className="space-y-3">

@@ -109,7 +109,7 @@ export default function SettingsPage() {
   const limits = getSubscriptionLimits(user.subscription.tier);
 
   return (
-    <div className="page-container p-4 pb-24">
+    <div className="page-container p-4 pb-32">
       {/* Header */}
       <header className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
