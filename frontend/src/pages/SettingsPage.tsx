@@ -123,8 +123,8 @@ export default function SettingsPage() {
       {/* User Info */}
       <Card className="mb-6 bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-primary-600 rounded-full flex items-center justify-center text-white text-2xl font-bold">
-            {user.firstName.charAt(0).toUpperCase()}
+          <div className="w-16 h-16 bg-gradient-accent rounded-full flex items-center justify-center p-2">
+            <img src="/logo.svg" alt="Mubarak Way" className="w-full h-full" />
           </div>
           <div className="flex-1">
             <h2 className="font-semibold text-lg text-gray-900 dark:text-white">

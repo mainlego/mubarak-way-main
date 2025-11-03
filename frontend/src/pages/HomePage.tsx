@@ -123,6 +123,15 @@ export default function HomePage() {
     <div className="page-container bg-gradient-primary min-h-screen">
       {/* Header with Greeting */}
       <header className="container-app pt-6 pb-4 safe-top">
+        {/* Logo */}
+        <div className="flex justify-center mb-4 animate-fade-in">
+          <img
+            src="/logo.svg"
+            alt="Mubarak Way"
+            className="h-16 w-auto opacity-90"
+          />
+        </div>
+
         <div className="text-center space-y-2 mb-6">
           <h1 className="text-4xl font-arabic text-accent animate-fade-in">
             السلام عليكم
