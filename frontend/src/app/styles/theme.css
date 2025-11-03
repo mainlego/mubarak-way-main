@@ -1,0 +1,566 @@
+/**
+ * Mubarak Way - Theme System
+ * Based on reference design with 3 theme variations
+ */
+
+/* ==================== ROOT VARIABLES ==================== */
+
+:root {
+  /* Typography */
+  --font-primary: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-arabic: 'Amiri', 'Traditional Arabic', 'Arabic Typesetting', serif;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;   /* 4px */
+  --spacing-sm: 0.5rem;    /* 8px */
+  --spacing-md: 1rem;      /* 16px */
+  --spacing-lg: 1.5rem;    /* 24px */
+  --spacing-xl: 2rem;      /* 32px */
+  --spacing-2xl: 3rem;     /* 48px */
+
+  /* Border Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0 12px 40px rgba(0, 0, 0, 0.2);
+
+  /* Blur */
+  --blur-sm: blur(8px);
+  --blur-md: blur(12px);
+  --blur-lg: blur(16px);
+
+  /* Transitions */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+}
+
+/* ==================== THEME: DARK TEAL (Default) ==================== */
+
+[data-theme='dark-teal'],
+:root {
+  /* Primary Colors */
+  --color-primary: #0D3D3F;
+  --color-primary-light: #1A5456;
+  --color-primary-lighter: #277073;
+  --color-primary-dark: #082A2C;
+
+  /* Accent Colors */
+  --color-accent: #D4AF37;
+  --color-accent-light: #E5C654;
+  --color-accent-dark: #B8941D;
+
+  /* Background Colors */
+  --color-bg-primary: #0D3D3F;
+  --color-bg-secondary: #1A5456;
+  --color-bg-tertiary: #277073;
+  --color-bg-overlay: rgba(13, 61, 63, 0.95);
+
+  /* Card Colors */
+  --color-card-bg: rgba(26, 84, 86, 0.6);
+  --color-card-border: rgba(255, 255, 255, 0.1);
+  --color-card-hover: rgba(39, 112, 115, 0.7);
+
+  /* Text Colors */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: rgba(255, 255, 255, 0.8);
+  --color-text-tertiary: rgba(255, 255, 255, 0.6);
+  --color-text-muted: rgba(255, 255, 255, 0.4);
+
+  /* Success/Error/Warning */
+  --color-success: #4CAF50;
+  --color-error: #EF5350;
+  --color-warning: #FFA726;
+  --color-info: #29B6F6;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #0D3D3F 0%, #1A5456 50%, #277073 100%);
+  --gradient-accent: linear-gradient(135deg, #D4AF37 0%, #E5C654 100%);
+  --gradient-overlay: linear-gradient(180deg, rgba(13, 61, 63, 0.8) 0%, rgba(13, 61, 63, 0.95) 100%);
+  --gradient-card: linear-gradient(135deg, rgba(26, 84, 86, 0.4) 0%, rgba(39, 112, 115, 0.6) 100%);
+  --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+}
+
+/* ==================== THEME: SAND/BEIGE ==================== */
+
+[data-theme='sand'] {
+  /* Primary Colors */
+  --color-primary: #F5E6D3;
+  --color-primary-light: #FAF0E4;
+  --color-primary-lighter: #FDF7EF;
+  --color-primary-dark: #E8D4B8;
+
+  /* Accent Colors */
+  --color-accent: #8B6F47;
+  --color-accent-light: #A68759;
+  --color-accent-dark: #6F5736;
+
+  /* Background Colors */
+  --color-bg-primary: #F5E6D3;
+  --color-bg-secondary: #FAF0E4;
+  --color-bg-tertiary: #FDF7EF;
+  --color-bg-overlay: rgba(245, 230, 211, 0.95);
+
+  /* Card Colors */
+  --color-card-bg: rgba(250, 240, 228, 0.7);
+  --color-card-border: rgba(139, 111, 71, 0.2);
+  --color-card-hover: rgba(253, 247, 239, 0.8);
+
+  /* Text Colors */
+  --color-text-primary: #2C2416;
+  --color-text-secondary: rgba(44, 36, 22, 0.8);
+  --color-text-tertiary: rgba(44, 36, 22, 0.6);
+  --color-text-muted: rgba(44, 36, 22, 0.4);
+
+  /* Success/Error/Warning */
+  --color-success: #66BB6A;
+  --color-error: #EF5350;
+  --color-warning: #FFA726;
+  --color-info: #29B6F6;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #F5E6D3 0%, #FAF0E4 50%, #FDF7EF 100%);
+  --gradient-accent: linear-gradient(135deg, #8B6F47 0%, #A68759 100%);
+  --gradient-overlay: linear-gradient(180deg, rgba(245, 230, 211, 0.8) 0%, rgba(245, 230, 211, 0.95) 100%);
+  --gradient-card: linear-gradient(135deg, rgba(250, 240, 228, 0.5) 0%, rgba(253, 247, 239, 0.7) 100%);
+  --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(139, 111, 71, 0.1) 50%, transparent 100%);
+
+  /* Override Shadows for Light Theme */
+  --shadow-sm: 0 2px 4px rgba(44, 36, 22, 0.08);
+  --shadow-md: 0 4px 12px rgba(44, 36, 22, 0.12);
+  --shadow-lg: 0 8px 24px rgba(44, 36, 22, 0.16);
+  --shadow-xl: 0 12px 40px rgba(44, 36, 22, 0.2);
+}
+
+/* ==================== THEME: PURPLE GRADIENT ==================== */
+
+[data-theme='purple'] {
+  /* Primary Colors */
+  --color-primary: #6B4E8C;
+  --color-primary-light: #8B6EAC;
+  --color-primary-lighter: #AB8ECC;
+  --color-primary-dark: #4B2E6C;
+
+  /* Accent Colors */
+  --color-accent: #D4A5A5;
+  --color-accent-light: #E4B5B5;
+  --color-accent-dark: #C49595;
+
+  /* Background Colors */
+  --color-bg-primary: #6B4E8C;
+  --color-bg-secondary: #8B6EAC;
+  --color-bg-tertiary: #AB8ECC;
+  --color-bg-overlay: rgba(107, 78, 140, 0.95);
+
+  /* Card Colors */
+  --color-card-bg: rgba(139, 110, 172, 0.5);
+  --color-card-border: rgba(255, 255, 255, 0.15);
+  --color-card-hover: rgba(171, 142, 204, 0.6);
+
+  /* Text Colors */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: rgba(255, 255, 255, 0.85);
+  --color-text-tertiary: rgba(255, 255, 255, 0.65);
+  --color-text-muted: rgba(255, 255, 255, 0.45);
+
+  /* Success/Error/Warning */
+  --color-success: #81C784;
+  --color-error: #EF5350;
+  --color-warning: #FFB74D;
+  --color-info: #4FC3F7;
+
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, #6B4E8C 0%, #8B6EAC 50%, #AB8ECC 100%);
+  --gradient-accent: linear-gradient(135deg, #D4A5A5 0%, #E4B5B5 100%);
+  --gradient-overlay: linear-gradient(180deg, rgba(107, 78, 140, 0.8) 0%, rgba(107, 78, 140, 0.95) 100%);
+  --gradient-card: linear-gradient(135deg, rgba(139, 110, 172, 0.4) 0%, rgba(171, 142, 204, 0.5) 100%);
+  --gradient-shimmer: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
+}
+
+/* ==================== UTILITY CLASSES ==================== */
+
+/* Glass Morphism Effects */
+.glass {
+  background: var(--color-card-bg);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
+  border: 1px solid var(--color-card-border);
+}
+
+.glass-strong {
+  background: var(--color-card-bg);
+  backdrop-filter: var(--blur-lg);
+  -webkit-backdrop-filter: var(--blur-lg);
+  border: 1px solid var(--color-card-border);
+}
+
+/* Gradient Backgrounds */
+.bg-gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.bg-gradient-accent {
+  background: var(--gradient-accent);
+}
+
+.bg-gradient-card {
+  background: var(--gradient-card);
+}
+
+.bg-gradient-overlay {
+  background: var(--gradient-overlay);
+}
+
+/* Gradient Text */
+.text-gradient-accent {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Shadow Utilities */
+.shadow-card {
+  box-shadow: var(--shadow-md);
+}
+
+.shadow-card-hover {
+  box-shadow: var(--shadow-lg);
+}
+
+/* Border Radius */
+.rounded-card {
+  border-radius: var(--radius-lg);
+}
+
+.rounded-button {
+  border-radius: var(--radius-md);
+}
+
+/* Typography */
+.font-arabic {
+  font-family: var(--font-arabic);
+  font-weight: 400;
+  line-height: 1.8;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: var(--gradient-shimmer);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+/* Smooth Transitions */
+.transition-all {
+  transition: all var(--transition-base);
+}
+
+.transition-colors {
+  transition: background-color var(--transition-base),
+              color var(--transition-base),
+              border-color var(--transition-base);
+}
+
+.transition-transform {
+  transition: transform var(--transition-base);
+}
+
+/* Hover Effects */
+.hover-lift {
+  transition: transform var(--transition-base), box-shadow var(--transition-base);
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hover-scale {
+  transition: transform var(--transition-fast);
+}
+
+.hover-scale:hover {
+  transform: scale(1.05);
+}
+
+/* Focus Styles */
+.focus-ring {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Scrollbar Styling */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--color-accent-light);
+}
+
+/* ==================== RESPONSIVE UTILITIES ==================== */
+
+/* Safe Area Insets for iOS */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-left {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-right {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Container */
+.container-app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: var(--spacing-md);
+}
+
+/* ==================== COMPONENT-SPECIFIC STYLES ==================== */
+
+/* Circular Progress */
+.circular-progress {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circular-progress-ring {
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.circular-progress-circle-bg {
+  fill: none;
+  stroke: var(--color-card-border);
+  stroke-width: 8;
+}
+
+.circular-progress-circle-fg {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  transition: stroke-dashoffset var(--transition-slow);
+}
+
+/* Progress Bar */
+.progress-bar {
+  position: relative;
+  height: 8px;
+  background: var(--color-card-border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--gradient-accent);
+  border-radius: var(--radius-full);
+  transition: width var(--transition-slow);
+}
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  background: var(--color-accent);
+  color: var(--color-bg-primary);
+}
+
+/* Button Styles */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md) var(--spacing-lg);
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-base);
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+.btn-primary {
+  background: var(--gradient-accent);
+  color: var(--color-bg-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-secondary {
+  background: var(--color-card-bg);
+  color: var(--color-text-primary);
+  border: 1px solid var(--color-card-border);
+}
+
+.btn-secondary:hover {
+  background: var(--color-card-hover);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--color-card-bg);
+  color: var(--color-text-primary);
+}
+
+/* Card Styles */
+.card {
+  background: var(--color-card-bg);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+}
+
+.card-hover:hover {
+  background: var(--color-card-hover);
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-4px);
+}
+
+.card-gradient {
+  background: var(--gradient-card);
+  backdrop-filter: var(--blur-md);
+  -webkit-backdrop-filter: var(--blur-md);
+  border: 1px solid var(--color-card-border);
+}
+
+/* Icon Styles */
+.icon-container {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  background: var(--gradient-accent);
+  color: var(--color-bg-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.icon-sm {
+  width: 32px;
+  height: 32px;
+}
+
+.icon-lg {
+  width: 64px;
+  height: 64px;
+}
+
+/* Divider */
+.divider {
+  height: 1px;
+  background: var(--color-card-border);
+  margin: var(--spacing-lg) 0;
+}
+
+/* ==================== DARK MODE OVERRIDES ==================== */
+
+@media (prefers-color-scheme: dark) {
+  /* If no theme is explicitly set, use dark-teal by default */
+  :root:not([data-theme]) {
+    /* Already dark by default */
+  }
+}

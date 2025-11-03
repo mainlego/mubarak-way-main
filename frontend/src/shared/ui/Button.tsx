@@ -2,7 +2,7 @@ import { ButtonHTMLAttributes, ReactNode } from 'react';
 import clsx from 'clsx';
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'accent' | 'ghost';
+  variant?: 'primary' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   isLoading?: boolean;
   children: ReactNode;
@@ -20,16 +20,16 @@ export default function Button({
   return (
     <button
       className={clsx(
-        'btn transition-all duration-200 font-medium rounded-lg',
-        'focus:outline-none focus:ring-2 focus:ring-offset-2',
+        'btn inline-flex items-center justify-center gap-2',
+        'transition-all duration-base font-semibold rounded-md',
+        'focus:outline-none focus-ring',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         {
           'btn-primary': variant === 'primary',
           'btn-secondary': variant === 'secondary',
-          'btn-accent': variant === 'accent',
-          'bg-transparent hover:bg-gray-100 dark:hover:bg-gray-800': variant === 'ghost',
+          'btn-ghost': variant === 'ghost',
           'px-3 py-1.5 text-sm': size === 'sm',
-          'px-4 py-2 text-base': size === 'md',
+          'px-4 py-2.5 text-base': size === 'md',
           'px-6 py-3 text-lg': size === 'lg',
         },
         className
@@ -38,10 +38,10 @@ export default function Button({
       {...props}
     >
       {isLoading ? (
-        <div className="flex items-center gap-2">
-          <div className="spinner w-4 h-4" />
-          <span>Loading...</span>
-        </div>
+        <>
+          <div className="spinner w-4 h-4 border-2" />
+          <span>Загрузка...</span>
+        </>
       ) : (
         children
       )}

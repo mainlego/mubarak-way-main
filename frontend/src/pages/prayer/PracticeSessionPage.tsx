@@ -233,7 +233,7 @@ export const PracticeSessionPage: React.FC = () => {
           <div className="flex items-center gap-2">
             {/* Previous Button */}
             <Button
-              variant="outline"
+              variant="secondary"
               size="md"
               onClick={handlePrevious}
               disabled={!canGoBack}
@@ -285,7 +285,7 @@ export const PracticeSessionPage: React.FC = () => {
 
             {/* Next Button */}
             <Button
-              variant="outline"
+              variant="secondary"
               size="md"
               onClick={handleNext}
               disabled={!canGoNext}
@@ -385,7 +385,7 @@ export const PracticeSessionPage: React.FC = () => {
                   </span>
                 </Button>
                 <Button
-                  variant="outline"
+                  variant="secondary"
                   size="md"
                   onClick={handleContinuePractice}
                   className="w-full"

@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './app/App';
 import { TelegramProvider } from './app/TelegramProvider';
 import { ErrorBoundary } from './app/ErrorBoundary';
+import { ThemeProvider } from './shared/context/ThemeContext';
 import './app/styles/index.css';
 import './shared/lib/i18n';
 
@@ -13,9 +14,11 @@ console.log('🌐 Window.Telegram:', window.Telegram ? 'Available' : 'Not Availa
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>
-      <TelegramProvider>
-        <App />
-      </TelegramProvider>
+      <ThemeProvider>
+        <TelegramProvider>
+          <App />
+        </TelegramProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   </StrictMode>
 );

@@ -167,7 +167,7 @@ export default function MonthlyPrayerSchedule({
           <ChevronLeft className="w-4 h-4" />
           Предыдущий
         </Button>
-        <Button onClick={handleToday} variant="outline" size="sm">
+        <Button onClick={handleToday} variant="ghost" size="sm">
           Сегодня
         </Button>
         <Button
