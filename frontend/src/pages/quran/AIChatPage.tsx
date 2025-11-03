@@ -5,6 +5,7 @@ import { useUserStore } from '@shared/store';
 import { aiService } from '@shared/lib/services/aiService';
 import { Card, Spinner, Button } from '@shared/ui';
 import { Sparkles, ArrowLeft, Send, Copy, Share2, Crown } from 'lucide-react';
+import { haptic } from '@shared/lib/telegram';
 import type { AIMessage } from '@mubarak-way/shared';
 
 export default function AIChatPage() {
@@ -193,6 +194,40 @@ export default function AIChatPage() {
     }
   };
 
+  const handleCopyMessage = async (content: string) => {
+    try {
+      await navigator.clipboard.writeText(content);
+      haptic.notification('success');
+    } catch (error) {
+      console.error('Failed to copy:', error);
+      haptic.notification('error');
+    }
+  };
+
+  const handleShareMessage = async (content: string) => {
+    try {
+      haptic.selection();
+
+      if (navigator.share) {
+        await navigator.share({
+          title: t('ai.assistant', { defaultValue: 'AI Ассистент' }),
+          text: content,
+        });
+        haptic.notification('success');
+      } else {
+        // Fallback to copy
+        await navigator.clipboard.writeText(content);
+        haptic.notification('success');
+      }
+    } catch (error: any) {
+      // User cancelled share or copy failed
+      if (error.name !== 'AbortError') {
+        console.error('Failed to share:', error);
+        haptic.notification('error');
+      }
+    }
+  };
+
   if (!user) {
     return (
       <div className="page-container p-4">
@@ -333,9 +368,7 @@ export default function AIChatPage() {
                       {message.role === 'assistant' && (
                         <div className="flex items-center gap-1">
                           <button
-                            onClick={() => {
-                              navigator.clipboard.writeText(message.content);
-                            }}
+                            onClick={() => handleCopyMessage(message.content)}
                             className="p-1.5 text-text-tertiary hover:text-accent rounded-md hover:bg-card-hover transition-colors"
                             title={t('common.copy', { defaultValue: 'Копировать' })}
                           >
@@ -343,16 +376,7 @@ export default function AIChatPage() {
                           </button>
 
                           <button
-                            onClick={() => {
-                              if (navigator.share) {
-                                navigator.share({
-                                  title: t('ai.assistant'),
-                                  text: message.content,
-                                });
-                              } else {
-                                navigator.clipboard.writeText(message.content);
-                              }
-                            }}
+                            onClick={() => handleShareMessage(message.content)}
                             className="p-1.5 text-text-tertiary hover:text-accent rounded-md hover:bg-card-hover transition-colors"
                             title={t('common.share', { defaultValue: 'Поделиться' })}
                           >
