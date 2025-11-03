@@ -1,10 +1,11 @@
-import { apiPost } from '../api';
+import { apiPost, apiGet } from '../api';
 import type {
   AIAskRequest,
   AIExplainVerseRequest,
   AIRecommendBookRequest,
   AISearchRequest,
   AIResponse,
+  AIMessage,
 } from '@mubarak-way/shared';
 
 export const aiService = {
@@ -86,6 +87,60 @@ export const aiService = {
       return response;
     } catch (error: any) {
       console.error('❌ AI Service: Error from /ai/search', error);
+      throw error;
+    }
+  },
+
+  /**
+   * Send message in conversation (with history context)
+   */
+  sendChatMessage: async (params: {
+    message: string;
+    userId: string;
+    sessionId: string;
+  }): Promise<{
+    message: AIMessage;
+    suggestedActions?: any[];
+    relatedAyahs?: any[];
+  }> => {
+    console.log('💬 AI Service: Sending chat message', params);
+
+    try {
+      const response = await apiPost<{
+        message: AIMessage;
+        suggestedActions?: any[];
+        relatedAyahs?: any[];
+      }>('/ai/chat', params);
+      console.log('✅ AI Service: Chat response received', response);
+      return response;
+    } catch (error: any) {
+      console.error('❌ AI Service: Chat error', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+      });
+      throw error;
+    }
+  },
+
+  /**
+   * Get conversation history
+   */
+  getChatHistory: async (params: {
+    userId: string;
+    sessionId: string;
+  }): Promise<{ history: AIMessage[] }> => {
+    console.log('📜 AI Service: Getting chat history', params);
+
+    try {
+      const response = await apiGet<{ history: AIMessage[] }>(
+        `/ai/chat/history/${params.userId}/${params.sessionId}`
+      );
+      console.log('✅ AI Service: History received', response);
+      return response;
+    } catch (error: any) {
+      console.error('❌ AI Service: Get history error', error);
       throw error;
     }
   },

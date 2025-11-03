@@ -17,15 +17,52 @@ export default function AIChatPage() {
   const [messages, setMessages] = useState<AIMessage[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
+  // Session ID for conversation (unique per user)
+  const SESSION_ID = 'main_chat';
+
+  // Load chat history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (!user) return;
+
+      try {
+        setIsLoadingHistory(true);
+        const { history } = await aiService.getChatHistory({
+          userId: user._id,
+          sessionId: SESSION_ID,
+        });
+
+        // Convert timestamps from strings to Date objects
+        const formattedHistory = history.map(msg => ({
+          ...msg,
+          timestamp: new Date(msg.timestamp),
+        }));
+
+        setMessages(formattedHistory);
+        console.log('📜 Loaded chat history:', formattedHistory.length, 'messages');
+      } catch (error) {
+        console.error('Failed to load chat history:', error);
+        // Don't show error to user, just start with empty history
+      } finally {
+        setIsLoadingHistory(false);
+      }
+    };
+
+    loadHistory();
+  }, [user]);
+
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+    if (!isLoadingHistory) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isLoadingHistory]);
 
   // Check if we have an ayah to explain
   useEffect(() => {
@@ -127,7 +164,7 @@ export default function AIChatPage() {
   };
 
   const handleSendMessage = async () => {
-    if (!input.trim() || !canUseAI()) return;
+    if (!input.trim() || !canUseAI() || !user) return;
 
     const userMessage: AIMessage = {
       role: 'user',
@@ -139,41 +176,29 @@ export default function AIChatPage() {
       setIsLoading(true);
       setError(null);
       setMessages(prev => [...prev, userMessage]);
+      const currentInput = input;
       setInput('');
 
-      const response = await aiService.ask({
-        question: input,
-        language: t('common.language', { defaultValue: 'en' }),
+      // Use conversation API to save history in database
+      const response = await aiService.sendChatMessage({
+        message: currentInput,
+        userId: user._id,
+        sessionId: SESSION_ID,
       });
 
-      console.log('📝 AIChatPage: Processing AI response', response);
-      console.log('📝 AIChatPage: response.answer type:', typeof response.answer);
-      console.log('📝 AIChatPage: response.answer value:', response.answer);
+      console.log('💬 AIChatPage: Chat response received', response);
 
-      // Extract answer from AIResponse object
-      // Backend returns: { question: string, answer: AIResponse }
-      // where AIResponse = { answer: string, sources: [], relatedVerses: [] }
-      const answerText = typeof response.answer === 'string'
-        ? response.answer
-        : response.answer?.answer || 'No answer received';
-
-      console.log('📝 AIChatPage: Extracted answerText:', answerText);
-
-      if (!answerText || answerText === 'No answer received') {
-        console.error('❌ AIChatPage: Invalid answer text', { answerText, response });
-        throw new Error('Invalid AI response: answer text is empty');
-      }
-
+      // The assistant message is already saved in DB and returned
       const assistantMessage: AIMessage = {
-        role: 'assistant',
-        content: answerText,
-        timestamp: new Date(),
+        role: response.message.role,
+        content: response.message.content,
+        timestamp: new Date(response.message.timestamp),
       };
 
       console.log('✅ AIChatPage: Adding assistant message', assistantMessage);
       setMessages(prev => [...prev, assistantMessage]);
     } catch (err: any) {
-      console.error('❌ AIChatPage: AI error', err);
+      console.error('❌ AIChatPage: Chat error', err);
       console.error('Error stack:', err.stack);
 
       // Handle network errors (backend sleeping on Render free tier)
@@ -275,7 +300,14 @@ export default function AIChatPage() {
 
       {/* Messages */}
       <main className="flex-1 overflow-y-auto container-app pb-32 space-y-3">
-        {messages.length === 0 ? (
+        {isLoadingHistory ? (
+          <div className="text-center py-12">
+            <Spinner size="lg" />
+            <p className="text-text-secondary mt-4">
+              {t('ai.loadingHistory', { defaultValue: 'Загрузка истории...' })}
+            </p>
+          </div>
+        ) : messages.length === 0 ? (
           <div className="text-center py-12 animate-fade-in">
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-accent flex items-center justify-center shadow-xl">
               <Sparkles className="w-10 h-10 text-white" />
