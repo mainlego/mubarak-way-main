@@ -90,6 +90,7 @@ declare global {
             text?: string;
           }>;
         }, callback?: (buttonId: string) => void) => void;
+        switchInlineQuery: (query: string, choose_chat_types?: string[]) => void;
       };
     };
   }
@@ -288,6 +289,39 @@ export const sendNashidToBot = (nashidId: number, nashidTitle: string): void => 
       openLink(deepLink);
     }
   });
+};
+
+/**
+ * Share message via Telegram (forward to any chat)
+ */
+export const shareMessage = (text: string): void => {
+  haptic.selection();
+
+  if (window.Telegram?.WebApp) {
+    // Use Telegram's native share URL
+    // This opens the chat selector with pre-filled message
+    const encodedText = encodeURIComponent(text);
+    const shareUrl = `https://t.me/share/url?url=${encodedText}`;
+
+    // Open the share dialog
+    window.Telegram.WebApp.openTelegramLink(shareUrl);
+  } else {
+    // Fallback: use Web Share API or copy to clipboard
+    if (navigator.share) {
+      navigator.share({
+        text: text,
+      }).catch((error) => {
+        if (error.name !== 'AbortError') {
+          console.error('Share failed:', error);
+        }
+      });
+    } else {
+      // Final fallback: copy to clipboard
+      navigator.clipboard.writeText(text).catch((error) => {
+        console.error('Copy failed:', error);
+      });
+    }
+  }
 };
 
 /**

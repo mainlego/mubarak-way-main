@@ -5,7 +5,7 @@ import { useUserStore } from '@shared/store';
 import { aiService } from '@shared/lib/services/aiService';
 import { Card, Spinner, Button } from '@shared/ui';
 import { Sparkles, ArrowLeft, Send, Copy, Share2, Crown } from 'lucide-react';
-import { haptic } from '@shared/lib/telegram';
+import { haptic, shareMessage } from '@shared/lib/telegram';
 import type { AIMessage } from '@mubarak-way/shared';
 
 export default function AIChatPage() {
@@ -204,27 +204,14 @@ export default function AIChatPage() {
     }
   };
 
-  const handleShareMessage = async (content: string) => {
+  const handleShareMessage = (content: string) => {
     try {
-      haptic.selection();
-
-      if (navigator.share) {
-        await navigator.share({
-          title: t('ai.assistant', { defaultValue: 'AI Ассистент' }),
-          text: content,
-        });
-        haptic.notification('success');
-      } else {
-        // Fallback to copy
-        await navigator.clipboard.writeText(content);
-        haptic.notification('success');
-      }
+      // Use Telegram's built-in share functionality
+      shareMessage(content);
+      haptic.notification('success');
     } catch (error: any) {
-      // User cancelled share or copy failed
-      if (error.name !== 'AbortError') {
-        console.error('Failed to share:', error);
-        haptic.notification('error');
-      }
+      console.error('Failed to share:', error);
+      haptic.notification('error');
     }
   };
 
