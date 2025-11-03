@@ -246,7 +246,7 @@ export default function AIChatPage() {
       </header>
 
       {/* Messages */}
-      <main className="flex-1 overflow-y-auto container-app pb-24 space-y-3">
+      <main className="flex-1 overflow-y-auto container-app pb-32 space-y-3">
         {messages.length === 0 ? (
           <div className="text-center py-12 animate-fade-in">
             <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-accent flex items-center justify-center shadow-xl">
@@ -400,7 +400,7 @@ export default function AIChatPage() {
       </main>
 
       {/* Input */}
-      <div className="fixed bottom-0 left-0 right-0 glass border-t border-card-border safe-bottom pb-20">
+      <div className="fixed bottom-0 left-0 right-0 glass border-t border-card-border safe-bottom" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
         <div className="container-app py-4">
           {!canUseAI() ? (
             <Card variant="glass" className="text-center">
