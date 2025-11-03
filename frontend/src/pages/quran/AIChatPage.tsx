@@ -174,7 +174,13 @@ export default function AIChatPage() {
     } catch (err: any) {
       console.error('❌ AIChatPage: AI error', err);
       console.error('Error stack:', err.stack);
-      setError(err.message || t('errors.serverError'));
+
+      // Handle network errors (backend sleeping on Render free tier)
+      if (err.message === 'Network Error' || err.code === 'ERR_NETWORK') {
+        setError('Сервер временно недоступен. Пожалуйста, подождите 30 секунд и попробуйте снова.');
+      } else {
+        setError(err.message || t('errors.serverError'));
+      }
     } finally {
       setIsLoading(false);
     }
