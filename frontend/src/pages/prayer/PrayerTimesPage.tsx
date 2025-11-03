@@ -96,8 +96,8 @@ export default function PrayerTimesPage() {
         setTimeUntilNext(apiPrayerTimes.nextPrayer.timeRemaining.formatted);
       } else {
         // Find next prayer manually
-        const next = times.find(t => !t.isPassed);
-        setNextPrayer(next || times[0]);
+        const next = Array.isArray(times) ? times.find(t => !t.isPassed) : undefined;
+        setNextPrayer(next || (Array.isArray(times) && times.length > 0 ? times[0] : null));
       }
 
       setIsLoading(false);
