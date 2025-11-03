@@ -4,6 +4,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useUserStore } from '@shared/store';
 import { aiService } from '@shared/lib/services/aiService';
 import { Card, Spinner, Button } from '@shared/ui';
+import { Sparkles, ArrowLeft, Send, Copy, Share2, Crown } from 'lucide-react';
 import type { AIMessage } from '@mubarak-way/shared';
 
 export default function AIChatPage() {
@@ -206,69 +207,80 @@ export default function AIChatPage() {
     : user.subscription.limits.aiRequests - user.usage.aiRequestsPerDay;
 
   return (
-    <div className="page-container flex flex-col h-screen">
+    <div className="min-h-screen bg-gradient-primary flex flex-col">
       {/* Header */}
-      <header className="p-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => navigate(-1)}
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-            >
-              ← {t('common.back')}
-            </button>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                🤖 {t('ai.assistant')}
-              </h1>
-              <p className="text-xs text-gray-600 dark:text-gray-400">
-                {remainingRequests} {t('ai.requestsRemaining', { defaultValue: 'requests remaining' })}
-              </p>
-            </div>
-          </div>
+      <header className="container-app pt-6 pb-4 safe-top">
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="icon-container bg-card hover:bg-card-hover"
+          >
+            <ArrowLeft className="w-5 h-5 text-text-primary" />
+          </button>
 
           {user.subscription.tier === 'free' && (
             <Button
+              variant="secondary"
               size="sm"
               onClick={() => navigate('/settings/subscription')}
             >
+              <Crown className="w-4 h-4 mr-1" />
               {t('settings.upgrade')}
             </Button>
           )}
         </div>
+
+        <div className="flex items-center gap-3 mb-2">
+          <div className="icon-container bg-gradient-accent">
+            <Sparkles className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-text-primary">
+              {t('ai.assistant')}
+            </h1>
+            <p className="text-sm text-text-secondary">
+              {remainingRequests} {t('ai.requestsRemaining', { defaultValue: 'запросов осталось' })}
+            </p>
+          </div>
+        </div>
       </header>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <main className="flex-1 overflow-y-auto container-app pb-24 space-y-3">
         {messages.length === 0 ? (
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">🤖</div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-              {t('ai.welcomeTitle', { defaultValue: 'Ask me anything about Islam' })}
+          <div className="text-center py-12 animate-fade-in">
+            <div className="w-20 h-20 mx-auto mb-6 rounded-full bg-gradient-accent flex items-center justify-center shadow-xl">
+              <Sparkles className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-2xl font-bold text-text-primary mb-2">
+              {t('ai.welcomeTitle', { defaultValue: 'Спросите меня о Исламе' })}
             </h2>
-            <p className="text-gray-600 dark:text-gray-400 mb-6">
+            <p className="text-text-secondary mb-8">
               {t('ai.welcomeDescription', {
-                defaultValue: 'I can help you understand the Quran, explain verses, and answer questions about Islam.'
+                defaultValue: 'Я помогу понять Коран, объясню аяты и отвечу на вопросы об Исламе.'
               })}
             </p>
 
             {/* Suggested Questions */}
             <div className="space-y-2 max-w-md mx-auto">
-              <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
-                {t('ai.suggestedQuestions', { defaultValue: 'Suggested questions:' })}
+              <p className="text-sm font-semibold text-text-primary mb-3">
+                {t('ai.suggestedQuestions', { defaultValue: 'Популярные вопросы:' })}
               </p>
               {[
-                'What is the meaning of Surah Al-Fatiha?',
-                'How many times should I pray daily?',
-                'What are the pillars of Islam?',
-                'Explain the concept of Tawhid',
+                'Что означает Сура Аль-Фатиха?',
+                'Сколько раз в день нужно молиться?',
+                'Каковы столпы Ислама?',
+                'Объясни концепцию Таухида',
               ].map((question, idx) => (
                 <button
                   key={idx}
                   onClick={() => setInput(question)}
-                  className="w-full text-left p-3 text-sm bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+                  className="w-full text-left p-3 text-sm glass hover:bg-card-hover rounded-lg transition-all"
                 >
-                  💬 {question}
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-4 h-4 text-accent flex-shrink-0" />
+                    <span className="text-text-primary">{question}</span>
+                  </div>
                 </button>
               ))}
             </div>
@@ -277,50 +289,53 @@ export default function AIChatPage() {
           messages.map((message, idx) => (
             <div
               key={idx}
-              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
+              className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
             >
-              <Card className={`max-w-[80%] ${
-                message.role === 'user'
-                  ? 'bg-primary-600 text-white'
-                  : 'bg-white dark:bg-gray-800'
-              }`}>
-                <div className="flex items-start gap-2">
-                  <div className="text-2xl flex-shrink-0">
-                    {message.role === 'user' ? '👤' : '🤖'}
+              <Card
+                variant={message.role === 'user' ? 'gradient' : 'glass'}
+                className="max-w-[85%]"
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    message.role === 'user'
+                      ? 'bg-white/20'
+                      : 'bg-gradient-accent'
+                  }`}>
+                    {message.role === 'user'
+                      ? <span className="text-white text-lg">👤</span>
+                      : <Sparkles className="w-5 h-5 text-white" />
+                    }
                   </div>
-                  <div className="flex-1">
-                    <p className={`text-sm whitespace-pre-wrap ${
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-sm whitespace-pre-wrap leading-relaxed ${
                       message.role === 'user'
                         ? 'text-white'
-                        : 'text-gray-900 dark:text-white'
+                        : 'text-text-primary'
                     }`}>
                       {message.content || '[Empty message]'}
                     </p>
-                    <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center justify-between mt-3">
                       <p className={`text-xs ${
                         message.role === 'user'
-                          ? 'text-primary-100'
-                          : 'text-gray-500 dark:text-gray-400'
+                          ? 'text-white/70'
+                          : 'text-text-tertiary'
                       }`}>
                         {new Date(message.timestamp).toLocaleTimeString()}
                       </p>
 
                       {/* Action buttons for AI responses */}
                       {message.role === 'assistant' && (
-                        <div className="flex items-center gap-2">
-                          {/* Copy button */}
+                        <div className="flex items-center gap-1">
                           <button
                             onClick={() => {
                               navigator.clipboard.writeText(message.content);
-                              // TODO: Show toast notification
                             }}
-                            className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                            title={t('common.copy', { defaultValue: 'Copy' })}
+                            className="p-1.5 text-text-tertiary hover:text-accent rounded-md hover:bg-card-hover transition-colors"
+                            title={t('common.copy', { defaultValue: 'Копировать' })}
                           >
-                            📋
+                            <Copy className="w-4 h-4" />
                           </button>
 
-                          {/* Share button */}
                           <button
                             onClick={() => {
                               if (navigator.share) {
@@ -330,13 +345,12 @@ export default function AIChatPage() {
                                 });
                               } else {
                                 navigator.clipboard.writeText(message.content);
-                                // TODO: Show toast notification
                               }
                             }}
-                            className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                            title={t('common.share', { defaultValue: 'Share' })}
+                            className="p-1.5 text-text-tertiary hover:text-accent rounded-md hover:bg-card-hover transition-colors"
+                            title={t('common.share', { defaultValue: 'Поделиться' })}
                           >
-                            🔗
+                            <Share2 className="w-4 h-4" />
                           </button>
                         </div>
                       )}
@@ -349,13 +363,15 @@ export default function AIChatPage() {
         )}
 
         {isLoading && (
-          <div className="flex justify-start">
-            <Card className="bg-white dark:bg-gray-800">
-              <div className="flex items-center gap-2">
-                <div className="text-2xl">🤖</div>
+          <div className="flex justify-start animate-fade-in">
+            <Card variant="glass">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-gradient-accent flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
                 <Spinner size="sm" />
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  {t('ai.thinking')}
+                <p className="text-sm text-text-secondary">
+                  {t('ai.thinking', { defaultValue: 'Думаю...' })}
                 </p>
               </div>
             </Card>
@@ -364,55 +380,64 @@ export default function AIChatPage() {
 
         {error && (
           <div className="text-center">
-            <p className="text-red-600 dark:text-red-400 mb-2">{error}</p>
-            {error.includes('limit') && (
-              <Button
-                size="sm"
-                onClick={() => navigate('/settings/subscription')}
-              >
-                {t('settings.upgrade')}
-              </Button>
-            )}
+            <Card variant="glass" className="inline-block">
+              <p className="text-red-500 mb-2">{error}</p>
+              {error.includes('limit') && (
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => navigate('/settings/subscription')}
+                >
+                  <Crown className="w-4 h-4 mr-1" />
+                  {t('settings.upgrade')}
+                </Button>
+              )}
+            </Card>
           </div>
         )}
 
         <div ref={messagesEndRef} />
-      </div>
+      </main>
 
       {/* Input */}
-      <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-        {!canUseAI() ? (
-          <div className="text-center">
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              {t('subscription.limitReached')}
-            </p>
-            <Button
-              size="sm"
-              onClick={() => navigate('/settings/subscription')}
-            >
-              {t('settings.upgrade')}
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder={t('ai.placeholder')}
-              rows={2}
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white resize-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-            />
-            <Button
-              onClick={handleSendMessage}
-              disabled={!input.trim() || isLoading}
-              className="self-end"
-            >
-              ➤
-            </Button>
-          </div>
-        )}
+      <div className="fixed bottom-0 left-0 right-0 glass border-t border-card-border safe-bottom pb-20">
+        <div className="container-app py-4">
+          {!canUseAI() ? (
+            <Card variant="glass" className="text-center">
+              <p className="text-sm text-text-secondary mb-3">
+                {t('subscription.limitReached', { defaultValue: 'Достигнут лимит запросов' })}
+              </p>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => navigate('/settings/subscription')}
+              >
+                <Crown className="w-4 h-4 mr-1" />
+                {t('settings.upgrade')}
+              </Button>
+            </Card>
+          ) : (
+            <div className="flex gap-2">
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder={t('ai.placeholder', { defaultValue: 'Задайте вопрос об Исламе...' })}
+                rows={2}
+                className="flex-1 input resize-none"
+              />
+              <Button
+                variant="primary"
+                onClick={handleSendMessage}
+                disabled={!input.trim() || isLoading}
+                className="self-end px-4"
+              >
+                <Send className="w-5 h-5" />
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
