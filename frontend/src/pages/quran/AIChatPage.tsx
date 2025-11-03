@@ -400,7 +400,7 @@ export default function AIChatPage() {
       </main>
 
       {/* Input */}
-      <div className="fixed bottom-0 left-0 right-0 glass border-t border-card-border safe-bottom" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 64px)' }}>
+      <div className="fixed left-0 right-0 glass border-t border-card-border z-40" style={{ bottom: '64px' }}>
         <div className="container-app py-4">
           {!canUseAI() ? (
             <Card variant="glass" className="text-center">
