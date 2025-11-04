@@ -26,6 +26,9 @@ export default function LessonListPage() {
 
   const completedLessons = user?.progress?.completedLessons || [];
 
+  // Ensure lessons is always an array (defensive check)
+  const safeLessons = lessons || [];
+
   const types = [
     { id: 'all', name: t('common.all'), emoji: '📋' },
     { id: 'obligatory', name: t('prayer.obligatory'), emoji: '📿' },
@@ -59,7 +62,7 @@ export default function LessonListPage() {
     }
   };
 
-  if (isLoading && lessons.length === 0) {
+  if (isLoading && safeLessons.length === 0) {
     return (
       <div className="page-container flex items-center justify-center min-h-screen">
         <Spinner size="lg" />
@@ -144,7 +147,7 @@ export default function LessonListPage() {
       </header>
 
       {/* Lessons List */}
-      {lessons.length === 0 ? (
+      {safeLessons.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">📚</div>
           <p className="text-gray-600 dark:text-gray-400">
@@ -153,7 +156,7 @@ export default function LessonListPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {lessons.map((lesson) => {
+          {safeLessons.map((lesson) => {
             const isCompleted = completedLessons.includes(lesson.slug);
             const progress = user?.progress?.lessonProgress?.find(
               p => p.lessonSlug === lesson.slug
@@ -245,7 +248,7 @@ export default function LessonListPage() {
           <div className="w-px h-10 bg-gray-300 dark:bg-gray-600" />
           <div>
             <div className="text-2xl font-bold text-primary-700 dark:text-primary-300">
-              {lessons.length}
+              {safeLessons.length}
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">
               {t('prayer.totalLessons', { defaultValue: 'Total Lessons' })}
@@ -254,7 +257,7 @@ export default function LessonListPage() {
           <div className="w-px h-10 bg-gray-300 dark:bg-gray-600" />
           <div>
             <div className="text-2xl font-bold text-primary-700 dark:text-primary-300">
-              {Math.round((completedLessons.length / lessons.length) * 100) || 0}%
+              {safeLessons.length > 0 ? Math.round((completedLessons.length / safeLessons.length) * 100) : 0}%
             </div>
             <div className="text-xs text-gray-600 dark:text-gray-400">
               {t('progress.progress', { defaultValue: 'Progress' })}

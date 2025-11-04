@@ -66,7 +66,7 @@ export const usePrayerStore = create<PrayerState>()(
         set({ isLoading: true, error: null });
         try {
           const results = await prayerService.searchLessons(query);
-          set({ isLoading: false });
+          set({ lessons: results, isLoading: false });
           return results;
         } catch (error: any) {
           set({ error: error.message, isLoading: false });
