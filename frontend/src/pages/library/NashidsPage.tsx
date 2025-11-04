@@ -51,11 +51,13 @@ export default function NashidsPage() {
 
   const categories = [
     { id: 'all', name: t('common.all'), emoji: '🎵' },
-    { id: 'praise', name: t('library.categories.praise', { defaultValue: 'Praise' }), emoji: '🕌' },
-    { id: 'quran', name: t('library.categories.quranRecitation', { defaultValue: 'Quran Recitation' }), emoji: '📖' },
+    { id: 'nasheed', name: t('library.categories.nasheed', { defaultValue: 'Nasheed' }), emoji: '🕌' },
+    { id: 'religious', name: t('library.categories.religious', { defaultValue: 'Religious' }), emoji: '🤲' },
+    { id: 'quran-recitation', name: t('library.categories.quranRecitation', { defaultValue: 'Quran Recitation' }), emoji: '📖' },
     { id: 'dua', name: t('library.categories.dua', { defaultValue: 'Dua' }), emoji: '🤲' },
-    { id: 'kids', name: t('library.categories.kids', { defaultValue: 'Kids' }), emoji: '👶' },
-    { id: 'other', name: t('library.categories.other', { defaultValue: 'Other' }), emoji: '🎶' },
+    { id: 'spiritual', name: t('library.categories.spiritual', { defaultValue: 'Spiritual' }), emoji: '✨' },
+    { id: 'prophetic', name: t('library.categories.prophetic', { defaultValue: 'Prophetic' }), emoji: '🌟' },
+    { id: 'general', name: t('library.categories.other', { defaultValue: 'Other' }), emoji: '🎶' },
   ];
 
   const formatDuration = (seconds: number) => {

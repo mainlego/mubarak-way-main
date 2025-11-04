@@ -29,7 +29,7 @@ export default function BooksPage() {
   const filteredBooks = books.filter((book) => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          book.author.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || book.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || book.genre === selectedCategory;
     const matchesFavorites = !showFavoritesOnly || favoriteBooks.includes(book.id);
     const matchesOffline = !showOfflineOnly || offlineBooks.includes(book.id);
 
@@ -41,9 +41,11 @@ export default function BooksPage() {
     { id: 'quran', name: t('library.categories.quran', { defaultValue: 'Quran Studies' }), emoji: '📖' },
     { id: 'hadith', name: t('library.categories.hadith', { defaultValue: 'Hadith' }), emoji: '📜' },
     { id: 'fiqh', name: t('library.categories.fiqh', { defaultValue: 'Fiqh' }), emoji: '⚖️' },
-    { id: 'aqeedah', name: t('library.categories.aqeedah', { defaultValue: 'Aqeedah' }), emoji: '🕌' },
-    { id: 'history', name: t('library.categories.history', { defaultValue: 'History' }), emoji: '📚' },
-    { id: 'other', name: t('library.categories.other', { defaultValue: 'Other' }), emoji: '📕' },
+    { id: 'aqidah', name: t('library.categories.aqeedah', { defaultValue: 'Aqeedah' }), emoji: '🕌' },
+    { id: 'seerah', name: t('library.categories.seerah', { defaultValue: 'Seerah' }), emoji: '📖' },
+    { id: 'tafsir', name: t('library.categories.tafsir', { defaultValue: 'Tafsir' }), emoji: '📚' },
+    { id: 'dua', name: t('library.categories.dua', { defaultValue: 'Dua' }), emoji: '🤲' },
+    { id: 'general', name: t('library.categories.other', { defaultValue: 'Other' }), emoji: '📕' },
   ];
 
   return (
