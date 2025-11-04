@@ -299,6 +299,40 @@ export default function SettingsPage() {
         </h2>
 
         <div className="space-y-2">
+          <Card hoverable onClick={() => navigate('/prayer/times')}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">📅</span>
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                    {t('prayer.prayerTimes', { defaultValue: 'Prayer Times' })}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t('prayer.monthlySchedule', { defaultValue: 'Monthly schedule & reminders' })}
+                  </p>
+                </div>
+              </div>
+              <span className="text-gray-400">→</span>
+            </div>
+          </Card>
+
+          <Card hoverable onClick={() => navigate('/prayer/qibla')}>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🧭</span>
+                <div>
+                  <h4 className="font-semibold text-gray-900 dark:text-white">
+                    {t('prayer.qibla', { defaultValue: 'Qibla Compass' })}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t('prayer.findDirection', { defaultValue: 'Find prayer direction' })}
+                  </p>
+                </div>
+              </div>
+              <span className="text-gray-400">→</span>
+            </div>
+          </Card>
+
           <Card hoverable onClick={() => navigate('/settings/prayer')}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">

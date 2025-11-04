@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useUserStore } from '@shared/store';
 import { getTelegramUser } from '@shared/lib/telegram';
 import { usePrayerTimes } from '@shared/hooks/usePrayerTimes';
-import { BookOpen, School, Library } from 'lucide-react';
+import { BookOpen, School, Library, Compass, Calendar } from 'lucide-react';
 import {
   NextPrayerCard,
   DailyGoalsList,
@@ -200,6 +200,31 @@ export default function HomePage() {
             route="/nashids"
             gradient="custom"
             customGradient="linear-gradient(135deg, #8B6EAC 0%, #AB8ECC 100%)"
+          />
+        </div>
+
+        {/* Prayer Tools */}
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in"
+          style={{ animationDelay: '450ms' }}
+        >
+          <ModuleCard
+            title="Компас Киблы"
+            titleAr="بوصلة القبلة"
+            description="Найдите направление молитвы"
+            icon={Compass}
+            route="/prayer/qibla"
+            gradient="custom"
+            customGradient="linear-gradient(135deg, #2e7d32 0%, #4caf50 100%)"
+          />
+          <ModuleCard
+            title="Время Намазов"
+            titleAr="أوقات الصلاة"
+            description="Календарь и уведомления"
+            icon={Calendar}
+            route="/prayer/times"
+            gradient="custom"
+            customGradient="linear-gradient(135deg, #1976d2 0%, #42a5f5 100%)"
           />
         </div>
 
