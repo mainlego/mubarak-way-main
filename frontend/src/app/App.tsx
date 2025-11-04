@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { initTelegramSDK, isTelegram } from '@shared/lib/telegram';
-import { useUserStore } from '@shared/store';
+import { useUserStore, useAudioStore } from '@shared/store';
+import { useGlobalAudio } from '@shared/hooks/useGlobalAudio';
 
 // Pages
 import HomePage from '@pages/HomePage';
@@ -58,6 +59,7 @@ import AdminLayout from '../widgets/admin/AdminLayout';
 import BottomNav from '@widgets/BottomNav';
 import DebugPanel from '@widgets/DebugPanel';
 import { VersionChecker } from '@shared/ui';
+import { GlobalAudioPlayer } from '@widgets/library';
 
 // Onboarding redirect wrapper
 function OnboardingGuard({ children }: { children: React.ReactNode }) {
@@ -85,6 +87,12 @@ function OnboardingGuard({ children }: { children: React.ReactNode }) {
 
 function App() {
   const { login } = useUserStore();
+  const { currentPlaying } = useAudioStore();
+  const [showAudioPlayer, setShowAudioPlayer] = useState(false);
+  const [isPlayerMinimized, setIsPlayerMinimized] = useState(true);
+
+  // Initialize global audio
+  const audioState = useGlobalAudio();
 
   useEffect(() => {
     const initializeApp = async () => {
@@ -113,6 +121,16 @@ function App() {
     initializeApp();
   }, [login]);
 
+  // Show/hide audio player based on currentPlaying
+  useEffect(() => {
+    if (currentPlaying && !showAudioPlayer) {
+      setShowAudioPlayer(true);
+      setIsPlayerMinimized(true);
+    } else if (!currentPlaying && showAudioPlayer) {
+      setShowAudioPlayer(false);
+    }
+  }, [currentPlaying, showAudioPlayer]);
+
   console.log('🎨 App rendering...');
 
   return (
@@ -133,6 +151,7 @@ function App() {
           <Route path="/quran/history" element={<HistoryPage />} />
           <Route path="/quran/ai" element={<AIChatPage />} />
           <Route path="/ai" element={<AIChatPage />} />
+          <Route path="/ai-search" element={<AIChatPage />} />
 
           {/* Library Module */}
           <Route path="/library" element={<LibraryPage />} />
@@ -177,6 +196,16 @@ function App() {
 
         {/* Bottom Navigation */}
         <BottomNav />
+
+        {/* Global Audio Player */}
+        {showAudioPlayer && (
+          <GlobalAudioPlayer
+            onClose={() => setShowAudioPlayer(false)}
+            isMinimized={isPlayerMinimized}
+            onToggleMinimize={() => setIsPlayerMinimized(!isPlayerMinimized)}
+            audioState={audioState}
+          />
+        )}
 
         {/* Debug Panel (only in development or when needed) */}
         <DebugPanel />
