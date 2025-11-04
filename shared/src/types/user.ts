@@ -79,6 +79,14 @@ export interface PrayerSettings {
   notifications: {
     enabled: boolean;
     beforeMinutes: number;
+    prayers?: {
+      fajr: boolean;
+      dhuhr: boolean;
+      asr: boolean;
+      maghrib: boolean;
+      isha: boolean;
+    };
+    telegramOnly?: boolean;
   };
 }
 

@@ -59,26 +59,3 @@ export interface ReaderState {
   isPlaying: boolean;
   isOfflineAvailable: boolean;
 }
-
-// Telegram WebApp types
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp?: {
-        initDataUnsafe?: {
-          bot?: {
-            username?: string;
-          };
-        };
-        showAlert?: (message: string) => void;
-        showConfirm?: (message: string, callback: (confirmed: boolean) => void) => void;
-        HapticFeedback?: {
-          impactOccurred?: (type: 'light' | 'medium' | 'heavy') => void;
-        };
-        openLink?: (url: string) => void;
-      };
-    };
-  }
-}
-
-export {};

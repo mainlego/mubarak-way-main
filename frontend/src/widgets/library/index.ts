@@ -4,7 +4,7 @@
 
 export { default as EnhancedBookReader } from './EnhancedBookReader';
 export { PlaylistManager } from './PlaylistManager';
-export { GlobalAudioPlayer } from './GlobalAudioPlayer';
+export { default as GlobalAudioPlayer } from './GlobalAudioPlayer';
 export { default as BookCard } from './BookCard';
 export { default as NashidCard } from './NashidCard';
 export type {

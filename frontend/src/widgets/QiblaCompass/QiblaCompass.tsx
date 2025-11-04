@@ -218,8 +218,9 @@ export const QiblaCompass: React.FC = () => {
       window.addEventListener('deviceorientation', handleOrientation as any, true);
     } else {
       // Android: try deviceorientationabsolute (absolute orientation)
-      if ('ondeviceorientationabsolute' in window) {
-        window.addEventListener('deviceorientationabsolute', handleOrientation as any, true);
+      const hasAbsoluteOrientation = 'ondeviceorientationabsolute' in window;
+      if (hasAbsoluteOrientation) {
+        (window as any).addEventListener('deviceorientationabsolute', handleOrientation as any, true);
       } else {
         window.addEventListener('deviceorientation', handleOrientation as any, true);
       }

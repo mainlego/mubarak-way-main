@@ -356,21 +356,43 @@ export default function PrayerTimesPage() {
           </h3>
 
           <div className="space-y-2">
-            <PrayerCard
-              icon={SettingsIcon}
-              title={t('prayer.calculationMethod', { defaultValue: 'Calculation Method' })}
-              subtitle={user?.prayerSettings?.madhab || 'Hanafi'}
-              iconBgColor="bg-card"
+            <Card
+              hoverable
               onClick={() => navigate('/settings/prayer')}
-            />
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
+                  <SettingsIcon className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 dark:text-white">
+                    {t('prayer.calculationMethod', { defaultValue: 'Calculation Method' })}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {user?.prayerSettings?.madhab || 'Hanafi'}
+                  </p>
+                </div>
+              </div>
+            </Card>
 
-            <PrayerCard
-              icon={Bell}
-              title={t('settings.notifications')}
-              subtitle={t('prayer.prayerReminders', { defaultValue: 'Prayer reminders' })}
-              iconBgColor="bg-card"
+            <Card
+              hoverable
               onClick={() => navigate('/settings/notifications')}
-            />
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
+                  <Bell className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                </div>
+                <div className="flex-1">
+                  <h4 className="font-medium text-gray-900 dark:text-white">
+                    {t('settings.notifications')}
+                  </h4>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    {t('prayer.prayerReminders', { defaultValue: 'Prayer reminders' })}
+                  </p>
+                </div>
+              </div>
+            </Card>
           </div>
         </section>
       </main>

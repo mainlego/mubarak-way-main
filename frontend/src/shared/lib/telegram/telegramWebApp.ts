@@ -15,6 +15,9 @@ interface TelegramWebApp {
       language_code?: string;
       photo_url?: string;
     };
+    bot?: {
+      username?: string;
+    };
     query_id?: string;
     auth_date?: number;
     hash?: string;
@@ -96,14 +99,6 @@ interface TelegramWebApp {
     show: () => void;
     hide: () => void;
   };
-}
-
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp: TelegramWebApp;
-    };
-  }
 }
 
 /**

@@ -17,6 +17,7 @@ import {
   X
 } from 'lucide-react';
 import { useAudioStore, type Nashid } from '../../shared/store/audioStore';
+import { useUserStore } from '../../shared/store';
 import { offlineNashids } from '../../shared/lib/offlineStorage';
 import { haptic } from '../../shared/lib/telegram';
 
@@ -44,6 +45,7 @@ const GlobalAudioPlayer: React.FC<GlobalAudioPlayerProps> = ({
   onToggleMinimize,
   audioState
 }) => {
+  const { user } = useUserStore();
   const {
     currentPlaying,
     isPlaying,
@@ -140,10 +142,10 @@ const GlobalAudioPlayer: React.FC<GlobalAudioPlayerProps> = ({
   }, [cycleRepeatMode]);
 
   const handleFavorite = useCallback(() => {
-    if (!currentPlaying) return;
+    if (!currentPlaying || !user) return;
     haptic.impact('medium');
-    toggleFavorite(currentPlaying.id);
-  }, [currentPlaying, toggleFavorite]);
+    toggleFavorite(currentPlaying.id, user.telegramId.toString());
+  }, [currentPlaying, user, toggleFavorite]);
 
   const handleDownload = useCallback(async () => {
     if (!currentPlaying || isOfflineAvailable) return;

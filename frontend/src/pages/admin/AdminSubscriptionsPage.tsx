@@ -166,10 +166,11 @@ const AdminSubscriptionsPage: React.FC = () => {
     if (keys.length === 1) {
       setFormData({ ...formData, [field]: value });
     } else if (keys.length === 2) {
+      const currentValue = formData[keys[0] as keyof Subscription];
       setFormData({
         ...formData,
         [keys[0]]: {
-          ...(formData[keys[0] as keyof Subscription] as Record<string, unknown>),
+          ...(typeof currentValue === 'object' && currentValue !== null ? currentValue : {}),
           [keys[1]]: value
         }
       });
@@ -262,7 +263,7 @@ const AdminSubscriptionsPage: React.FC = () => {
     }
   };
 
-  const renderLimitInput = (label: string, field: string, value: number): JSX.Element => {
+  const renderLimitInput = (label: string, field: string, value: number): React.ReactElement => {
     const isUnlimited = value === -1;
     const isEditing = editingTier !== null;
 

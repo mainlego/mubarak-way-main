@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { usePrayerStore, useUserStore } from '@shared/store';
-import { Card, Button } from '@shared/ui';
-import { PrayerCard, PrayerCircularProgress } from '@widgets/prayer';
+import { Card, Button, CircularProgress } from '@shared/ui';
+import { PrayerCard } from '@widgets/prayer';
 import { Clock, Compass, BookOpen, Droplet, Star, Flame } from 'lucide-react';
 
 export default function PrayerPage() {
@@ -57,8 +57,8 @@ export default function PrayerPage() {
                 {completedLessons.length} / {totalLessons} {t('prayer.lessons')}
               </p>
             </div>
-            <PrayerCircularProgress
-              progress={progressPercent}
+            <CircularProgress
+              value={progressPercent}
               size={80}
               strokeWidth={8}
             />
@@ -114,40 +114,72 @@ export default function PrayerPage() {
 
           <div className="space-y-3">
             {/* Obligatory Prayers */}
-            <PrayerCard
-              icon={BookOpen}
-              title={t('prayer.obligatory')}
-              subtitle={t('prayer.obligatoryDesc', { defaultValue: '5 daily prayers' })}
-              iconBgColor="bg-gradient-accent"
+            <Card
+              hoverable
               onClick={() => navigate('/prayer/lessons?type=obligatory')}
-            />
+              className="bg-gradient-accent"
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-lg">
+                  <BookOpen className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white">{t('prayer.obligatory')}</h3>
+                  <p className="text-sm text-white/80">{t('prayer.obligatoryDesc', { defaultValue: '5 daily prayers' })}</p>
+                </div>
+              </div>
+            </Card>
 
             {/* Optional Prayers */}
-            <PrayerCard
-              icon={Star}
-              title={t('prayer.optional')}
-              subtitle={t('prayer.optionalDesc', { defaultValue: 'Sunnah and Nafl prayers' })}
-              iconBgColor="bg-gradient-accent"
+            <Card
+              hoverable
               onClick={() => navigate('/prayer/lessons?type=optional')}
-            />
+              className="bg-gradient-accent"
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-lg">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white">{t('prayer.optional')}</h3>
+                  <p className="text-sm text-white/80">{t('prayer.optionalDesc', { defaultValue: 'Sunnah and Nafl prayers' })}</p>
+                </div>
+              </div>
+            </Card>
 
             {/* Special Prayers */}
-            <PrayerCard
-              icon={Star}
-              title={t('prayer.special')}
-              subtitle={t('prayer.specialDesc', { defaultValue: 'Eid, Janazah, Tarawih' })}
-              iconBgColor="bg-gradient-accent"
+            <Card
+              hoverable
               onClick={() => navigate('/prayer/lessons?type=special')}
-            />
+              className="bg-gradient-accent"
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-lg">
+                  <Star className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white">{t('prayer.special')}</h3>
+                  <p className="text-sm text-white/80">{t('prayer.specialDesc', { defaultValue: 'Eid, Janazah, Tarawih' })}</p>
+                </div>
+              </div>
+            </Card>
 
             {/* Ablution (Wudu) */}
-            <PrayerCard
-              icon={Droplet}
-              title={t('prayer.ablution')}
-              subtitle={t('prayer.ablutionDesc', { defaultValue: 'How to perform wudu' })}
-              iconBgColor="bg-gradient-accent"
+            <Card
+              hoverable
               onClick={() => navigate('/prayer/lessons?type=ablution')}
-            />
+              className="bg-gradient-accent"
+            >
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-lg">
+                  <Droplet className="w-6 h-6 text-white" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white">{t('prayer.ablution')}</h3>
+                  <p className="text-sm text-white/80">{t('prayer.ablutionDesc', { defaultValue: 'How to perform wudu' })}</p>
+                </div>
+              </div>
+            </Card>
           </div>
         </section>
 

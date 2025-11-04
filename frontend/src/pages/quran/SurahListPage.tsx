@@ -133,16 +133,15 @@ export default function SurahListPage() {
             </div>
           ) : (
             filteredSurahs.map((surah) => (
-              <SurahCard
-                key={surah._id}
-                number={surah.number}
-                nameArabic={surah.nameArabic}
-                nameTransliteration={surah.nameTransliteration}
-                nameTranslation={surah.nameTranslation}
-                revelationType={surah.revelationType}
-                versesCount={surah.numberOfAyahs}
-                onClick={() => navigate(`/quran/surah/${surah.number}`)}
-              />
+              <div key={surah._id} onClick={() => navigate(`/quran/surah/${surah.number}`)}>
+                <SurahCard
+                  number={surah.number}
+                  nameArabic={surah.nameArabic}
+                  nameTranslation={surah.nameTranslation}
+                  revelationType={surah.revelation as 'meccan' | 'medinan'}
+                  versesCount={surah.ayahCount}
+                />
+              </div>
             ))
           )}
         </div>

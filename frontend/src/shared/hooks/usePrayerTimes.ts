@@ -45,7 +45,7 @@ interface UsePrayerTimesReturn {
 
   // Actions
   refreshPrayerTimes: () => Promise<void>;
-  requestLocation: () => Promise<void>;
+  requestLocation: () => Promise<LocationCoords>;
   updateLocation: (location: LocationCoords) => void;
   updateSettings: (settings: Partial<PrayerTimesSettings>) => Promise<void>;
 

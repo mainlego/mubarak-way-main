@@ -109,7 +109,7 @@ const MadhabMap = {
 } as const;
 
 // Prayer name translations
-export const PRAYER_NAMES: Record<Prayer, string> = {
+export const PRAYER_NAMES: Record<string, string> = {
   [Prayer.Fajr]: 'Фаджр',
   [Prayer.Sunrise]: 'Восход',
   [Prayer.Dhuhr]: 'Зухр',
@@ -230,7 +230,14 @@ class PrayerTimesService {
 
     // Apply adjustments if provided
     if (currentSettings.adjustments) {
-      params.adjustments = currentSettings.adjustments;
+      params.adjustments = {
+        fajr: currentSettings.adjustments.fajr || 0,
+        sunrise: currentSettings.adjustments.sunrise || 0,
+        dhuhr: currentSettings.adjustments.dhuhr || 0,
+        asr: currentSettings.adjustments.asr || 0,
+        maghrib: currentSettings.adjustments.maghrib || 0,
+        isha: currentSettings.adjustments.isha || 0,
+      };
     }
 
     // Calculate prayer times
@@ -397,18 +404,19 @@ class PrayerTimesService {
       const prayerTimes = this.calculatePrayerTimes(coords, date);
 
       // Cache for offline use
-      await offlinePrayerTimes.savePrayerTimes({
-        date: date.toISOString(),
-        location: coords,
-        times: prayerTimes,
-      });
+      await offlinePrayerTimes.savePrayerTimes(
+        date,
+        coords,
+        prayerTimes,
+        this.settings.calculationMethod
+      );
 
       return prayerTimes;
     } catch (error) {
       console.error('Error calculating prayer times:', error);
 
       // Try to get from cache
-      const cached = await offlinePrayerTimes.getPrayerTimes(date.toISOString());
+      const cached = await offlinePrayerTimes.getPrayerTimes(date);
       if (cached) {
         console.log('Using cached prayer times');
         return cached.times as PrayerTimesData;

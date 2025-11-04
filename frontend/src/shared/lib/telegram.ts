@@ -17,6 +17,9 @@ declare global {
             language_code?: string;
             photo_url?: string;
           };
+          bot?: {
+            username?: string;
+          };
           auth_date?: number;
           hash?: string;
         };
