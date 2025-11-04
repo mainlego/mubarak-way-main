@@ -96,7 +96,21 @@
     "favorite": "Избранное",
     "noFavorites": "Нет избранных нашидов",
     "artist": "Исполнитель",
-    "duration": "Длительность"
+    "duration": "Длительность",
+    "searchBooks": "Поиск книг...",
+    "searchNashids": "Поиск нашидов...",
+    "categories": {
+      "quran": "Коранические науки",
+      "hadith": "Хадисы",
+      "fiqh": "Фикх",
+      "aqeedah": "Акыда",
+      "history": "История",
+      "other": "Другое",
+      "praise": "Восхваления",
+      "quranRecitation": "Чтение Корана",
+      "dua": "Дуа",
+      "kids": "Детские"
+    }
   },
   "prayer": {
     "title": "Намаз",

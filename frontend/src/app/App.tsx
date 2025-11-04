@@ -19,8 +19,10 @@ import {
 // Library Pages
 import {
   LibraryPage,
+  BooksPage,
   BookListPage,
   BookReaderPage,
+  NashidsPage,
   NashidListPage,
 } from '@pages/library';
 
@@ -134,9 +136,12 @@ function App() {
 
           {/* Library Module */}
           <Route path="/library" element={<LibraryPage />} />
-          <Route path="/library/books" element={<BookListPage />} />
+          <Route path="/books" element={<BooksPage />} />
+          <Route path="/library/books" element={<BooksPage />} />
           <Route path="/library/books/:bookId" element={<BookReaderPage />} />
-          <Route path="/library/nashids" element={<NashidListPage />} />
+          <Route path="/books/:bookId" element={<BookReaderPage />} />
+          <Route path="/nashids" element={<NashidsPage />} />
+          <Route path="/library/nashids" element={<NashidsPage />} />
 
           {/* Prayer Module */}
           <Route path="/prayer" element={<PrayerPage />} />

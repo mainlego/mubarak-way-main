@@ -1,13 +1,13 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { haptic } from '@shared/lib/telegram';
-import { Home, BookOpen, Sparkles, Bookmark, Settings } from 'lucide-react';
+import { Home, BookOpen, Sparkles, Library, Music, Settings } from 'lucide-react';
 
 const navItems = [
   { path: '/', icon: Home, label: 'Главная' },
   { path: '/quran', icon: BookOpen, label: 'Коран' },
   { path: '/ai-search', icon: Sparkles, label: 'Поиск', isCenter: true },
-  { path: '/progress', icon: Bookmark, label: 'Закладки' },
-  { path: '/settings', icon: Settings, label: 'Настройки' },
+  { path: '/books', icon: Library, label: 'Книги' },
+  { path: '/nashids', icon: Music, label: 'Нашиды' },
 ];
 
 export default function BottomNav() {
@@ -25,7 +25,7 @@ export default function BottomNav() {
         {/* Left side items */}
         <div className="flex items-center gap-6">
           {navItems.slice(0, 2).map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
             const Icon = item.icon;
             return (
               <button
@@ -64,7 +64,7 @@ export default function BottomNav() {
         {/* Right side items */}
         <div className="flex items-center gap-6">
           {navItems.slice(3).map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
             const Icon = item.icon;
             return (
               <button

@@ -178,16 +178,28 @@ export default function HomePage() {
           />
         </div>
 
-        {/* Library Card */}
-        <div className="animate-fade-in" style={{ animationDelay: '400ms' }}>
+        {/* Library Cards */}
+        <div
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-fade-in"
+          style={{ animationDelay: '400ms' }}
+        >
           <ModuleCard
-            title="Исламская библиотека"
-            titleAr="المكتبة الإسلامية"
-            description="Книги и нашиды для духовного роста"
+            title="Книги"
+            titleAr="الكتب"
+            description="Исламская библиотека"
             icon={Library}
-            route="/library"
+            route="/books"
             gradient="custom"
             customGradient="linear-gradient(135deg, #6B4E8C 0%, #8B6EAC 100%)"
+          />
+          <ModuleCard
+            title="Нашиды"
+            titleAr="الأناشيد"
+            description="Исламские песнопения"
+            icon={Library}
+            route="/nashids"
+            gradient="custom"
+            customGradient="linear-gradient(135deg, #8B6EAC 0%, #AB8ECC 100%)"
           />
         </div>
 
