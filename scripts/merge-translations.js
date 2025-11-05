@@ -26,7 +26,6 @@ const languages = ['ru', 'en', 'ar'];
 
 languages.forEach(lang => {
   const mainFile = path.join(LOCALES_DIR, `${lang}.json`);
-  const additionsFile = path.join(LOCALES_DIR, `${lang}_additions.json`);
 
   // Check if files exist
   if (!fs.existsSync(mainFile)) {
@@ -34,28 +33,45 @@ languages.forEach(lang => {
     return;
   }
 
-  if (!fs.existsSync(additionsFile)) {
-    console.log(`ℹ️  No additions file for ${lang}, skipping...`);
+  // Read main content
+  let mainContent = JSON.parse(fs.readFileSync(mainFile, 'utf-8'));
+  let merged = false;
+
+  // Find all addition files with pattern: lang_additions*.json
+  const allFiles = fs.readdirSync(LOCALES_DIR);
+  const additionFiles = allFiles.filter(file =>
+    file.startsWith(`${lang}_additions`) && file.endsWith('.json')
+  );
+
+  if (additionFiles.length === 0) {
+    console.log(`ℹ️  No additions files for ${lang}, skipping...`);
     return;
   }
 
-  try {
-    // Read files
-    const mainContent = JSON.parse(fs.readFileSync(mainFile, 'utf-8'));
-    const additionsContent = JSON.parse(fs.readFileSync(additionsFile, 'utf-8'));
+  // Merge all addition files
+  additionFiles.forEach(additionFile => {
+    const additionPath = path.join(LOCALES_DIR, additionFile);
 
-    // Merge
-    const merged = deepMerge(mainContent, additionsContent);
+    try {
+      const additionsContent = JSON.parse(fs.readFileSync(additionPath, 'utf-8'));
 
-    // Write back
-    fs.writeFileSync(mainFile, JSON.stringify(merged, null, 2) + '\n');
-    console.log(`✅ Merged ${lang}_additions.json into ${lang}.json`);
+      // Merge
+      mainContent = deepMerge(mainContent, additionsContent);
+      console.log(`✅ Merged ${additionFile} into ${lang}.json`);
+      merged = true;
 
-    // Delete additions file
-    fs.unlinkSync(additionsFile);
-    console.log(`🗑️  Removed ${lang}_additions.json`);
-  } catch (error) {
-    console.error(`❌ Error processing ${lang}:`, error.message);
+      // Delete additions file
+      fs.unlinkSync(additionPath);
+      console.log(`🗑️  Removed ${additionFile}`);
+    } catch (error) {
+      console.error(`❌ Error processing ${additionFile}:`, error.message);
+    }
+  });
+
+  // Write back if any merges happened
+  if (merged) {
+    fs.writeFileSync(mainFile, JSON.stringify(mainContent, null, 2) + '\n');
+    console.log(`💾 Updated ${lang}.json\n`);
   }
 });
 
