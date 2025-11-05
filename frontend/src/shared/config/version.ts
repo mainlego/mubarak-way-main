@@ -3,8 +3,8 @@
  * Auto-updated on each deployment
  */
 
-export const APP_VERSION = '1.0.0';
-export const BUILD_DATE = new Date().toISOString();
+export const APP_VERSION = '2.0.0';
+export const BUILD_DATE = '2025-11-05T12:59:43.742Z';
 
 export const VERSION_CONFIG = {
   current: APP_VERSION,

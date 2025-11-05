@@ -18,7 +18,10 @@
     "lint": "npm run lint --workspaces",
     "type-check": "npm run type-check --workspaces",
     "test": "npm run test --workspaces",
-    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules shared/node_modules frontend/dist backend/dist"
+    "clean": "rm -rf node_modules frontend/node_modules backend/node_modules shared/node_modules frontend/dist backend/dist",
+    "version:bump": "node scripts/bump-version.js",
+    "version:setup": "bash scripts/setup-hooks.sh",
+    "postinstall": "bash scripts/setup-hooks.sh 2>/dev/null || true"
   },
   "keywords": [
     "quran",

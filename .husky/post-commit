@@ -1,0 +1,33 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Lock file to prevent recursion
+LOCK_FILE=".git/hooks/.version-bump-lock"
+
+# If lock exists, we're in a recursive call - exit immediately
+if [ -f "$LOCK_FILE" ]; then
+  exit 0
+fi
+
+# Create lock file
+touch "$LOCK_FILE"
+
+# Auto-bump version after commit
+echo "🔄 Running post-commit version bump..."
+node scripts/bump-version.js
+
+# Stage the updated files
+git add frontend/package.json backend/package.json shared/package.json
+git add frontend/src/shared/config/version.ts
+git add CHANGELOG.md
+
+# Amend the commit with version changes (only if there are changes)
+if ! git diff --cached --quiet; then
+  git commit --amend --no-edit --no-verify
+  echo "✅ Version bumped and committed!"
+else
+  echo "ℹ️  No version changes needed"
+fi
+
+# Remove lock file
+rm -f "$LOCK_FILE"
