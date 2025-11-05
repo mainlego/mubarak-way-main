@@ -66,6 +66,23 @@
     "searchPlaceholder": "البحث في القرآن..."
   },
   "library": {
+    "searchBooks": "البحث في الكتب...",
+    "searchNashids": "البحث في الأناشيد...",
+    "categories": {
+      "other": "أخرى",
+      "quranRecitation": "تلاوة القرآن",
+      "aqeedah": "العقيدة",
+      "fiqh": "الفقه",
+      "hadith": "الحديث",
+      "quran": "علوم القرآن",
+      "seerah": "السيرة",
+      "tafsir": "التفسير",
+      "dua": "الدعاء",
+      "nasheed": "أنشودة",
+      "prophetic": "النبوية",
+      "religious": "دينية",
+      "spiritual": "روحانية"
+    },
     "description": "مجموعة الكتب والأناشيد الإسلامية",
     "author": "المؤلف",
     "page": "صفحة",
@@ -83,25 +100,6 @@
     "categoryQuran": "علوم القرآن",
     "categorySeerah": "السيرة",
     "categoryDua": "الدعاء",
-    "categories": {
-      "0": "ا",
-      "1": "ل",
-      "2": "ف",
-      "3": "ئ",
-      "4": "ا",
-      "5": "ت",
-      "aqeedah": "العقيدة",
-      "fiqh": "الفقه",
-      "hadith": "الحديث",
-      "quran": "علوم القرآن",
-      "seerah": "السيرة",
-      "tafsir": "التفسير",
-      "dua": "الدعاء",
-      "nasheed": "أنشودة",
-      "prophetic": "النبوية",
-      "religious": "دينية",
-      "spiritual": "روحانية"
-    },
     "title": "المكتبة",
     "books": "الكتب",
     "nashids": "الأناشيد",
@@ -440,5 +438,9 @@
     "available": "التحديث متاح",
     "description": "إصدار جديد من التطبيق جاهز. قم بالتحديث للحصول على أحدث التحسينات والإصلاحات.",
     "updateNow": "تحديث الآن"
+  },
+  "action": {
+    "back": "رجوع",
+    "next": "التالي"
   }
 }

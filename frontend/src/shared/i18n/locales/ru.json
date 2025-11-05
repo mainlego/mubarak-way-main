@@ -66,6 +66,26 @@
     "searchPlaceholder": "Поиск в Коране..."
   },
   "library": {
+    "searchBooks": "Поиск книг...",
+    "searchNashids": "Поиск нашидов...",
+    "categories": {
+      "other": "Другое",
+      "quranRecitation": "Чтение Корана",
+      "aqeedah": "Акыда",
+      "fiqh": "Фикх",
+      "hadith": "Хадисы",
+      "quran": "Коранические науки",
+      "seerah": "Сира",
+      "tafsir": "Тафсир",
+      "dua": "Дуа",
+      "nasheed": "Нашид",
+      "prophetic": "Пророческие",
+      "religious": "Религиозные",
+      "spiritual": "Духовные",
+      "history": "История",
+      "praise": "Восхваления",
+      "kids": "Детские"
+    },
     "description": "Коллекция исламских книг и нашидов",
     "author": "Автор",
     "page": "Страница",
@@ -83,24 +103,6 @@
     "categoryQuran": "Коранические науки",
     "categorySeerah": "Сира",
     "categoryDua": "Дуа",
-    "categories": {
-      "aqeedah": "Акыда",
-      "fiqh": "Фикх",
-      "hadith": "Хадисы",
-      "quran": "Коранические науки",
-      "seerah": "Сира",
-      "tafsir": "Тафсир",
-      "dua": "Дуа",
-      "nasheed": "Нашид",
-      "prophetic": "Пророческие",
-      "religious": "Религиозные",
-      "spiritual": "Духовные",
-      "history": "История",
-      "other": "Другое",
-      "praise": "Восхваления",
-      "quranRecitation": "Чтение Корана",
-      "kids": "Детские"
-    },
     "title": "Библиотека",
     "books": "Книги",
     "nashids": "Нашиды",
@@ -119,9 +121,7 @@
     "favorite": "Избранное",
     "noFavorites": "Нет избранных нашидов",
     "artist": "Исполнитель",
-    "duration": "Длительность",
-    "searchBooks": "Поиск книг...",
-    "searchNashids": "Поиск нашидов..."
+    "duration": "Длительность"
   },
   "prayer": {
     "description": "Учитесь и совершенствуйте свой намаз",
@@ -441,5 +441,9 @@
     "available": "Доступно обновление",
     "description": "Новая версия приложения готова. Обновите, чтобы получить последние улучшения и исправления.",
     "updateNow": "Обновить сейчас"
+  },
+  "action": {
+    "back": "Назад",
+    "next": "Далее"
   }
 }

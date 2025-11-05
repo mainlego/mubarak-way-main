@@ -3,8 +3,8 @@
  * Auto-updated on each deployment
  */
 
-export const APP_VERSION = '2.3.0';
-export const BUILD_DATE = '2025-11-05T14:14:12.891Z';
+export const APP_VERSION = '2.4.0';
+export const BUILD_DATE = '2025-11-05T23:28:47.713Z';
 
 export const VERSION_CONFIG = {
   current: APP_VERSION,

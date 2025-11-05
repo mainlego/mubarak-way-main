@@ -66,6 +66,23 @@
     "searchPlaceholder": "Search in Quran..."
   },
   "library": {
+    "searchBooks": "Search books...",
+    "searchNashids": "Search nashids...",
+    "categories": {
+      "other": "Other",
+      "quranRecitation": "Quran Recitation",
+      "aqeedah": "Aqeedah",
+      "fiqh": "Fiqh",
+      "hadith": "Hadith",
+      "quran": "Quran Studies",
+      "seerah": "Seerah",
+      "tafsir": "Tafsir",
+      "dua": "Dua",
+      "nasheed": "Nasheed",
+      "prophetic": "Prophetic",
+      "religious": "Religious",
+      "spiritual": "Spiritual"
+    },
     "description": "Islamic books and nashids collection",
     "author": "Author",
     "page": "Page",
@@ -83,29 +100,6 @@
     "categoryQuran": "Quran Studies",
     "categorySeerah": "Seerah",
     "categoryDua": "Dua",
-    "categories": {
-      "0": "C",
-      "1": "a",
-      "2": "t",
-      "3": "e",
-      "4": "g",
-      "5": "o",
-      "6": "r",
-      "7": "i",
-      "8": "e",
-      "9": "s",
-      "aqeedah": "Aqeedah",
-      "fiqh": "Fiqh",
-      "hadith": "Hadith",
-      "quran": "Quran Studies",
-      "seerah": "Seerah",
-      "tafsir": "Tafsir",
-      "dua": "Dua",
-      "nasheed": "Nasheed",
-      "prophetic": "Prophetic",
-      "religious": "Religious",
-      "spiritual": "Spiritual"
-    },
     "title": "Library",
     "books": "Books",
     "nashids": "Nashids",
@@ -444,5 +438,9 @@
     "available": "Update Available",
     "description": "A new version of the app is ready. Update to get the latest improvements and fixes.",
     "updateNow": "Update Now"
+  },
+  "action": {
+    "back": "Back",
+    "next": "Next"
   }
 }
