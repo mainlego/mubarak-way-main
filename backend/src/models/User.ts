@@ -123,6 +123,7 @@ const userSchema = new Schema<User, UserModel>(
         city: String,
         country: String,
         timezone: String,
+        lastUpdated: Date, // Timestamp of last location update
       },
       calculationMethod: {
         type: String,

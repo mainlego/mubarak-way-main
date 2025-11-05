@@ -364,6 +364,68 @@ router.get('/:telegramId/nashids/offline', async (req: Request, res: Response) =
 });
 
 /**
+ * PUT /api/v1/user/:telegramId/location
+ * Update user's location for prayer times
+ */
+router.put('/:telegramId/location', async (req: Request, res: Response) => {
+  try {
+    const { telegramId } = req.params;
+    const { latitude, longitude, city, country, timezone } = req.body;
+
+    if (!latitude || !longitude) {
+      return res.status(400).json({
+        success: false,
+        error: {
+          code: 'MISSING_PARAMS',
+          message: 'latitude and longitude are required',
+        },
+      } as ApiResponse);
+    }
+
+    const user = await User.findByTelegramId(telegramId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: {
+          code: 'USER_NOT_FOUND',
+          message: 'User not found',
+        },
+      } as ApiResponse);
+    }
+
+    // Update location with timestamp
+    user.prayerSettings = user.prayerSettings || {};
+    user.prayerSettings.location = {
+      latitude,
+      longitude,
+      city,
+      country,
+      timezone,
+      lastUpdated: new Date(),
+    };
+
+    await user.save();
+
+    res.json({
+      success: true,
+      data: {
+        location: user.prayerSettings.location,
+        message: 'Location updated successfully',
+      },
+    } as ApiResponse);
+  } catch (error: any) {
+    console.error('Update location error:', error);
+    res.status(500).json({
+      success: false,
+      error: {
+        code: 'UPDATE_LOCATION_ERROR',
+        message: error.message || 'Failed to update location',
+      },
+    } as ApiResponse);
+  }
+});
+
+/**
  * GET /api/v1/user/:telegramId/usage
  * Get user's usage statistics
  */

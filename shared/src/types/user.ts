@@ -73,6 +73,7 @@ export interface PrayerSettings {
     city?: string;
     country?: string;
     timezone?: string;
+    lastUpdated?: Date; // Timestamp of last location update
   };
   calculationMethod: string;
   madhab: Madhab;

@@ -6,6 +6,8 @@ import { Card, Button, Spinner } from '@shared/ui';
 import type { PrayerCalculationParams } from '@mubarak-way/shared';
 import { MonthlyPrayerSchedule, PrayerCard } from '@widgets/prayer';
 import { MapPin, Calendar, Settings as SettingsIcon, Bell, ArrowLeft, Clock } from 'lucide-react';
+import axios from 'axios';
+import { getApiUrl } from '@shared/lib/apiConfig';
 
 interface PrayerTime {
   name: string;
@@ -27,25 +29,56 @@ export default function PrayerTimesPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Check if we need to update location
+    const needsLocationUpdate = () => {
+      if (!user?.prayerSettings?.location) return true;
+
+      const lastUpdated = user.prayerSettings.location.lastUpdated;
+      if (!lastUpdated) return true;
+
+      // Check if location is older than 24 hours
+      const oneDayMs = 24 * 60 * 60 * 1000;
+      const locationAge = Date.now() - new Date(lastUpdated).getTime();
+      return locationAge > oneDayMs;
+    };
+
     // Get location from user settings or browser
-    if (user?.prayerSettings?.location) {
+    if (user?.prayerSettings?.location && !needsLocationUpdate()) {
+      // Use cached location (less than 24 hours old)
       const loc = user.prayerSettings.location;
       setLocationName(loc.city || `${loc.latitude.toFixed(2)}, ${loc.longitude.toFixed(2)}`);
       fetchPrayerTimes(loc.latitude, loc.longitude, loc.city, loc.country);
     } else {
-      // Request geolocation
+      // Request geolocation (first time or > 24 hours)
       if ('geolocation' in navigator) {
         navigator.geolocation.getCurrentPosition(
-          (position) => {
+          async (position) => {
             const lat = position.coords.latitude;
             const lon = position.coords.longitude;
             setLocationName(`${lat.toFixed(2)}, ${lon.toFixed(2)}`);
+
+            // Update location in database
+            try {
+              await updateUserLocation(lat, lon);
+            } catch (err) {
+              console.error('Failed to update location in DB:', err);
+              // Continue anyway with fetching prayer times
+            }
+
             fetchPrayerTimes(lat, lon);
           },
           (err) => {
             console.error('Geolocation error:', err);
-            setError(t('errors.locationPermission', { defaultValue: 'Location permission denied' }));
-            setIsLoading(false);
+
+            // If geolocation fails but we have old cached location, use it
+            if (user?.prayerSettings?.location) {
+              const loc = user.prayerSettings.location;
+              setLocationName(loc.city || `${loc.latitude.toFixed(2)}, ${loc.longitude.toFixed(2)}`);
+              fetchPrayerTimes(loc.latitude, loc.longitude, loc.city, loc.country);
+            } else {
+              setError(t('errors.locationPermission', { defaultValue: 'Location permission denied' }));
+              setIsLoading(false);
+            }
           }
         );
       } else {
@@ -117,6 +150,29 @@ export default function PrayerTimesPage() {
 
     return () => clearInterval(interval);
   }, [nextPrayer, apiPrayerTimes]);
+
+  const updateUserLocation = async (latitude: number, longitude: number, city?: string, country?: string) => {
+    if (!user?.telegramId) return;
+
+    try {
+      await axios.put(
+        `${getApiUrl()}/api/v1/user/${user.telegramId}/location`,
+        {
+          latitude,
+          longitude,
+          city,
+          country,
+          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        }
+      );
+
+      // Refresh user data to get updated location
+      await useUserStore.getState().login();
+    } catch (error) {
+      console.error('Error updating user location:', error);
+      throw error;
+    }
+  };
 
   const formatTime = (date: Date): string => {
     return date.toLocaleTimeString('en-US', {
