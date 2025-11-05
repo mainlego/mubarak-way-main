@@ -1,5 +1,8 @@
 {
   "common": {
+    "hour": "h",
+    "minute": "m",
+    "tryAgain": "Try Again",
     "appName": "MubarakWay",
     "loading": "Loading...",
     "error": "Error",
@@ -36,6 +39,9 @@
     "settings": "Settings"
   },
   "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening",
     "assalamu": "Assalamu Alaikum",
     "welcome": "Welcome to MubarakWay"
   },
@@ -99,6 +105,11 @@
     "duration": "Duration"
   },
   "prayer": {
+    "timeUntil": "in {{hours}}h {{minutes}}m",
+    "monthlySchedule": "Monthly schedule & reminders",
+    "findDirection": "Find prayer direction",
+    "qiblaCompass": "Qibla Compass",
+    "qiblaCompassDesc": "Determine the direction to Mecca using 3D compass",
     "title": "Prayer",
     "lessons": "Lessons",
     "times": "Prayer Times",
@@ -188,6 +199,9 @@
     "startStreakDesc": "Study every day to build your streak!"
   },
   "settings": {
+    "themeSettings": "Theme Settings",
+    "currentTheme": "Current: {{themeName}}",
+    "colorPalette": "Color Palette",
     "title": "Settings",
     "preferences": "Preferences",
     "language": "Language",
@@ -215,6 +229,8 @@
     "support": "Support"
   },
   "subscription": {
+    "plan": "Plan",
+    "recommended": "Recommended",
     "free": "Free",
     "freeDesc": "Basic features",
     "pro": "Pro",
@@ -250,6 +266,10 @@
     "explainAyahRequest": "Please explain ayah {{ayahId}}"
   },
   "errors": {
+    "qiblaCalculation": "Error calculating Qibla direction",
+    "locationFailed": "Failed to get your location",
+    "compassPermissionDenied": "Compass access denied. Allow access in Safari settings.",
+    "compassPermissionError": "Error requesting compass access",
     "networkError": "Network error. Check your connection.",
     "serverError": "Server error. Try again later.",
     "notFound": "Not Found",
@@ -260,6 +280,18 @@
     "geolocationNotSupported": "Geolocation not supported"
   },
   "onboarding": {
+    "welcomeTitle": "Welcome to Mubarak Way",
+    "welcomeDesc": "Your journey to Islamic knowledge begins here. Study the Quran, perfect your prayer, and expand your Islamic library.",
+    "quranTitle": "Read the Holy Quran",
+    "quranDesc": "Study the Quran with translation, make bookmarks, track reading progress, and listen to audio.",
+    "prayerTitle": "Prayer Times and Learning",
+    "prayerDesc": "Get accurate prayer times for your location, learn to perform prayer correctly with step-by-step instructions.",
+    "libraryTitle": "Islamic Library",
+    "libraryDesc": "Access books, articles, and nashids. Save materials for offline reading and create your personal collection.",
+    "aiTitle": "AI Assistant for Your Questions",
+    "aiDesc": "Ask questions about Islam and get answers based on reliable sources. Your personal assistant in learning.",
+    "slideLabel": "Slide {{number}}",
+    "start": "Start",
     "welcome": "Welcome",
     "selectLanguage": "Select Language",
     "selectMadhab": "Select Madhab",
@@ -333,8 +365,59 @@
     "note": "All payments are secure and processed through Telegram Payments"
   },
   "network": {
+    "backOnline": "Connection Restored",
+    "noConnection": "No Connection",
+    "backOnlineDesc": "You're back online",
+    "offlineMode": "Working offline mode",
     "online": "Connection Restored",
     "offline": "No Connection",
     "workingOffline": "Working Offline"
+  },
+  "home": {
+    "dailyGoals": "Daily Goals",
+    "overallProgress": "Overall Progress",
+    "goals": {
+      "quranReading": "Quran Reading",
+      "prayers": "Prayers",
+      "dhikr": "Dhikr"
+    },
+    "modules": {
+      "quran": "Holy Quran",
+      "quranDesc": "Read and study the Holy Quran",
+      "prayerLearning": "Prayer Learning",
+      "prayerLearningDesc": "Step-by-step prayer lessons",
+      "booksDesc": "Islamic Library",
+      "nashidsDesc": "Islamic chants",
+      "qiblaCompass": "Qibla Compass",
+      "qiblaCompassDesc": "Find prayer direction",
+      "prayerTimes": "Prayer Times",
+      "prayerTimesDesc": "Calendar and notifications"
+    }
+  },
+  "qibla": {
+    "detectingLocation": "Detecting your location...",
+    "compassAccess": "Compass Access",
+    "compassAccessDesc": "To determine the Qibla direction, we need access to your device's compass",
+    "enableCompass": "Enable Compass",
+    "pointingToQibla": "You are pointing to Qibla!",
+    "lowAccuracy": "Low compass accuracy. Perform calibration:",
+    "calibrationInstructions": "Move your device in a figure-8 pattern",
+    "resetCalibration": "Reset Calibration",
+    "kmToMecca": "km to Mecca",
+    "accuracy": "Accuracy: ±{{accuracy}}°",
+    "qiblaDirection": "Qibla Direction",
+    "yourHeading": "Your Heading",
+    "turnTo": "Turn to",
+    "right": "right ↻",
+    "left": "left ↺",
+    "legend": "Legend:",
+    "yourDevice": "Your device (static)",
+    "north": "North (rotates with compass)",
+    "meccaDirection": "Direction to Mecca 🕋"
+  },
+  "update": {
+    "available": "Update Available",
+    "description": "A new version of the app is ready. Update to get the latest improvements and fixes.",
+    "updateNow": "Update Now"
   }
 }
